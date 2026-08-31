@@ -110,9 +110,10 @@ namespace Minigame::Components
                     }
                     if (Vector2LengthSqr(direction) > 0.0f)
                     {
+                        const float finalMoveSpeed = GetFinalMoveSpeed();
                         direction = Vector2Normalize(direction);
-                        position.x += direction.x * moveSpeed * deltaTime;
-                        position.y += direction.y * moveSpeed * deltaTime;
+                        position.x += direction.x * finalMoveSpeed * deltaTime;
+                        position.y += direction.y * finalMoveSpeed * deltaTime;
 
                         transform->SetPosition(position);
 

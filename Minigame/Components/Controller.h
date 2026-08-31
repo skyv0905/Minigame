@@ -28,7 +28,11 @@ namespace Minigame::Components
 		void SetBulletTint(Color color);
 		void SetFireCooldown(float cooldown);
 		void SetAttackPower(float power);
-		float GetAttackPower() const;
+
+		float GetFinalMoveSpeed() const;
+		float GetFinalBulletSpeed() const;
+		float GetFinalBulletDistance() const;
+		float GetFinalAttackPower() const;
 
 	protected:
 		GameServices& gameServices;
@@ -50,6 +54,11 @@ namespace Minigame::Components
 		float fireCooldown = 0.15f;
 
 		float attackPower = 10.0f;
+
+		float moveSpeedMultiplier = 1.0f;
+		float bulletSpeedMultiplier = 1.0f;
+		float bulletDistanceMultiplier = 1.0f;
+		float attackPowerMultiplier = 1.0f;
 
 		bool isOnRegen = false;
 		bool isHit = false;

@@ -31,9 +31,10 @@ namespace Minigame::Components
         Vector2 direction = gameServices.input.GetMoveAxis();
         if (!(direction.x == 0.0f && direction.y == 0.0f))
         {
+            const float finalMoveSpeed = GetFinalMoveSpeed();
             Vector2 position = transform->GetPosition();
-            position.x += direction.x * moveSpeed * deltaTime;
-            position.y += direction.y * moveSpeed * deltaTime;
+            position.x += direction.x * finalMoveSpeed * deltaTime;
+            position.y += direction.y * finalMoveSpeed * deltaTime;
 
             transform->SetPosition(position);
 
@@ -106,46 +107,53 @@ namespace Minigame::Components
     {
         if (powerUp.ContainsTag("incSpeed"))
         {
-            moveSpeed *= 1.1f;
-            moveSpeed = std::min(moveSpeed, 700.0f);
+            moveSpeedMultiplier += 0.25f;
 			if (playerMessage) playerMessage->Show("이동 속도 증가");
         }
         if (powerUp.ContainsTag("incAttackPower"))
         {
-            attackPower += 5.0f;
+            attackPowerMultiplier += 0.05f;
 			if (playerMessage) playerMessage->Show("공격력 증가");
         }
         if (powerUp.ContainsTag("incAttackSpeed"))
         {
-            fireCooldown *= 0.82f;
-            fireCooldown = std::max(fireCooldown, 0.1f);
-			if (playerMessage) playerMessage->Show("공격 속도 증가");
+            if (fireCooldown > 0.1f)
+            {
+                fireCooldown *= 0.82f;
+                fireCooldown = std::max(fireCooldown, 0.1f);
+                attackPowerMultiplier -= 0.05f;
+                attackPowerMultiplier = std::max(attackPowerMultiplier, 0.1f);
+                if (playerMessage) playerMessage->Show("공격 속도 증가");
+            }
+            else
+            {
+                if (playerMessage) playerMessage->Show("최대 공격 속도");
+            }
         }
         if (powerUp.ContainsTag("incBulletDistance"))
         {
-            bulletDistance *= 1.1f;
+            bulletDistanceMultiplier += 0.3f;
 			if (playerMessage) playerMessage->Show("사거리 증가");
         }
         if (powerUp.ContainsTag("incBulletSpeed"))
         {
-            bulletSpeed *= 1.1f;
-            bulletSpeed = std::min(bulletSpeed, 900.0f);
+            bulletSpeedMultiplier += 0.4f;
 			if (playerMessage) playerMessage->Show("발사체 속도 증가");
         }
-        if (powerUp.ContainsTag("heal20"))
+        if (powerUp.ContainsTag("heal1"))
         {
             if (health)
             {
-                health->Heal(0.2f);
-				if (playerMessage) playerMessage->Show("체력 20% 회복");
+                health->Heal(0.15f);
+				if (playerMessage) playerMessage->Show("체력 15% 회복");
             }
         }
-        if (powerUp.ContainsTag("heal40"))
+        if (powerUp.ContainsTag("heal2"))
         {
             if (health)
             {
-                health->Heal(0.4f);
-				if (playerMessage) playerMessage->Show("체력 40% 회복");
+                health->Heal(0.3f);
+				if (playerMessage) playerMessage->Show("체력 30% 회복");
             }
         }
         gameServices.sounds.Play("UseShopItem.mp3");

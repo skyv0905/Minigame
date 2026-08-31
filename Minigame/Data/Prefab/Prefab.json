@@ -611,7 +611,7 @@
     "tags":
     [
       "PowerUp",
-      "heal20"
+      "heal1"
     ]
   },
   "PowerUp9":
@@ -645,7 +645,7 @@
     "tags":
     [
       "PowerUp",
-      "heal40"
+      "heal2"
     ]
   }
 }

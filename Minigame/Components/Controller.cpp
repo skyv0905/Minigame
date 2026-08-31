@@ -62,9 +62,24 @@ namespace Minigame::Components
         attackPower = power;
     }
 
-    float Controller::GetAttackPower() const
+    float Controller::GetFinalMoveSpeed() const
     {
-        return attackPower;
+        return std::min(moveSpeed * moveSpeedMultiplier, 700.0f);
+    }
+
+    float Controller::GetFinalBulletSpeed() const
+    {
+        return std::min(bulletSpeed * bulletSpeedMultiplier, 900.0f);
+    }
+
+    float Controller::GetFinalBulletDistance() const
+    {
+        return bulletDistance * bulletDistanceMultiplier;
+    }
+
+    float Controller::GetFinalAttackPower() const
+    {
+        return attackPower * attackPowerMultiplier;
     }
 
     void Controller::Fire()
@@ -93,9 +108,9 @@ namespace Minigame::Components
 			{
 				bulletComponent->SetCreatedFromInfo(CreatedFromInfo::Mob);
 			}
-			bulletComponent->SetAttackPower(attackPower);
-            bulletComponent->SetMaxDistance(bulletDistance);
-            bulletComponent->SetMoveSpeed(bulletSpeed);
+			bulletComponent->SetAttackPower(GetFinalAttackPower());
+            bulletComponent->SetMaxDistance(GetFinalBulletDistance());
+            bulletComponent->SetMoveSpeed(GetFinalBulletSpeed());
             bulletComponent->SetDirection(forward);
         }
 

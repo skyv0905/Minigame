@@ -75,6 +75,7 @@ namespace Minigame::Components
 		const StageInfo* GetCurrentStage() const;
 
 		void OnStageEnded();
+		void OnGameCleared();
 	};
 }
 

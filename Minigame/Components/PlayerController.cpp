@@ -1,5 +1,6 @@
 #include "PlayerController.h"
 #include "Bullet.h"
+#include "TextUI.h"
 #include "../GameServices.h"
 #include "../GameSession.h"
 #include "../InputManager.h"
@@ -139,8 +140,15 @@ namespace Minigame::Components
 
         owner.GetScene().Instantiate("RestartButton");
         owner.GetScene().Instantiate("MainMenuButton");
+        if (GameObject* textUIGameObject = owner.GetScene().Instantiate("TextUI"))
+        {
+            if (TextUI* textUI = textUIGameObject->GetComponent<TextUI>())
+            {
+                textUI->SetText("저런...");
+            }
+        }
 
-        gameServices.session.SetGameState(GameState::GameClear);
+        gameServices.session.SetGameState(GameState::GameOver);
     }
 
     void PlayerController::OnPowerUpCollected(const GameObject& powerUp)

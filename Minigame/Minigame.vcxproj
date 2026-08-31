@@ -175,6 +175,7 @@
     <ClCompile Include="Components\PlayerMessage.cpp" />
     <ClCompile Include="Components\PlayerStatsUI.cpp" />
     <ClCompile Include="Components\SpriteRenderer.cpp" />
+    <ClCompile Include="Components\TextUI.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Components\PlayerMessage.h" />
     <ClInclude Include="Components\PlayerStatsUI.h" />
     <ClInclude Include="Components\SpriteRenderer.h" />
+    <ClInclude Include="Components\TextUI.h" />
     <ClInclude Include="Components\Transform.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />

@@ -114,6 +114,9 @@
     <ClCompile Include="Components\HealthBar.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Components\TextUI.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -210,6 +213,9 @@
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\HealthBar.h">
+      <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\TextUI.h">
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>

@@ -652,6 +652,30 @@
       "heal2"
     ]
   },
+  "TextUI":
+  {
+    "name": "TextUI",
+    "zOrder": 2000,
+    "components":
+    [
+      {
+        "type": "Transform",
+        "position":
+        {
+          "x": 683,
+          "y": 330
+        },
+        "rotation": 0,
+        "scale": 1
+      },
+      {
+        "type": "TextUI",
+        "text": "",
+        "font": "Maplestory Bold.ttf",
+        "fontSize": 50
+      }
+    ]
+  },
   "RestartButton":
   {
     "name": "RestartButton",
@@ -662,7 +686,7 @@
         "position":
         {
           "x": 583,
-          "y": 300
+          "y": 500
         },
         "rotation": 0,
         "scale": 1
@@ -694,7 +718,7 @@
         "position":
         {
           "x": 583,
-          "y": 380
+          "y": 580
         },
         "rotation": 0,
         "scale": 1

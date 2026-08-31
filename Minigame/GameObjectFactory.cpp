@@ -19,6 +19,7 @@
 #include "Components/Bullet.h"
 #include "Components/MapBuilder.h"
 #include "Components/Button.h"
+#include "Components/TextUI.h"
 #include "JsonUtils.h"
 #include <fstream>
 
@@ -350,6 +351,49 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                 }
                 component.AddStageInfo(stage, { spawnCount, nextSpawnCooldown, powerUpCount, std::move(mobs) });
             }
+        }
+    }
+    else if (type == "TextUI")
+    {
+        auto& component = gameObject.AddComponent<Minigame::Components::TextUI>();
+
+        component.SetText(componentData.value("text", ""));
+
+        const float fontSize = componentData.value("fontSize", 50.0f);
+        component.SetFontSize(fontSize);
+
+        const std::string fontKey = componentData.value("font", "Maplestory Bold.ttf");
+        if (const auto* font = gameServices.resources.GetFont(fontKey, static_cast<int>(fontSize)))
+        {
+            component.SetFont(*font);
+        }
+
+        if (componentData.contains("textColor"))
+        {
+            const auto& colorData = componentData.at("textColor");
+            Color textColor
+            {
+                static_cast<unsigned char>(colorData.value("r", 0)),
+                static_cast<unsigned char>(colorData.value("g", 0)),
+                static_cast<unsigned char>(colorData.value("b", 0)),
+                static_cast<unsigned char>(colorData.value("a", 255))
+            };
+
+            component.SetTextColor(textColor);
+        }
+
+        if (componentData.contains("backgroundColor"))
+        {
+            const auto& colorData = componentData.at("backgroundColor");
+            Color backGroundColor
+            {
+                static_cast<unsigned char>(colorData.value("r", 0)),
+                static_cast<unsigned char>(colorData.value("g", 0)),
+                static_cast<unsigned char>(colorData.value("b", 0)),
+                static_cast<unsigned char>(colorData.value("a", 0))
+            };
+
+            component.SetBackgroundColor(backGroundColor);
         }
     }
     else if (type == "Button")

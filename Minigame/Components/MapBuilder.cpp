@@ -1,6 +1,7 @@
 #include "MapBuilder.h"
 #include "SpriteRenderer.h"
 #include "Collider.h"
+#include "TextUI.h"
 #include "../GameServices.h"
 #include "../ResourceManager.h"
 #include "../GameSession.h"
@@ -284,11 +285,26 @@ namespace Minigame::Components
 		gameServices.session.NextStage();
 		if (GetCurrentStage() == nullptr) // stage end
 		{
-			gameServices.session.SetGameState(GameState::GameClear);
+			OnGameCleared();
 		}
 		else // goto next stage
 		{
 			SpawnMobAndPowerUps();
 		}
+	}
+
+	void MapBuilder::OnGameCleared()
+	{
+		owner.GetScene().Instantiate("RestartButton");
+		owner.GetScene().Instantiate("MainMenuButton");
+		if (GameObject* textUIGameObject = owner.GetScene().Instantiate("TextUI"))
+		{
+			if (TextUI* textUI = textUIGameObject->GetComponent<TextUI>())
+			{
+				textUI->SetText("모든 스테이지 클리어!");
+			}
+		}
+
+		gameServices.session.SetGameState(GameState::GameClear);
 	}
 }

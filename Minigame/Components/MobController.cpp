@@ -48,24 +48,24 @@ namespace Minigame::Components
             }
             return;
         }
+        if (isDead)
+        {
+            if (!animator || animator->IsFinished())
+            {
+                owner.GetScene().DestroyGameObject(owner);
+            }
+            return;
+        }
         if (isHit)
         {
             if (!animator || animator->IsFinished())
             {
-                if (health && health->IsDead())
+                isHit = false;
+                if (animator)
                 {
-                    owner.GetScene().DestroyGameObject(owner);
-                }
-                else
-                {
-                    isHit = false;
-                    if (animator)
-                    {
-                        animator->PlayDefaultState();
-                    }
+                    animator->PlayDefaultState();
                 }
             }
-            return;
         }
 
         if (transform == nullptr)
@@ -81,7 +81,7 @@ namespace Minigame::Components
         auto* targetTransform = target->GetComponent<Minigame::Components::Transform>();
         bool targetDetected = false;
 
-        if (targetTransform && !isHit)
+        if (targetTransform)
         {
             Vector2 position = transform->GetPosition();
             Vector2 targetPosition = targetTransform->GetPosition();
@@ -89,39 +89,42 @@ namespace Minigame::Components
             Vector2 direction = Vector2Subtract(targetPosition, position);
             float distanceSquare = Vector2LengthSqr(direction);
             targetDetected = distanceSquare <= detectionRangeSquare;
-            if (targetDetected)
+            if (!isHit)
             {
-                if (spriteRenderer)
+                if (targetDetected)
                 {
-                    if (direction.x > 0)
+                    if (spriteRenderer)
                     {
-                        spriteRenderer->SetFlipX(true);
+                        if (direction.x > 0)
+                        {
+                            spriteRenderer->SetFlipX(true);
+                        }
+                        else
+                        {
+                            spriteRenderer->SetFlipX(false);
+                        }
                     }
-                    else
+                    if (animator)
                     {
-                        spriteRenderer->SetFlipX(false);
+                        animator->Play(owner.GetName() + "_Move");
+                    }
+                    if (Vector2LengthSqr(direction) > 0.0f)
+                    {
+                        direction = Vector2Normalize(direction);
+                        position.x += direction.x * moveSpeed * deltaTime;
+                        position.y += direction.y * moveSpeed * deltaTime;
+
+                        transform->SetPosition(position);
+
+                        forward = direction;
                     }
                 }
-                if (animator)
+                else
                 {
-                    animator->Play(owner.GetName() + "_Move");
-                }
-                if (Vector2LengthSqr(direction) > 0.0f)
-                {
-                    direction = Vector2Normalize(direction);
-                    position.x += direction.x * moveSpeed * deltaTime;
-                    position.y += direction.y * moveSpeed * deltaTime;
-
-                    transform->SetPosition(position);
-
-                    forward = direction;
-                }
-            }
-            else
-            {
-                if (animator)
-                {
-                    animator->Play(owner.GetName() + "_Stand");
+                    if (animator)
+                    {
+                        animator->Play(owner.GetName() + "_Stand");
+                    }
                 }
             }
         }
@@ -170,6 +173,7 @@ namespace Minigame::Components
                         gameServices.sounds.Play(owner.GetName() + "_Die.mp3");
                     }
                     DisableCollider();
+                    isDead = true;
                 }
                 else
                 {

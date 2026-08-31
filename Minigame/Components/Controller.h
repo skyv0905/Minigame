@@ -53,6 +53,7 @@ namespace Minigame::Components
 
 		bool isOnRegen = false;
 		bool isHit = false;
+		bool isDead = false;
 
 		virtual void Fire();
 		void OnFireCooldownEnd();

@@ -67,9 +67,6 @@ namespace Minigame::Components
 
 		std::vector<std::string> powerUps;
 
-		bool isGameOver = false;
-		bool isGameCleared = false;
-
 		void SpawnWall(float x, float y);
 
 		void SpawnMobAndPowerUps();

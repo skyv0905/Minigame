@@ -37,7 +37,7 @@ namespace Minigame::Components
 			return;
 		}
 
-		if (!isGameCleared && owner.GetScene().FindGameObjectWithTag("Mob") == nullptr)
+		if (gameServices.session.GetGameState() == GameState::GamePlaying && owner.GetScene().FindGameObjectWithTag("Mob") == nullptr)
 		{
 			gameServices.timer.Cancel(mobSpawnTimer);
 			OnStageEnded();
@@ -284,7 +284,7 @@ namespace Minigame::Components
 		gameServices.session.NextStage();
 		if (GetCurrentStage() == nullptr) // stage end
 		{
-			isGameCleared = true;
+			gameServices.session.SetGameState(GameState::GameClear);
 		}
 		else // goto next stage
 		{

@@ -4,7 +4,7 @@
 
 Game::Game() : musicPlayer(resourceManager),
     soundPlayer(resourceManager),
-    gameServices{ resourceManager, musicPlayer, soundPlayer, inputManager, timerManager, randomManager, gameSession },
+    gameServices{ resourceManager, musicPlayer, soundPlayer, inputManager, timerManager, randomManager, gameSession, idGenerator },
     sceneManager(gameServices)
 {
 }

@@ -120,6 +120,17 @@ GameObject* Scene::FindGameObjectWithTag(const std::string& tag)
     return nullptr;;
 }
 
+GameObject* Scene::FindGameObjectByID(GameObjectID id)
+{
+    auto it = gameObjectsByID.find(id);
+    if (it != gameObjectsByID.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 void Scene::CheckCollisions()
 {
     for (size_t i = 0; i < colliders.size(); i++)
@@ -159,10 +170,14 @@ void Scene::FlushPendingGameObjects()
 {
     for (auto& gameObject : pendingGameObjects)
     {
+        //std::cout << "Added Game Object: " << gameObject->GetName() << "\n";
+
         if (auto* collider = gameObject->GetComponent<Minigame::Components::Collider>())
         {
             colliders.push_back(collider);
         }
+        gameObjectsByID.emplace(gameObject->GetID(), gameObject.get());
+
         gameObject->Awake();
         gameObject->Start();
         gameObjects.push_back(std::move(gameObject));
@@ -178,6 +193,7 @@ void Scene::FlushPendingGameObjects()
             std::erase(colliders, collider);
         }
 
+        gameObjectsByID.erase(gameObject->GetID());
         std::erase_if(gameObjects, [gameObject](const auto& object)
             {
                 return object.get() == gameObject;

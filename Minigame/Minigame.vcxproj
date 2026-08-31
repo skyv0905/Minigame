@@ -180,6 +180,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="GameSession.cpp" />
+    <ClCompile Include="IDGenerator.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="GameServices.h" />
     <ClInclude Include="GameSession.h" />
+    <ClInclude Include="IDGenerator.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="JsonUtils.h" />
     <ClInclude Include="MusicPlayer.h" />

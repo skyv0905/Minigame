@@ -8,6 +8,7 @@
 #include "GameSession.h"
 #include "GameServices.h"
 #include "RandomManager.h"
+#include "IDGenerator.h"
 
 class Game
 {
@@ -24,6 +25,7 @@ private:
 	TimerManager timerManager;
 	RandomManager randomManager;
 	GameSession gameSession;
+	IDGenerator idGenerator;
 	GameServices gameServices;
 
 	SceneManager sceneManager;

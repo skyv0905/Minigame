@@ -1,7 +1,7 @@
 #include "GameObject.h"
 #include "Components/Collider.h"
 
-GameObject::GameObject(Scene& scene, const std::string& name) : scene(scene), name(name)
+GameObject::GameObject(Scene& scene, GameObjectID id, const std::string& name) : scene(scene), id(id), name(name)
 {
 }
 
@@ -48,6 +48,11 @@ void GameObject::DrawUI()
 const std::string& GameObject::GetName() const
 {
     return name;
+}
+
+GameObjectID GameObject::GetID() const
+{
+    return id;
 }
 
 int GameObject::GetZOrder() const

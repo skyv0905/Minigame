@@ -7,6 +7,7 @@ class InputManager;
 class TimerManager;
 class RandomManager;
 class GameSession;
+class IDGenerator;
 
 struct GameServices
 {
@@ -17,6 +18,7 @@ struct GameServices
     TimerManager& timer;
     RandomManager& random;
     GameSession& session;
+    IDGenerator& idGenerator;
 
     bool debugMode = false;
 };

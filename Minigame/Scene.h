@@ -3,8 +3,10 @@
 #include <memory>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include "GameServices.h"
 #include "GameObject.h"
+#include "IDGenerator.h"
 #include "Components/Collider.h"
 
 struct GameServices;
@@ -28,6 +30,7 @@ public:
 
 	GameObject* FindGameObject(const std::string& name);
 	GameObject* FindGameObjectWithTag(const std::string& name);
+	GameObject* FindGameObjectByID(GameObjectID id);
 
 private:
 	GameServices& gameServices;
@@ -40,6 +43,7 @@ private:
 	std::vector<std::unique_ptr<GameObject>> pendingGameObjects;
 	std::unordered_set<GameObject*> pendingDestroyGameObjects;
 	std::vector<Minigame::Components::Collider*> colliders;
+	std::unordered_map<GameObjectID, GameObject*> gameObjectsByID;
 
 	void CheckCollisions();
 	void FlushPendingGameObjects();

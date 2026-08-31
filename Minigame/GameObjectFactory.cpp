@@ -3,6 +3,7 @@
 #include "GameServices.h"
 #include "SceneManager.h"
 #include "GameSession.h"
+#include "IDGenerator.h"
 #include "ResourceManager.h"
 #include "Components/Transform.h"
 #include "Components/SpriteRenderer.h"
@@ -40,7 +41,10 @@ std::unique_ptr<GameObject> GameObjectFactory::CreatePrefab(Scene& scene, const 
 
 std::unique_ptr<GameObject> GameObjectFactory::Create(Scene& scene, const json& gameObjectData)
 {
-    auto gameObject = std::make_unique<GameObject>(scene, gameObjectData.at("name").get<std::string>());
+    auto gameObject = std::make_unique<GameObject>(
+        scene,
+        gameServices.idGenerator.Generate(),
+        gameObjectData.at("name").get<std::string>());
     gameObject->SetZOrder(gameObjectData.value("zOrder", 0));
 
     if (gameObjectData.contains("tags"))

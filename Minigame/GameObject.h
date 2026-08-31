@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "Components/Component.h"
+#include "IDGenerator.h"
 
 class Scene;
 struct CollisionInfo;
@@ -14,7 +15,7 @@ struct CollisionInfo;
 class GameObject
 {
 public:
-    explicit GameObject(Scene& scene, const std::string& name);
+    GameObject(Scene& scene, GameObjectID id, const std::string& name);
     virtual ~GameObject() = default;
 
     virtual void Awake();
@@ -24,6 +25,7 @@ public:
     virtual void DrawUI();
 
     const std::string& GetName() const;
+    GameObjectID GetID() const;
     int GetZOrder() const;
     void SetZOrder(int zOrder);
     Scene& GetScene();
@@ -41,6 +43,7 @@ public:
 
 private:
     Scene& scene;
+    GameObjectID id;
     std::string name;
     int zOrder = 0;
 

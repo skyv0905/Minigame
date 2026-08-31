@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <algorithm>
 
 SceneManager::SceneManager(GameServices& gameServices) : gameServices(gameServices), gameObjectFactory(gameServices, *this), sceneLoader(gameServices, gameObjectFactory)
 {
@@ -11,7 +12,7 @@ void SceneManager::Update(float deltaTime)
 		currentScene->Update(deltaTime);
 	}
 
-	ApplyPendingReload();
+	ApplyPendingSceneChange();
 }
 
 void SceneManager::Draw()
@@ -24,50 +25,47 @@ void SceneManager::Draw()
 
 void SceneManager::LoadScenes()
 {
-	scenes = sceneLoader.Load();
+	sceneInfos = sceneLoader.LoadSceneInfos();
 }
 
 void SceneManager::SelectScene(int index)
 {
-	if (index >= 0 && index < scenes.size())
-	{
-		currentSceneSlot = index;
-		currentScene = scenes[index].get();
-		if (currentScene)
+	const auto sceneInfo = std::find_if(sceneInfos.begin(), sceneInfos.end(), [index](const SceneInfo& info)
 		{
-			currentScene->Start();
-		}
+			return info.index == index;
+		});
+
+	if (sceneInfo != sceneInfos.end())
+	{
+		pendingSceneIndex = index;
 	}
 }
 
 void SceneManager::ReloadCurrentScene()
 {
-	ReloadScene(currentSceneSlot);
+	SelectScene(currentSceneIndex);
 }
 
-void SceneManager::ReloadScene(int index)
+void SceneManager::ApplyPendingSceneChange()
 {
-	if (index >= 0 && index < scenes.size())
-	{
-		reloadSceneSlot = index;
-	}
-}
-
-void SceneManager::ApplyPendingReload()
-{
-	if (reloadSceneSlot < 0 || reloadSceneSlot >= scenes.size())
+	if (pendingSceneIndex < 0)
 		return;
 
-	const int sceneSlot = reloadSceneSlot;
-	reloadSceneSlot = -1;
+	const int sceneIndex = pendingSceneIndex;
+	pendingSceneIndex = -1;
 
-	const SceneInfo info{ scenes[sceneSlot]->GetName(), scenes[sceneSlot]->GetIndex() };
-	auto reloadedScene = sceneLoader.LoadScene(info);
-	if (!reloadedScene)
+	const auto sceneInfo = std::find_if(sceneInfos.begin(), sceneInfos.end(), [sceneIndex](const SceneInfo& info)
+		{
+			return info.index == sceneIndex;
+		});
+	if (sceneInfo == sceneInfos.end())
 		return;
 
-	scenes[sceneSlot] = std::move(reloadedScene);
-	currentSceneSlot = sceneSlot;
-	currentScene = scenes[sceneSlot].get();
+	auto loadedScene = sceneLoader.LoadScene(*sceneInfo);
+	if (!loadedScene)
+		return;
+
+	currentScene = std::move(loadedScene);
+	currentSceneIndex = sceneIndex;
 	currentScene->Start();
 }

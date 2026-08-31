@@ -50,7 +50,7 @@
           "fontSize": 24,
           "onClick":
           {
-            "func": "ReloadScene",
+            "func": "SelectScene",
             "value": 1
           }
         }

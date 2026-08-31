@@ -348,14 +348,6 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                             sceneManager.SelectScene(sceneNum);
                         });
                 }
-                else if (func == "ReloadScene")
-                {
-                    int sceneNum = onClickData.value("value", 0);
-                    component.SetOnClick([this, sceneNum]()
-                        {
-                            sceneManager.ReloadScene(sceneNum);
-                        });
-                }
                 else if (func == "RestartGame")
                 {
                     component.SetOnClick([this]()

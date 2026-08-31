@@ -15,7 +15,6 @@ public:
 
     void LoadScenes();
     void SelectScene(int index);
-    void ReloadScene(int index);
     void ReloadCurrentScene();
 
 private:
@@ -23,12 +22,12 @@ private:
     GameObjectFactory gameObjectFactory;
     SceneLoader sceneLoader;
 
-    Scene* currentScene = nullptr;
-    std::vector<std::unique_ptr<Scene>> scenes;
+    std::unique_ptr<Scene> currentScene;
+    std::vector<SceneInfo> sceneInfos;
 
-    int currentSceneSlot = -1;
-    int reloadSceneSlot = -1;
+    int currentSceneIndex = -1;
+    int pendingSceneIndex = -1;
 
-    void ApplyPendingReload();
+    void ApplyPendingSceneChange();
 };
 

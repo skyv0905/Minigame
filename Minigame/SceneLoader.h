@@ -16,7 +16,7 @@ class SceneLoader
 public:
     SceneLoader(GameServices& gameServices, GameObjectFactory& gameObjectFactory);
 
-    std::vector<std::unique_ptr<Scene>> Load();
+    std::vector<SceneInfo> LoadSceneInfos();
     std::unique_ptr<Scene> LoadScene(const SceneInfo& info);
 
 private:

@@ -12,19 +12,18 @@ SceneLoader::SceneLoader(GameServices& gameServices, GameObjectFactory& gameObje
 {
 }
 
-std::vector<std::unique_ptr<Scene>> SceneLoader::Load()
+std::vector<SceneInfo> SceneLoader::LoadSceneInfos()
 {
-    std::vector<std::unique_ptr<Scene>> loadedScenes;
+    std::vector<SceneInfo> sceneInfos;
     std::ifstream file(std::string(GetApplicationDirectory()) + "Data/Scene/SceneList.json");
-    std::cout << "Loading Scenes...\n";
+    std::cout << "Loading Scene Infos...\n";
 
     if (!file.is_open())
-        return loadedScenes;
+        return sceneInfos;
 
     json data;
     file >> data;
 
-    std::vector<SceneInfo> toLoadScenes;
     for (const auto& sceneJson : data.at("scenes"))
     {
         SceneInfo info
@@ -32,30 +31,15 @@ std::vector<std::unique_ptr<Scene>> SceneLoader::Load()
             sceneJson.at("name").get<std::string>(),
             sceneJson.at("index").get<int>()
         };
-        toLoadScenes.push_back(info);
+        sceneInfos.push_back(std::move(info));
     }
 
-    sort(toLoadScenes.begin(), toLoadScenes.end(), [](const auto& a, const auto& b)
+    sort(sceneInfos.begin(), sceneInfos.end(), [](const auto& a, const auto& b)
         {
             return a.index < b.index;
         });
 
-    for (const auto& info : toLoadScenes)
-    {
-        std::cout << "  Scene " + std::to_string(info.index) + ": " + info.name + "...\n";
-        auto scene = LoadScene(info);
-        if (scene)
-        {
-            loadedScenes.push_back(std::move(scene));
-            std::cout << "  ...succeeded\n";
-        }
-        else
-        {
-            std::cout << "  ...failed\n";
-        }
-    }
-
-    return loadedScenes;
+    return sceneInfos;
 }
 
 std::unique_ptr<Scene> SceneLoader::LoadScene(const SceneInfo& info)

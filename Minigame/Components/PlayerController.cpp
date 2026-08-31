@@ -83,23 +83,28 @@ namespace Minigame::Components
         }
         else if (info.other.ContainsTag("Bullet"))
         {
-			auto* bullet = info.other.GetComponent<Bullet>();
-			if (bullet && bullet->GetCreatedFromInfo() == CreatedFromInfo::Mob)
+            if (auto* bullet = info.other.GetComponent<Bullet>())
             {
-                bool dead = false;
-                if (health)
+                if (auto* bulletFrom = owner.GetScene().FindGameObjectByID(bullet->GetCreatedFrom()))
                 {
-					health->Hit(bullet->GetAttackPower());
-                    dead = health->IsDead();
-                }
-                gameServices.sounds.Play("Hit.mp3");
-                if (dead)
-                {
+                    if (bulletFrom->ContainsTag("Mob"))
+                    {
+                        bool dead = false;
+                        if (health)
+                        {
+                            health->Hit(bullet->GetAttackPower());
+                            dead = health->IsDead();
+                        }
+                        gameServices.sounds.Play("Hit.mp3");
+                        if (dead)
+                        {
 
-                }
-                else
-                {
+                        }
+                        else
+                        {
 
+                        }
+                    }
                 }
             }
         }

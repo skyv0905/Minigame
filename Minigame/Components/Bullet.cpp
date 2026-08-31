@@ -56,8 +56,10 @@ namespace Minigame::Components
 			return;
 		}
 
-		if ((createdFromInfo == CreatedFromInfo::Player && info.other.ContainsTag("Player")) ||
-			(createdFromInfo == CreatedFromInfo::Mob && info.other.ContainsTag("Mob")))
+		GameObject* from = owner.GetScene().FindGameObjectByID(createdFrom);
+		if (from &&
+			((from->ContainsTag("Player") && info.other.ContainsTag("Player")) ||
+			(from->ContainsTag("Mob") && info.other.ContainsTag("Mob"))))
 		{
 			return;
 		}
@@ -92,14 +94,14 @@ namespace Minigame::Components
 		InitRotation();
 	}
 
-	void Bullet::SetCreatedFromInfo(CreatedFromInfo info)
+	void Bullet::SetCreatedFrom(GameObjectID id)
 	{
-		createdFromInfo = info;
+		createdFrom = id;
 	}
 
-	CreatedFromInfo Bullet::GetCreatedFromInfo() const
+	GameObjectID Bullet::GetCreatedFrom() const
 	{
-		return createdFromInfo;
+		return createdFrom;
 	}
 
 	void Bullet::SetAttackPower(float power)

@@ -135,9 +135,9 @@
           "b": 215,
           "a": 255
         },
-        "fireCooldown": 5,
-        "attackPower": 1,
-        "detectionRange": 200,
+        "fireCooldown": 4,
+        "attackPower": 2,
+        "detectionRange": 240,
         "exp": 15
       },
       {
@@ -212,9 +212,9 @@
           "b": 110,
           "a": 255
         },
-        "fireCooldown": 3,
-        "attackPower": 3,
-        "detectionRange": 240,
+        "fireCooldown": 2,
+        "attackPower": 4,
+        "detectionRange": 280,
         "exp": 30
       },
       {
@@ -291,7 +291,7 @@
         },
         "fireCooldown": 1,
         "attackPower": 7,
-        "detectionRange": 400,
+        "detectionRange": 410,
         "exp": 60
       },
       {
@@ -366,9 +366,9 @@
           "b": 105,
           "a": 255
         },
-        "fireCooldown": 10,
+        "fireCooldown": 5,
         "attackPower": 25,
-        "detectionRange": 220,
+        "detectionRange": 530,
         "exp": 80
       },
       {

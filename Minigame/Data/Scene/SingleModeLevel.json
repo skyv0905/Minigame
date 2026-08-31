@@ -245,9 +245,9 @@
         },
         {
           "type": "PlayerController",
-          "speed": 200,
-          "bulletSpeed": 300,
-          "bulletDistance": 250,
+          "speed": 150,
+          "bulletSpeed": 250,
+          "bulletDistance": 200,
           "bulletPrefab": "Bullet",
           "bulletTint":
           {

@@ -3,6 +3,7 @@
 #include "Animator.h"
 #include "SpriteRenderer.h"
 #include "Bullet.h"
+#include "Exp.h"
 #include "../GameServices.h"
 #include "../SoundPlayer.h"
 #include "../Scene.h"
@@ -156,34 +157,43 @@ namespace Minigame::Components
         }
         else if (info.other.ContainsTag("Bullet"))
         {
-			auto* bullet = info.other.GetComponent<Bullet>();
-			if (bullet && bullet->GetCreatedFromInfo() == CreatedFromInfo::Player)
+            if (auto* bullet = info.other.GetComponent<Bullet>())
             {
-                isHit = true;
-                bool dead = false;
-                if (health)
+                if (auto* bulletFrom = owner.GetScene().FindGameObjectByID(bullet->GetCreatedFrom()))
                 {
-					health->Hit(bullet->GetAttackPower());
-                    dead = health->IsDead();
-                }
-                if (dead)
-                {
-                    if (animator)
+                    if (bulletFrom->ContainsTag("Player"))
                     {
-                        animator->Play(owner.GetName() + "_Die");
-                        gameServices.sounds.Play(owner.GetName() + "_Die.mp3");
-                    }
-                    DisableCollider();
-                    isDead = true;
-                }
-                else
-                {
-                    if (animator)
-                    {
-                        animator->Play(owner.GetName() + "_Hit", true);
-                    }
-                    gameServices.sounds.Play(owner.GetName() + "_Hit.mp3");
+                        isHit = true;
+                        bool dead = false;
+                        if (health)
+                        {
+                            health->Hit(bullet->GetAttackPower());
+                            dead = health->IsDead();
+                        }
+                        if (dead)
+                        {
+                            if (animator)
+                            {
+                                animator->Play(owner.GetName() + "_Die");
+                                gameServices.sounds.Play(owner.GetName() + "_Die.mp3");
+                            }
+                            DisableCollider();
+                            if (Exp* bulletFromExp = bulletFrom->GetComponent<Exp>())
+                            {
+                                bulletFromExp->AddExp(exp);
+                            }
+                            isDead = true;
+                        }
+                        else
+                        {
+                            if (animator)
+                            {
+                                animator->Play(owner.GetName() + "_Hit", true);
+                            }
+                            gameServices.sounds.Play(owner.GetName() + "_Hit.mp3");
 
+                        }
+                    }
                 }
             }
         }

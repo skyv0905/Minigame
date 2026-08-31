@@ -130,14 +130,7 @@ namespace Minigame::Components
         auto* bulletComponent = bullet->GetComponent<Minigame::Components::Bullet>();
         if (bulletComponent)
         {
-			if (owner.ContainsTag("Player"))
-			{
-				bulletComponent->SetCreatedFromInfo(CreatedFromInfo::Player);
-			}
-			else if (owner.ContainsTag("Mob"))
-			{
-				bulletComponent->SetCreatedFromInfo(CreatedFromInfo::Mob);
-			}
+            bulletComponent->SetCreatedFrom(owner.GetID());
 			bulletComponent->SetAttackPower(GetFinalAttackPower());
             bulletComponent->SetMaxDistance(GetFinalBulletDistance());
             bulletComponent->SetMoveSpeed(GetFinalBulletSpeed());

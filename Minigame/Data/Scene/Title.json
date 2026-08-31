@@ -1,0 +1,60 @@
+{
+  "name": "Title",
+  "bgm": "FloralLife.mp3",
+  "gameObjects":
+  [
+    {
+      "name": "Background",
+      "zOrder": -100,
+      "components":
+      [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 0,
+            "y": 0
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "SpriteRenderer",
+          "texture": "TitleBG.png"
+        }
+      ]
+    },
+    {
+      "name": "StartButton",
+      "zOrder": 100,
+      "components": [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 583,
+            "y": 300
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "Button",
+          "size":
+          {
+            "x": 200,
+            "y": 50
+          },
+          "text": "게임 시작",
+          "font": "Maplestory Bold.ttf",
+          "fontSize": 24,
+          "onClick":
+          {
+            "func": "SelectScene",
+            "value": 1
+          }
+        }
+      ]
+    }
+  ]
+}

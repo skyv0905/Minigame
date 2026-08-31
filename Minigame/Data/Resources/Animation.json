@@ -1,0 +1,1201 @@
+{
+  "objects":
+  [
+    {
+      "name": "Bullet",
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 10
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bullet_Hit",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 90,
+          "origin":
+          {
+            "x": 10,
+            "y": 14
+          }
+        },
+        {
+          "index": 1,
+          "delay": 90,
+          "origin":
+          {
+            "x": 10,
+            "y": 18
+          }
+        },
+        {
+          "index": 2,
+          "delay": 90,
+          "origin":
+          {
+            "x": 13,
+            "y": 24
+          }
+        },
+        {
+          "index": 3,
+          "delay": 90,
+          "origin":
+          {
+            "x": 14,
+            "y": 26
+          }
+        },
+        {
+          "index": 4,
+          "delay": 90,
+          "origin":
+          {
+            "x": 14,
+            "y": 30
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 16,
+            "y": 29
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_1_Stand",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 1,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
+          "index": 2,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 3,
+          "delay": 110,
+          "origin":
+          {
+            "x": 26,
+            "y": 14
+          }
+        },
+        {
+          "index": 4,
+          "delay": 110,
+          "origin":
+          {
+            "x": 27,
+            "y": 15
+          }
+        },
+        {
+          "index": 5,
+          "delay": 110,
+          "origin":
+          {
+            "x": 29,
+            "y": 15
+          }
+        },
+        {
+          "index": 6,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 14
+          }
+        },
+        {
+          "index": 7,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 13
+          }
+        },
+        {
+          "index": 8,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 9,
+          "delay": 110,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_1_Move",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 100,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
+          "index": 2,
+          "delay": 100,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 12
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_1_Hit",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 300,
+          "origin":
+          {
+            "x": 14,
+            "y": 15
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_1_Die",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 120,
+          "origin":
+          {
+            "x": 10,
+            "y": 11
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 14,
+            "y": 11
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 13
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 20,
+            "y": 21
+          }
+        },
+        {
+          "index": 4,
+          "delay": 120,
+          "origin":
+          {
+            "x": 29,
+            "y": 28
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_2_Stand",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 800,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 22
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 27,
+            "y": 24
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "index": 4,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 26
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 6,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 7,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 8,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 9,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 10,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 11,
+          "delay": 120,
+          "origin":
+          {
+            "x": 22,
+            "y": 32
+          }
+        },
+        {
+          "index": 12,
+          "delay": 120,
+          "origin":
+          {
+            "x": 24,
+            "y": 35
+          }
+        },
+        {
+          "index": 13,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 37
+          }
+        },
+        {
+          "index": 14,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_2_Move",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        },
+        {
+          "index": 2,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 23
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_2_Hit",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 300,
+          "origin":
+          {
+            "x": 23,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_2_Die",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 2,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 3,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 4,
+          "delay": 100,
+          "origin":
+          {
+            "x": 30,
+            "y": 28
+          }
+        },
+        {
+          "index": 5,
+          "delay": 110,
+          "origin":
+          {
+            "x": 40,
+            "y": 37
+          }
+        },
+        {
+          "index": 6,
+          "delay": 120,
+          "origin":
+          {
+            "x": 46,
+            "y": 41
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_3_Stand",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 800,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 22
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 27,
+            "y": 24
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "index": 4,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 26
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 6,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 7,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 8,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 9,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 10,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 11,
+          "delay": 120,
+          "origin":
+          {
+            "x": 22,
+            "y": 32
+          }
+        },
+        {
+          "index": 12,
+          "delay": 120,
+          "origin":
+          {
+            "x": 24,
+            "y": 35
+          }
+        },
+        {
+          "index": 13,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 37
+          }
+        },
+        {
+          "index": 14,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_3_Move",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        },
+        {
+          "index": 2,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 23
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_3_Hit",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 300,
+          "origin":
+          {
+            "x": 23,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_3_Die",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 2,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 3,
+          "delay": 100,
+          "origin":
+          {
+            "x": 30,
+            "y": 28
+          }
+        },
+        {
+          "index": 4,
+          "delay": 110,
+          "origin":
+          {
+            "x": 40,
+            "y": 37
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 46,
+            "y": 41
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_4_Stand",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 800,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 22
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 27,
+            "y": 24
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "index": 4,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 26
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 6,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 7,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 8,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 9,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 10,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        },
+        {
+          "index": 11,
+          "delay": 120,
+          "origin":
+          {
+            "x": 22,
+            "y": 32
+          }
+        },
+        {
+          "index": 12,
+          "delay": 120,
+          "origin":
+          {
+            "x": 24,
+            "y": 35
+          }
+        },
+        {
+          "index": 13,
+          "delay": 120,
+          "origin":
+          {
+            "x": 26,
+            "y": 37
+          }
+        },
+        {
+          "index": 14,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 25
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_4_Move",
+      "loop": true,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        },
+        {
+          "index": 2,
+          "delay": 250,
+          "origin":
+          {
+            "x": 18,
+            "y": 23
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 18,
+            "y": 19
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_4_Hit",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 300,
+          "origin":
+          {
+            "x": 23,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mob_4_Die",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 1,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 2,
+          "delay": 180,
+          "origin":
+          {
+            "x": 18,
+            "y": 15
+          }
+        },
+        {
+          "index": 3,
+          "delay": 100,
+          "origin":
+          {
+            "x": 30,
+            "y": 28
+          }
+        },
+        {
+          "index": 4,
+          "delay": 110,
+          "origin":
+          {
+            "x": 40,
+            "y": 37
+          }
+        },
+        {
+          "index": 5,
+          "delay": 120,
+          "origin":
+          {
+            "x": 46,
+            "y": 41
+          }
+        }
+      ]
+    },
+    {
+      "name": "Summon",
+      "loop": false,
+      "frame":
+      [
+        {
+          "index": 0,
+          "delay": 120,
+          "origin":
+          {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "index": 1,
+          "delay": 120,
+          "origin":
+          {
+            "x": 36,
+            "y": 39
+          }
+        },
+        {
+          "index": 2,
+          "delay": 120,
+          "origin":
+          {
+            "x": 38,
+            "y": 55
+          }
+        },
+        {
+          "index": 3,
+          "delay": 120,
+          "origin":
+          {
+            "x": 37,
+            "y": 68
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ball_Blue",
+      "frame":
+      [
+        {
+          "delay": 1000000,
+          "origin":
+          {
+            "x": 21,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ball_Red",
+      "frame":
+      [
+        {
+          "delay": 1000000,
+          "origin":
+          {
+            "x": 21,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ball_Star1",
+      "frame":
+      [
+        {
+          "delay": 1000000,
+          "origin":
+          {
+            "x": 15,
+            "y": 15
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ball_Star2",
+      "frame":
+      [
+        {
+          "delay": 1000000,
+          "origin":
+          {
+            "x": 15,
+            "y": 15
+          }
+        }
+      ]
+    }
+  ]
+}

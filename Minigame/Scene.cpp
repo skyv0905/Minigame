@@ -1,0 +1,187 @@
+#include "Scene.h"
+#include <iostream>
+#include <algorithm>
+#include "MusicPlayer.h"
+#include "GameObjectFactory.h"
+
+Scene::Scene(GameServices& gameServices, GameObjectFactory& gameObjectFactory, std::string name, int index) :
+    gameServices(gameServices), gameObjectFactory(gameObjectFactory),
+    name(name), index(index)
+{
+}
+
+void Scene::Start()
+{
+    gameServices.music.Play(bgm);
+}
+
+void Scene::Update(float deltaTime)
+{
+    for (auto& gameObject : gameObjects)
+    {
+        gameObject->Update(deltaTime);
+    }
+
+    CheckCollisions();
+
+    FlushPendingGameObjects();
+}
+
+void Scene::Draw()
+{
+    std::vector<GameObject*> drawOrder;
+    drawOrder.reserve(gameObjects.size());
+
+    for (auto& gameObject : gameObjects)
+    {
+        drawOrder.push_back(gameObject.get());
+    }
+
+    std::stable_sort(drawOrder.begin(), drawOrder.end(), [](const auto* a, const auto* b)
+        {
+            return a->GetZOrder() < b->GetZOrder();
+        });
+
+    for (auto* gameObject : drawOrder)
+    {
+        gameObject->Draw();
+    }
+    for (auto* gameObject : drawOrder)
+    {
+        gameObject->DrawUI();
+    }
+    //DrawText(TextFormat("Scene no: %d", index), 10, 10, 15, BLACK);
+}
+
+void Scene::SetBgm(const std::string& bgmName)
+{
+    bgm = bgmName;
+}
+
+const std::string& Scene::GetName() const
+{
+    return name;
+}
+
+int Scene::GetIndex() const
+{
+    return index;
+}
+
+void Scene::AddGameObject(std::unique_ptr<GameObject> gameObject)
+{
+    if (!gameObject)
+        return;
+
+    pendingGameObjects.push_back(std::move(gameObject));
+}
+
+void Scene::DestroyGameObject(GameObject& gameObject)
+{
+    pendingDestroyGameObjects.insert(&gameObject);
+}
+
+GameObject* Scene::Instantiate(const std::string& prefabName)
+{
+    auto gameObject = gameObjectFactory.CreatePrefab(*this, prefabName);
+    GameObject* ret = nullptr;
+    if (gameObject)
+    {
+        ret = gameObject.get();
+        AddGameObject(std::move(gameObject));
+    }
+
+    return ret;
+}
+
+GameObject* Scene::FindGameObject(const std::string& name)
+{
+    for (auto& gameObject : gameObjects)
+    {
+        if (gameObject->GetName() == name)
+        {
+            return gameObject.get();
+        }
+    }
+
+    return nullptr;
+}
+
+GameObject* Scene::FindGameObjectWithTag(const std::string& tag)
+{
+    for (auto& gameObject : gameObjects)
+    {
+        if (gameObject->ContainsTag(tag))
+        {
+            return gameObject.get();
+        }
+    }
+
+    return nullptr;;
+}
+
+void Scene::CheckCollisions()
+{
+    for (size_t i = 0; i < colliders.size(); i++)
+    {
+        auto* colliderA = colliders[i];
+        if (!colliderA || !colliderA->IsValid() || pendingDestroyGameObjects.contains(&colliderA->GetOwner()))
+            continue;
+
+        for (size_t j = i + 1; j < colliders.size(); j++)
+        {
+            if (!colliderA->IsValid()) break;
+
+            auto* colliderB = colliders[j];
+            if (!colliderB || !colliderB->IsValid() || pendingDestroyGameObjects.contains(&colliderB->GetOwner()))
+                continue;
+
+            Vector2 collisionDirA{};
+            float depth = 0.0f;
+            if (colliderA->CheckCollision(*colliderB, collisionDirA, depth))
+            {
+                Vector2 collisionDirB{ collisionDirA.x * -1, collisionDirA.y * -1 };
+
+                auto& gameObjectA = colliderA->GetOwner();
+                auto& gameObjectB = colliderB->GetOwner();
+
+                Minigame::Components::CollisionInfo ColliderInfoA{ gameObjectB, collisionDirA, depth };
+                Minigame::Components::CollisionInfo ColliderInfoB{ gameObjectA, collisionDirB, depth };
+
+                gameObjectA.OnCollisionEnter(ColliderInfoA);
+                gameObjectB.OnCollisionEnter(ColliderInfoB);
+            }
+        }
+    }
+}
+
+void Scene::FlushPendingGameObjects()
+{
+    for (auto& gameObject : pendingGameObjects)
+    {
+        if (auto* collider = gameObject->GetComponent<Minigame::Components::Collider>())
+        {
+            colliders.push_back(collider);
+        }
+        gameObject->Awake();
+        gameObject->Start();
+        gameObjects.push_back(std::move(gameObject));
+    }
+    pendingGameObjects.clear();
+
+    for (auto* gameObject : pendingDestroyGameObjects)
+    {
+        std::cout << "Removed Game Object: " << gameObject->GetName() << "\n";
+
+        if (auto* collider = gameObject->GetComponent<Minigame::Components::Collider>())
+        {
+            std::erase(colliders, collider);
+        }
+
+        std::erase_if(gameObjects, [gameObject](const auto& object)
+            {
+                return object.get() == gameObject;
+            });
+    }
+    pendingDestroyGameObjects.clear();
+}

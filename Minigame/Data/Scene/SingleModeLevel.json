@@ -1,0 +1,346 @@
+{
+  "name": "SingleModeLevel",
+  "bgm": "Shinin'Harbor.mp3",
+  "gameObjects":
+  [
+    {
+      "name": "Background",
+      "zOrder": -100,
+      "components":
+      [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 0,
+            "y": 0
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "SpriteRenderer",
+          "texture": "TitleBG.png"
+        }
+      ]
+    },
+    {
+      "name": "MapBuilder",
+      "zOrder": 110,
+      "components":
+      [
+        {
+          "type": "MapBuilder",
+          "grid":
+          {
+            "x": 15,
+            "y": 12
+          },
+          "blockSize":
+          {
+            "x": 90,
+            "y": 60
+          },
+          "chunkSize":
+          {
+            "x": 5,
+            "y": 3
+          },
+          "chunkPreset":
+          [
+            {
+              "0": "WEEWE",
+              "1": "EEEWE",
+              "2": "WEEEE"
+            },
+            {
+              "0": "EWEEW",
+              "1": "EEEEE",
+              "2": "WWEWE"
+            },
+            {
+              "0": "EEEEE",
+              "1": "EWEWE",
+              "2": "WEEEW"
+            },
+            {
+              "0": "WEEWE",
+              "1": "EWEEE",
+              "2": "EEEWE"
+            },
+            {
+              "0": "WWEEE",
+              "1": "EEEEE",
+              "2": "EEEWW"
+            },
+            {
+              "0": "WWEEW",
+              "1": "EEEEE",
+              "2": "WEEWW"
+            },
+            {
+              "0": "WEEEW",
+              "1": "EEEEE",
+              "2": "WEEEW"
+            }
+          ],
+          "powerUps":
+          [
+            "PowerUp1",
+            "PowerUp4",
+            "PowerUp5",
+            "PowerUp6",
+            "PowerUp7",
+            "PowerUp8",
+            "PowerUp9"
+          ],
+          "stages":
+          [
+            {
+              "stage": 1,
+              "spawnCount": 12,
+              "nextSpawnCooldown": 30,
+              "powerUpCount": 6,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 12 },
+                { "prefab": "Mob_2", "count": 0 },
+                { "prefab": "Mob_3", "count": 0 },
+                { "prefab": "Mob_4", "count": 0 }
+              ]
+            },
+            {
+              "stage": 2,
+              "spawnCount": 11,
+              "nextSpawnCooldown": 35,
+              "powerUpCount": 6,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 9 },
+                { "prefab": "Mob_2", "count": 2 },
+                { "prefab": "Mob_3", "count": 0 },
+                { "prefab": "Mob_4", "count": 0 }
+              ]
+            },
+            {
+              "stage": 3,
+              "spawnCount": 10,
+              "nextSpawnCooldown": 40,
+              "powerUpCount": 7,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 6 },
+                { "prefab": "Mob_2", "count": 3 },
+                { "prefab": "Mob_3", "count": 1 },
+                { "prefab": "Mob_4", "count": 0 }
+              ]
+            },
+            {
+              "stage": 4,
+              "spawnCount": 12,
+              "nextSpawnCooldown": 40,
+              "powerUpCount": 7,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 6 },
+                { "prefab": "Mob_2", "count": 4 },
+                { "prefab": "Mob_3", "count": 2 },
+                { "prefab": "Mob_4", "count": 0 }
+              ]
+            },
+            {
+              "stage": 5,
+              "spawnCount": 15,
+              "nextSpawnCooldown": 40,
+              "powerUpCount": 8,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 7 },
+                { "prefab": "Mob_2", "count": 5 },
+                { "prefab": "Mob_3", "count": 2 },
+                { "prefab": "Mob_4", "count": 1 }
+              ]
+            },
+            {
+              "stage": 6,
+              "spawnCount": 15,
+              "nextSpawnCooldown": 40,
+              "powerUpCount": 8,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 7 },
+                { "prefab": "Mob_2", "count": 3 },
+                { "prefab": "Mob_3", "count": 3 },
+                { "prefab": "Mob_4", "count": 2 }
+              ]
+            },
+            {
+              "stage": 7,
+              "spawnCount": 15,
+              "nextSpawnCooldown": 45,
+              "powerUpCount": 9,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 6 },
+                { "prefab": "Mob_2", "count": 2 },
+                { "prefab": "Mob_3", "count": 4 },
+                { "prefab": "Mob_4", "count": 3 }
+              ]
+            },
+            {
+              "stage": 8,
+              "spawnCount": 20,
+              "nextSpawnCooldown": 45,
+              "powerUpCount": 9,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 5 },
+                { "prefab": "Mob_2", "count": 4 },
+                { "prefab": "Mob_3", "count": 6 },
+                { "prefab": "Mob_4", "count": 5 }
+              ]
+            },
+            {
+              "stage": 9,
+              "spawnCount": 20,
+              "nextSpawnCooldown": 45,
+              "powerUpCount": 10,
+              "mobs":
+              [
+                { "prefab": "Mob_1", "count": 1 },
+                { "prefab": "Mob_2", "count": 3 },
+                { "prefab": "Mob_3", "count": 8 },
+                { "prefab": "Mob_4", "count": 8 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Player",
+      "zOrder": 50,
+      "components":
+      [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 700,
+            "y": 500
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "SpriteRenderer"
+        },
+        {
+          "type": "Animator",
+          "states":
+          [
+            "Ball_Star1"
+          ],
+          "defaultState": "Ball_Star1"
+        },
+        {
+          "type": "PlayerController",
+          "speed": 200,
+          "bulletSpeed": 300,
+          "bulletDistance": 300,
+          "bulletPrefab": "Bullet",
+          "bulletTint":
+          {
+            "r": 155,
+            "g": 240,
+            "b": 255,
+            "a": 255
+          },
+          "fireCooldown": 1,
+          "attackPower": 25
+        },
+        {
+          "type": "Health",
+          "maxHealth": 100
+        },
+        {
+          "type": "HealthBar",
+          "offset": { "x": 0, "y": -30 },
+          "size": { "x": 55, "y": 6 }
+        },
+        {
+          "type": "PlayerMessage",
+          "font": "Maplestory Bold.ttf",
+          "fontSize": 20,
+          "offset":
+          {
+            "x": 0,
+            "y": -45
+          }
+        },
+        {
+          "type": "Collider",
+          "size":
+          {
+            "x": 31,
+            "y": 31
+          },
+          "offset":
+          {
+            "x": -15,
+            "y": -15
+          }
+        }
+      ],
+      "tags":
+      [
+        "Player"
+      ]
+    },
+    {
+      "name": "Wall",
+      "ignore": true,
+      "components":
+      [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 1200,
+            "y": 500
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "SpriteRenderer"
+        },
+        {
+          "type": "Animator",
+          "states":
+          [
+            "Ball_Blue"
+          ],
+          "defaultState": "Ball_Blue"
+        },
+        {
+          "type": "Collider",
+          "size":
+          {
+            "x": 41,
+            "y": 41
+          },
+          "offset":
+          {
+            "x": -20,
+            "y": -20
+          }
+        }
+      ],
+      "tags":
+      [
+        "Wall"
+      ]
+    }
+  ]
+}

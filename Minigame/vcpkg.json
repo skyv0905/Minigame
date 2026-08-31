@@ -1,0 +1,17 @@
+{
+  "name": "mini-game",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "raylib",
+    "raygui",
+    "nlohmann-json"
+  ],
+  "overrides": [
+    {
+      "name": "raylib",
+      "version": "5.5",
+      "port-version": 1
+    }
+  ],
+  "builtin-baseline": "06d00ffa491e4668627728f14b891d22c6fea146"
+}

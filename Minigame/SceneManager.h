@@ -15,6 +15,7 @@ public:
 
     void LoadScenes();
     void SelectScene(int index);
+    void ReloadScene(int index);
     void ReloadCurrentScene();
 
 private:
@@ -26,7 +27,7 @@ private:
     std::vector<std::unique_ptr<Scene>> scenes;
 
     int currentSceneSlot = -1;
-    bool reloadRequested = false;
+    int reloadSceneSlot = -1;
 
     void ApplyPendingReload();
 };

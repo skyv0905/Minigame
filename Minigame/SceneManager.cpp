@@ -42,25 +42,32 @@ void SceneManager::SelectScene(int index)
 
 void SceneManager::ReloadCurrentScene()
 {
-	if (currentScene && currentSceneSlot >= 0)
+	ReloadScene(currentSceneSlot);
+}
+
+void SceneManager::ReloadScene(int index)
+{
+	if (index >= 0 && index < scenes.size())
 	{
-		reloadRequested = true;
+		reloadSceneSlot = index;
 	}
 }
 
 void SceneManager::ApplyPendingReload()
 {
-	if (!reloadRequested || !currentScene || currentSceneSlot < 0)
+	if (reloadSceneSlot < 0 || reloadSceneSlot >= scenes.size())
 		return;
 
-	reloadRequested = false;
+	const int sceneSlot = reloadSceneSlot;
+	reloadSceneSlot = -1;
 
-	const SceneInfo info{ currentScene->GetName(), currentScene->GetIndex() };
+	const SceneInfo info{ scenes[sceneSlot]->GetName(), scenes[sceneSlot]->GetIndex() };
 	auto reloadedScene = sceneLoader.LoadScene(info);
 	if (!reloadedScene)
 		return;
 
-	scenes[currentSceneSlot] = std::move(reloadedScene);
-	currentScene = scenes[currentSceneSlot].get();
+	scenes[sceneSlot] = std::move(reloadedScene);
+	currentSceneSlot = sceneSlot;
+	currentScene = scenes[sceneSlot].get();
 	currentScene->Start();
 }

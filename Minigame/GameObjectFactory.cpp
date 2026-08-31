@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "GameServices.h"
 #include "SceneManager.h"
+#include "GameSession.h"
 #include "ResourceManager.h"
 #include "Components/Transform.h"
 #include "Components/SpriteRenderer.h"
@@ -345,6 +346,30 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                     component.SetOnClick([this, sceneNum]()
                         {
                             sceneManager.SelectScene(sceneNum);
+                        });
+                }
+                else if (func == "ReloadScene")
+                {
+                    int sceneNum = onClickData.value("value", 0);
+                    component.SetOnClick([this, sceneNum]()
+                        {
+                            sceneManager.ReloadScene(sceneNum);
+                        });
+                }
+                else if (func == "RestartGame")
+                {
+                    component.SetOnClick([this]()
+                        {
+                            gameServices.session.Reset();
+                            sceneManager.ReloadCurrentScene();
+                        });
+                }
+                else if (func == "GoToMainMenu")
+                {
+                    component.SetOnClick([this]()
+                        {
+                            gameServices.session.Reset();
+                            sceneManager.SelectScene(0);
                         });
                 }
             }

@@ -112,6 +112,7 @@ namespace Minigame::Components
         moveSpeed += 10.0f * m;
         bulletDistance += 5.0f * m;
         bulletSpeed += 10.0f * m;
+        gameServices.sounds.Play("LevelUp.mp3");
     }
 
     void PlayerController::Fire()

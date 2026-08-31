@@ -15,7 +15,15 @@ namespace Minigame::Components
     void PlayerController::Awake()
     {
         Controller::Awake();
-        playerMessage = owner.GetComponent<PlayerMessage>();
+        playerMessage = owner.GetComponent<Minigame::Components::PlayerMessage>();
+        exp = owner.GetComponent<Minigame::Components::Exp>();
+        if (exp)
+        {
+            exp->SetOnLevelUp([this](int level)
+                {
+                    OnLevelUp(level);
+                });
+        }
     }
 
     void PlayerController::Start()
@@ -97,6 +105,15 @@ namespace Minigame::Components
         }
     }
 
+    void PlayerController::OnLevelUp(int level)
+    {
+        float m = level % 5 == 0 ? 2 : 1;
+        attackPower += 5.0f * m;
+        moveSpeed += 10.0f * m;
+        bulletDistance += 5.0f * m;
+        bulletSpeed += 10.0f * m;
+    }
+
     void PlayerController::Fire()
     {
         Controller::Fire();
@@ -107,12 +124,12 @@ namespace Minigame::Components
     {
         if (powerUp.ContainsTag("incSpeed"))
         {
-            moveSpeedMultiplier += 0.25f;
+            moveSpeedMultiplier += 25;
 			if (playerMessage) playerMessage->Show("이동 속도 증가");
         }
         if (powerUp.ContainsTag("incAttackPower"))
         {
-            attackPowerMultiplier += 0.05f;
+            attackPowerMultiplier += 5;
 			if (playerMessage) playerMessage->Show("공격력 증가");
         }
         if (powerUp.ContainsTag("incAttackSpeed"))
@@ -121,8 +138,8 @@ namespace Minigame::Components
             {
                 fireCooldown *= 0.82f;
                 fireCooldown = std::max(fireCooldown, 0.1f);
-                attackPowerMultiplier -= 0.05f;
-                attackPowerMultiplier = std::max(attackPowerMultiplier, 0.1f);
+                attackPowerMultiplier -= 5;
+                attackPowerMultiplier = std::max(attackPowerMultiplier, 10);
                 if (playerMessage) playerMessage->Show("공격 속도 증가");
             }
             else
@@ -132,12 +149,12 @@ namespace Minigame::Components
         }
         if (powerUp.ContainsTag("incBulletDistance"))
         {
-            bulletDistanceMultiplier += 0.3f;
+            bulletDistanceMultiplier += 25;
 			if (playerMessage) playerMessage->Show("사거리 증가");
         }
         if (powerUp.ContainsTag("incBulletSpeed"))
         {
-            bulletSpeedMultiplier += 0.4f;
+            bulletSpeedMultiplier += 25;
 			if (playerMessage) playerMessage->Show("발사체 속도 증가");
         }
         if (powerUp.ContainsTag("heal1"))

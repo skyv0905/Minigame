@@ -55,10 +55,10 @@ namespace Minigame::Components
 
 		float attackPower = 10.0f;
 
-		float moveSpeedMultiplier = 1.0f;
-		float bulletSpeedMultiplier = 1.0f;
-		float bulletDistanceMultiplier = 1.0f;
-		float attackPowerMultiplier = 1.0f;
+		int moveSpeedMultiplier = 100;
+		int bulletSpeedMultiplier = 100;
+		int bulletDistanceMultiplier = 100;
+		int attackPowerMultiplier = 100;
 
 		bool isOnRegen = false;
 		bool isHit = false;

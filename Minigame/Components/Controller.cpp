@@ -64,22 +64,21 @@ namespace Minigame::Components
 
     float Controller::GetFinalMoveSpeed() const
     {
-        return std::min(moveSpeed * moveSpeedMultiplier, 700.0f);
+        return std::min(moveSpeed * moveSpeedMultiplier / 100.0f, 700.0f);
     }
 
     float Controller::GetFinalBulletSpeed() const
     {
-        return std::min(bulletSpeed * bulletSpeedMultiplier, 900.0f);
+        return std::min(bulletSpeed * bulletSpeedMultiplier / 100.0f, 900.0f);
     }
 
     float Controller::GetFinalBulletDistance() const
     {
-        return bulletDistance * bulletDistanceMultiplier;
     }
 
     float Controller::GetFinalAttackPower() const
     {
-        return attackPower * attackPowerMultiplier;
+        return attackPower * attackPowerMultiplier / 100.0f;
     }
 
     void Controller::Fire()

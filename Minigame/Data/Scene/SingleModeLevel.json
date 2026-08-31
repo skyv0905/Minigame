@@ -267,7 +267,7 @@
           "type": "Exp",
           "initialLevel": 1,
           "requiredExp": 100,
-          "requiredExpGrowthRate": 1.05
+          "requiredExpGrowthRate": 1.25
         },
         {
           "type": "HealthBar",
@@ -307,7 +307,21 @@
       ],
       "tags":
       [
-        "Player"
+        "Player",
+        "LocalPlayer"
+      ]
+    },
+    {
+      "name": "PlayerHUD",
+      "zOrder": 1000,
+      "components":
+      [
+        {
+          "type": "PlayerStatsUI",
+          "targetTag": "LocalPlayer",
+          "font": "Maplestory Bold.ttf",
+          "fontSize": 18
+        }
       ]
     },
     {

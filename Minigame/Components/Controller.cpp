@@ -3,6 +3,7 @@
 #include "../GameServices.h"
 #include "../GameObject.h"
 #include "../Scene.h"
+#include <format>
 
 namespace Minigame::Components
 {
@@ -74,11 +75,41 @@ namespace Minigame::Components
 
     float Controller::GetFinalBulletDistance() const
     {
+        return bulletDistance * bulletDistanceMultiplier / 100.0f;
     }
 
     float Controller::GetFinalAttackPower() const
     {
         return attackPower * attackPowerMultiplier / 100.0f;
+    }
+
+    float Controller::GetFireCooldown() const
+    {
+        return fireCooldown;
+    }
+
+    std::string Controller::GetMoveSpeedDetail() const
+    {
+        return moveSpeedMultiplier == 100 ? ""
+            : std::format("( {:.0f} x {:.2f} )", moveSpeed, moveSpeedMultiplier / 100.0f);
+    }
+
+    std::string Controller::GetBulletSpeedDetail() const
+    {
+        return bulletSpeedMultiplier == 100 ? ""
+            : std::format("( {:.0f} x {:.2f} )", bulletSpeed, bulletSpeedMultiplier / 100.0f);
+    }
+
+    std::string Controller::GetBulletDistanceDetail() const
+    {
+        return bulletDistanceMultiplier == 100 ? ""
+            : std::format("( {:.0f} x {:.2f} )", bulletDistance, bulletDistanceMultiplier / 100.0f);
+    }
+
+    std::string Controller::GetAttackPowerDetail() const
+    {
+        return attackPowerMultiplier == 100 ? ""
+            : std::format("( {:.1f} x {:.2f} )", attackPower, attackPowerMultiplier / 100.0f);
     }
 
     void Controller::Fire()

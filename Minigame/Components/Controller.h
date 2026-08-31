@@ -33,6 +33,12 @@ namespace Minigame::Components
 		float GetFinalBulletSpeed() const;
 		float GetFinalBulletDistance() const;
 		float GetFinalAttackPower() const;
+		float GetFireCooldown() const;
+
+		std::string GetMoveSpeedDetail() const;
+		std::string GetBulletSpeedDetail() const;
+		std::string GetBulletDistanceDetail() const;
+		std::string GetAttackPowerDetail() const;
 
 	protected:
 		GameServices& gameServices;

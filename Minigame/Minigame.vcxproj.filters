@@ -87,6 +87,9 @@
     <ClCompile Include="Components\PlayerMessage.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Components\PlayerStatsUI.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -180,6 +183,9 @@
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\PlayerMessage.h">
+      <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\PlayerStatsUI.h">
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\MapBuilder.h">

@@ -263,6 +263,19 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
             component.SetOffset(componentData.at("offset").get<Vector2>());
         }
     }
+    else if (type == "PlayerStatsUI")
+    {
+        auto& component = gameObject.AddComponent<Minigame::Components::PlayerStatsUI>();
+
+        const std::string fontKey = componentData.value("font", "Maplestory Bold.ttf");
+        const float fontSize = componentData.value("fontSize", 18.0f);
+        if (const auto* font = gameServices.resources.GetFont(fontKey, static_cast<int>(fontSize)))
+        {
+            component.SetFont(*font, fontSize);
+        }
+
+        component.SetTargetTag(componentData.value("targetTag", "LocalPlayer"));
+    }
     else if (type == "Bullet")
     {
         auto& component = gameObject.AddComponent<Minigame::Components::Bullet>();

@@ -13,7 +13,7 @@ void Game::Run()
 {
     InitInputManager();
 
-    InitWindow(1366, 800, "ㅇㅅㅇ");
+    InitWindow(1366, 900, "ㅇㅅㅇ");
 
     sceneManager.LoadScenes();
 

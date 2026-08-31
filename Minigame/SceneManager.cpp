@@ -46,6 +46,11 @@ void SceneManager::ReloadCurrentScene()
 	SelectScene(currentSceneIndex);
 }
 
+int SceneManager::GetCurrentSceneIndex() const
+{
+	return currentSceneIndex;
+}
+
 void SceneManager::ApplyPendingSceneChange()
 {
 	if (pendingSceneIndex < 0)

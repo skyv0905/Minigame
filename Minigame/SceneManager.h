@@ -17,6 +17,8 @@ public:
     void SelectScene(int index);
     void ReloadCurrentScene();
 
+    int GetCurrentSceneIndex() const;
+
 private:
     GameServices& gameServices;
     GameObjectFactory gameObjectFactory;

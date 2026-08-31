@@ -13,6 +13,7 @@ enum class InputAction
     Fire,
 
     Debug,
+    Exit
 };
 
 class InputManager

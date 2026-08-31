@@ -30,6 +30,8 @@ private:
 
 	SceneManager sceneManager;
 
+	bool exitRequested = false;
+
 	void Loop();
 	void Update();
 	void Draw();

@@ -14,6 +14,7 @@ void Game::Run()
     InitInputManager();
 
     InitWindow(1366, 900, "ㅇㅅㅇ");
+    SetExitKey(KEY_NULL);
 
     sceneManager.LoadScenes();
 
@@ -29,7 +30,7 @@ void Game::Run()
 
     std::cout << "Init FInished, starting game loop...\n";
 
-    while (!WindowShouldClose())
+    while (!WindowShouldClose() && !exitRequested)
     {
         Loop();
     }
@@ -52,6 +53,18 @@ void Game::Loop()
 void Game::Update()
 {
     float deltaTime = GetFrameTime();
+
+    if (inputManager.IsPressed(InputAction::Exit))
+    {
+        if (sceneManager.GetCurrentSceneIndex() == 0)
+        {
+            exitRequested = true;
+            return;
+        }
+
+        sceneManager.SelectScene(0);
+        gameSession.Reset();
+    }
 
     musicPlayer.Update();
     sceneManager.Update(deltaTime);
@@ -86,4 +99,5 @@ void Game::InitInputManager()
     inputManager.BindKey(InputAction::Fire, KeyboardKey::KEY_LEFT_CONTROL);
 
     inputManager.BindKey(InputAction::Debug, KeyboardKey::KEY_F1);
+    inputManager.BindKey(InputAction::Exit, KeyboardKey::KEY_ESCAPE);
 }

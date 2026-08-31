@@ -1,6 +1,7 @@
 #include "PlayerController.h"
 #include "Bullet.h"
 #include "../GameServices.h"
+#include "../GameSession.h"
 #include "../InputManager.h"
 #include "../SoundPlayer.h"
 #include "../Scene.h"
@@ -33,6 +34,9 @@ namespace Minigame::Components
 
     void PlayerController::Update(float deltaTime)
     {
+        if (isDead)
+            return;
+
         if (transform == nullptr)
             return;
 
@@ -65,6 +69,9 @@ namespace Minigame::Components
 
     void PlayerController::OnCollisionEnter(const CollisionInfo& info)
     {
+        if (isDead)
+            return;
+
         if (info.other.ContainsTag("Wall") || info.other.ContainsTag("Player") || info.other.ContainsTag("Mob"))
         {
             if (transform == nullptr)
@@ -98,11 +105,7 @@ namespace Minigame::Components
                         gameServices.sounds.Play("Hit.mp3");
                         if (dead)
                         {
-
-                        }
-                        else
-                        {
-
+                            OnDeath();
                         }
                     }
                 }
@@ -124,6 +127,20 @@ namespace Minigame::Components
     {
         Controller::Fire();
         gameServices.sounds.Play("Jump.mp3");
+    }
+
+    void PlayerController::OnDeath()
+    {
+        if (isDead)
+            return;
+
+        isDead = true;
+        DisableCollider();
+
+        owner.GetScene().Instantiate("RestartButton");
+        owner.GetScene().Instantiate("MainMenuButton");
+
+        gameServices.session.SetGameState(GameState::GameClear);
     }
 
     void PlayerController::OnPowerUpCollected(const GameObject& powerUp)

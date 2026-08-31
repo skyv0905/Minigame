@@ -29,7 +29,7 @@ namespace Minigame::Components
         }
     }
 
-    void Button::Draw()
+    void Button::DrawUI()
     {
         Color color = LIGHTGRAY;
 

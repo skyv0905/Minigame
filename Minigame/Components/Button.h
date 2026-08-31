@@ -17,7 +17,7 @@ namespace Minigame::Components
 
         void Awake() override;
         void Update(float deltaTime) override;
-        void Draw() override;
+        void DrawUI() override;
 
         void SetSize(float width, float height);
         void SetSize(Vector2 size);

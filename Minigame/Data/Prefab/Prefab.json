@@ -651,5 +651,69 @@
       "PowerUp",
       "heal2"
     ]
+  },
+  "RestartButton":
+  {
+    "name": "RestartButton",
+    "zOrder": 2000,
+    "components": [
+      {
+        "type": "Transform",
+        "position":
+        {
+          "x": 583,
+          "y": 300
+        },
+        "rotation": 0,
+        "scale": 1
+      },
+      {
+        "type": "Button",
+        "size":
+        {
+          "x": 200,
+          "y": 50
+        },
+        "text": "다시 시작",
+        "font": "Maplestory Bold.ttf",
+        "fontSize": 24,
+        "onClick":
+        {
+          "func": "RestartGame"
+        }
+      }
+    ]
+  },
+  "MainMenuButton":
+  {
+    "name": "MainMenuButton",
+    "zOrder": 2000,
+    "components": [
+      {
+        "type": "Transform",
+        "position":
+        {
+          "x": 583,
+          "y": 380
+        },
+        "rotation": 0,
+        "scale": 1
+      },
+      {
+        "type": "Button",
+        "size":
+        {
+          "x": 200,
+          "y": 50
+        },
+        "text": "메인 화면으로",
+        "font": "Maplestory Bold.ttf",
+        "fontSize": 24,
+        "onClick":
+        {
+          "func": "GoToMainMenu"
+        }
+      }
+    ]
   }
 }

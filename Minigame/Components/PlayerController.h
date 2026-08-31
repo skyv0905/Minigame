@@ -25,9 +25,11 @@ namespace Minigame::Components
 	private:
 		Minigame::Components::PlayerMessage* playerMessage = nullptr;
 		Minigame::Components::Exp* exp = nullptr;
+		bool isDead = false;
 
 		void Fire() override;
 		void OnPowerUpCollected(const GameObject& powerUp);
+		void OnDeath();
 	};
 }
 

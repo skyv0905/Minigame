@@ -17,6 +17,7 @@ namespace Minigame::Components
 
 		void SetOffset(Vector2 offset);
 		void SetSize(Vector2 size);
+		void SetHealthColor(Color color);
 
 	private:
 		Minigame::Components::Transform* transform = nullptr;
@@ -24,5 +25,7 @@ namespace Minigame::Components
 
 		Vector2 offset{ 0.0f, -50.0f };
 		Vector2 size{ 55.0f, 6.0f };
+
+		Color healthColor{ 220, 60, 60, 255 };
 	};
 }

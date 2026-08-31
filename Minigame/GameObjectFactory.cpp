@@ -221,6 +221,20 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
         {
             component.SetSize(componentData.at("size").get<Vector2>());
         }
+
+        if (componentData.contains("healthColor"))
+        {
+            const auto& healthColorData = componentData.at("healthColor");
+            Color healthColor
+            {
+                static_cast<unsigned char>(healthColorData.value("r", 255)),
+                static_cast<unsigned char>(healthColorData.value("g", 255)),
+                static_cast<unsigned char>(healthColorData.value("b", 255)),
+                static_cast<unsigned char>(healthColorData.value("a", 255))
+            };
+
+            component.SetHealthColor(healthColor);
+        }
     }
     else if (type == "PlayerMessage")
     {

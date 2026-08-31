@@ -266,7 +266,14 @@
         {
           "type": "HealthBar",
           "offset": { "x": 0, "y": -30 },
-          "size": { "x": 55, "y": 6 }
+          "size": { "x": 55, "y": 6 },
+          "healthColor":
+          {
+            "r": 90,
+            "g": 150,
+            "b": 255,
+            "a": 255
+          }
         },
         {
           "type": "PlayerMessage",

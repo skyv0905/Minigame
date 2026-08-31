@@ -36,8 +36,9 @@ namespace Minigame::Components
 		foreground.width *= ratio;
 
 		DrawRectangleRec(background, Color{ 40, 40, 40, 220 });
-		DrawRectangleRec(foreground, Color{ 220, 60, 60, 255 });
+		DrawRectangleRec(foreground, healthColor);
 		DrawRectangleLinesEx(background, 1.0f, BLACK);
+
 	}
 
 	void HealthBar::SetOffset(Vector2 offset)
@@ -48,5 +49,10 @@ namespace Minigame::Components
 	void HealthBar::SetSize(Vector2 size)
 	{
 		this->size = size;
+	}
+
+	void HealthBar::SetHealthColor(Color color)
+	{
+		this->healthColor = color;
 	}
 }

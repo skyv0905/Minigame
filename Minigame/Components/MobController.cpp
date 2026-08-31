@@ -189,8 +189,18 @@ namespace Minigame::Components
         }
     }
 
+    void MobController::SetExp(int exp)
+    {
+        this->exp = exp;
+    }
+
     void MobController::SetDetectionRange(float range)
     {
         detectionRangeSquare = range * range;
+    }
+
+    int MobController::GetExp() const
+    {
+        return exp;
     }
 }

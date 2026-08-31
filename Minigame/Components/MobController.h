@@ -13,11 +13,15 @@ namespace Minigame::Components
 		void Update(float deltaTime) override;
 		void OnCollisionEnter(const CollisionInfo& info) override;
 
+		void SetExp(int exp);
 		void SetDetectionRange(float range);
+
+		int GetExp() const;
 
 	private:
 		GameObject* target = nullptr;
 
+		int exp = 0;
 		float detectionRangeSquare{ 10000.0f };
 	};
 }

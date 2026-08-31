@@ -166,6 +166,7 @@
     <ClCompile Include="Components\Collider.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\Controller.cpp" />
+    <ClCompile Include="Components\Exp.cpp" />
     <ClCompile Include="Components\Health.cpp" />
     <ClCompile Include="Components\HealthBar.cpp" />
     <ClCompile Include="Components\MapBuilder.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Components\Collider.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\Controller.h" />
+    <ClInclude Include="Components\Exp.h" />
     <ClInclude Include="Components\Health.h" />
     <ClInclude Include="Components\HealthBar.h" />
     <ClInclude Include="Components\MapBuilder.h" />

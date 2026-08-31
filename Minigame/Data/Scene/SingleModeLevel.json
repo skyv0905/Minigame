@@ -247,7 +247,7 @@
           "type": "PlayerController",
           "speed": 200,
           "bulletSpeed": 300,
-          "bulletDistance": 300,
+          "bulletDistance": 250,
           "bulletPrefab": "Bullet",
           "bulletTint":
           {
@@ -262,6 +262,12 @@
         {
           "type": "Health",
           "maxHealth": 100
+        },
+        {
+          "type": "Exp",
+          "initialLevel": 1,
+          "requiredExp": 100,
+          "requiredExpGrowthRate": 1.05
         },
         {
           "type": "HealthBar",

@@ -137,7 +137,8 @@
         },
         "fireCooldown": 5,
         "attackPower": 1,
-        "detectionRange": 200
+        "detectionRange": 200,
+        "exp": 15
       },
       {
         "type": "SpriteRenderer"
@@ -213,7 +214,8 @@
         },
         "fireCooldown": 3,
         "attackPower": 3,
-        "detectionRange": 240
+        "detectionRange": 240,
+        "exp": 30
       },
       {
         "type": "SpriteRenderer"
@@ -289,7 +291,8 @@
         },
         "fireCooldown": 1,
         "attackPower": 7,
-        "detectionRange": 400
+        "detectionRange": 400,
+        "exp": 60
       },
       {
         "type": "SpriteRenderer"
@@ -365,7 +368,8 @@
         },
         "fireCooldown": 10,
         "attackPower": 25,
-        "detectionRange": 220
+        "detectionRange": 220,
+        "exp": 80
       },
       {
         "type": "SpriteRenderer"

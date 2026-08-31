@@ -10,8 +10,10 @@
 #include "Components/PlayerController.h"
 #include "Components/MobController.h"
 #include "Components/Health.h"
+#include "Components/Exp.h"
 #include "Components/HealthBar.h"
 #include "Components/PlayerMessage.h"
+#include "Components/PlayerStatsUI.h"
 #include "Components/Collider.h"
 #include "Components/Bullet.h"
 #include "Components/MapBuilder.h"
@@ -171,6 +173,8 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
 
         component.SetDetectionRange(componentData.value("detectionRange", 100.0f));
 
+        component.SetExp(componentData.value("exp", 0));
+
         if (componentData.contains("bulletPrefab"))
         {
             component.SetBulletPrefab(componentData.at("bulletPrefab").get<std::string>());
@@ -207,6 +211,13 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
     else if (type == "Health")
     {
         gameObject.AddComponent<Minigame::Components::Health>(componentData.at("maxHealth").get<float>());
+    }
+    else if (type == "Exp")
+    {
+        gameObject.AddComponent<Minigame::Components::Exp>(
+            componentData.value("initialLevel", 1),
+            componentData.value("requiredExp", 100),
+            componentData.value("requiredExpGrowthRate", 1.05f));
     }
     else if (type == "HealthBar")
     {

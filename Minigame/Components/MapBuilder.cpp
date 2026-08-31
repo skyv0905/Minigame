@@ -40,8 +40,15 @@ namespace Minigame::Components
 
 		if (gameServices.session.GetGameState() == GameState::GamePlaying && owner.GetScene().FindGameObjectWithTag("Mob") == nullptr)
 		{
-			gameServices.timer.Cancel(mobSpawnTimer);
-			OnStageEnded();
+			if (stageEnd)
+			{
+				OnGameCleared();
+			}
+			else
+			{
+				gameServices.timer.Cancel(mobSpawnTimer);
+				OnStageEnded();
+			}
 		}
 	}
 
@@ -282,13 +289,13 @@ namespace Minigame::Components
 
 	void MapBuilder::OnStageEnded()
 	{
-		gameServices.session.NextStage();
-		if (GetCurrentStage() == nullptr) // stage end
+		if (!stages.contains(gameServices.session.GetStage() + 1)) // stage end
 		{
-			OnGameCleared();
+			stageEnd = true;
 		}
 		else // goto next stage
 		{
+			gameServices.session.NextStage();
 			SpawnMobAndPowerUps();
 		}
 	}

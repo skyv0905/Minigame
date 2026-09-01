@@ -4,5 +4,6 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="Minigame.Server/Minigame.Server.vcxproj" Id="66a7a05e-f095-40de-922e-28c4fa08df02" />
+  <Project Path="Minigame.Shared/Minigame.Shared.vcxproj" Id="4723df7b-a7be-49cb-919a-537523e04a41" />
   <Project Path="Minigame/Minigame.vcxproj" Id="1c713c3c-7068-4cec-9217-59d958991a23" />
 </Solution>

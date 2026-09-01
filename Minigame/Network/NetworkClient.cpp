@@ -1,6 +1,7 @@
 #include "NetworkClient.h"
 #include <enet/enet.h>
 #include <iostream>
+#include "Network/PacketSerializer.h"
 
 namespace Minigame::Network
 {
@@ -10,6 +11,8 @@ namespace Minigame::Network
 		bool initialized = false;
 		bool connected = false;
 		bool disconnecting = false;
+
+		std::uint32_t playerId = 0;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -66,6 +69,7 @@ namespace Minigame::Network
 			return;
 
 		impl->disconnecting = true;
+		impl->playerId = 0;
 		enet_peer_disconnect(impl->server, 0);
 	}
 
@@ -95,6 +99,38 @@ namespace Minigame::Network
 			case ENET_EVENT_TYPE_RECEIVE:
 			{
 				std::cout << "Packet Received: " << event.packet->dataLength << " bytes\n";
+				std::span<const std::uint8_t> data(event.packet->data, event.packet->dataLength);
+
+				const auto packetType = Minigame::Network::ReadPacketType(data);
+				if (!packetType)
+				{
+					std::cerr << "Invalid Packet Type\n";
+					enet_packet_destroy(event.packet);
+					break;
+				}
+
+				switch (packetType.value())
+				{
+				case Minigame::Network::PacketType::AssignPlayer:
+				{
+					auto packet = Minigame::Network::Deserialize<Minigame::Network::AssignPlayerPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid AssignPlayer Packet\n";
+						break;
+					}
+
+					impl->playerId = packet->playerId;
+					std::cout << "Assigned Player ID: " << impl->playerId << '\n';
+					break;
+				}
+
+				default:
+				{
+					break;
+				}
+				}
+
 				enet_packet_destroy(event.packet);
 				break;
 			}
@@ -104,6 +140,7 @@ namespace Minigame::Network
 				impl->connected = false;
 				impl->disconnecting = false;
 				impl->server = nullptr;
+				impl->playerId = 0;
 				std::cout << "Server Disconnected\n";
 				break;
 			}

@@ -20,6 +20,8 @@ namespace Minigame::Network
 		void Update(float deltaTime);
 		void Test();
 
+		bool SendReliable(const std::string& message);
+
 	private:
 		class Impl;
 		std::unique_ptr<Impl> impl;

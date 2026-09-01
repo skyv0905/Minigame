@@ -85,22 +85,28 @@ namespace Minigame::Network
 			switch (event.type)
 			{
 			case ENET_EVENT_TYPE_CONNECT:
+			{
 				impl->connected = true;
 				impl->disconnecting = false;
 				std::cout << "Server Connected\n";
 				break;
+			}
 
 			case ENET_EVENT_TYPE_RECEIVE:
+			{
 				std::cout << "Packet Received: " << event.packet->dataLength << " bytes\n";
 				enet_packet_destroy(event.packet);
 				break;
+			}
 
 			case ENET_EVENT_TYPE_DISCONNECT:
+			{
 				impl->connected = false;
 				impl->disconnecting = false;
 				impl->server = nullptr;
 				std::cout << "Server Disconnected\n";
 				break;
+			}
 
 			default:
 				break;
@@ -111,5 +117,24 @@ namespace Minigame::Network
 	void NetworkClient::Test()
 	{
 
+	}
+
+	bool NetworkClient::SendReliable(const std::string& message)
+	{
+		if (!impl->connected || impl->server == nullptr || message.empty())
+			return false;
+
+		ENetPacket* packet = enet_packet_create(message.data(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+
+		if (packet == nullptr)
+			return false;
+
+		if (enet_peer_send(impl->server, 0, packet) != 0)
+		{
+			enet_packet_destroy(packet);
+			return false;
+		}
+
+		return true;
 	}
 }

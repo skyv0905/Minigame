@@ -79,6 +79,7 @@ void Game::Update()
     if (inputManager.IsPressed(InputAction::Debug))
     {
         gameServices.debugMode = !gameServices.debugMode;
+        networkClient.SendReliable("Message");
     }
 }
 

@@ -9,6 +9,7 @@
 #include "GameServices.h"
 #include "RandomManager.h"
 #include "IDGenerator.h"
+#include "Network/NetworkClient.h"
 
 class Game
 {
@@ -26,6 +27,7 @@ private:
 	RandomManager randomManager;
 	GameSession gameSession;
 	IDGenerator idGenerator;
+	Minigame::Network::NetworkClient networkClient;
 	GameServices gameServices;
 
 	SceneManager sceneManager;

@@ -8,6 +8,10 @@ class TimerManager;
 class RandomManager;
 class GameSession;
 class IDGenerator;
+namespace Minigame::Network
+{
+    class NetworkClient;
+}
 
 struct GameServices
 {
@@ -19,6 +23,7 @@ struct GameServices
     RandomManager& random;
     GameSession& session;
     IDGenerator& idGenerator;
+    Minigame::Network::NetworkClient& network;
 
     bool debugMode = false;
 };

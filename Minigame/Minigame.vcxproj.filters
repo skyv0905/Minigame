@@ -19,6 +19,12 @@
     <Filter Include="헤더 파일\Components">
       <UniqueIdentifier>{92a1481e-4e93-4e6b-8172-c6d3a4c2851a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Network">
+      <UniqueIdentifier>{490e6104-199b-4d18-a201-64196939529d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Network">
+      <UniqueIdentifier>{d3fcd25a-3336-4e74-b77d-613aef7cfa5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,9 +36,9 @@
     <ClCompile Include="MusicPlayer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-	<ClCompile Include="RandomManager.cpp">
-	  <Filter>소스 파일</Filter>
-	</ClCompile>
+    <ClCompile Include="RandomManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -117,6 +123,12 @@
     <ClCompile Include="Components\TextUI.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetworkClient.cpp">
+      <Filter>소스 파일\Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -131,9 +143,9 @@
     <ClInclude Include="MusicPlayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-	<ClInclude Include="RandomManager.h">
-	  <Filter>헤더 파일</Filter>
-	</ClInclude>
+    <ClInclude Include="RandomManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="SoundPlayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -217,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="Components\TextUI.h">
       <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetworkClient.h">
+      <Filter>헤더 파일\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

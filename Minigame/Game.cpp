@@ -4,7 +4,7 @@
 
 Game::Game() : musicPlayer(resourceManager),
     soundPlayer(resourceManager),
-    gameServices{ resourceManager, musicPlayer, soundPlayer, inputManager, timerManager, randomManager, gameSession, idGenerator },
+    gameServices{ resourceManager, musicPlayer, soundPlayer, inputManager, timerManager, randomManager, gameSession, idGenerator, networkClient },
     sceneManager(gameServices)
 {
 }
@@ -17,6 +17,11 @@ void Game::Run()
     SetExitKey(KEY_NULL);
 
     sceneManager.LoadScenes();
+    networkClient.Test();
+    if (!networkClient.Connect("127.0.0.1", 5000))
+    {
+        std::cerr << "Failed to try connect server\n";
+    }
 
     Image icon = LoadImage(ResourceManager::GetResourcePath("icon.png").c_str());
     SetWindowIcon(icon);
@@ -69,6 +74,7 @@ void Game::Update()
     musicPlayer.Update();
     sceneManager.Update(deltaTime);
     timerManager.Update(deltaTime);
+    networkClient.Update(deltaTime);
 
     if (inputManager.IsPressed(InputAction::Debug))
     {

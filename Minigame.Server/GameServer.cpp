@@ -2,6 +2,8 @@
 #include <enet/enet.h>
 #include <cstdint>
 #include <iostream>
+#include <limits>
+#include <random>
 #include <string>
 #include <unordered_map>
 #include <atomic>
@@ -47,6 +49,7 @@ namespace Minigame::Server
         ENetHost* server = nullptr;
         std::unordered_map<ENetPeer*, ClientSession> sessions;
         ServerWorld world;
+        std::mt19937 randomEngine{ std::random_device{}() };
 
         static constexpr std::uint32_t TickRate = 30;
         static constexpr double TickInterval = 1.0 / TickRate;
@@ -356,8 +359,11 @@ namespace Minigame::Server
 
         matchStartTick = serverTick;
         Minigame::Network::GameStartPacket packet{};
-        packet.randomSeed = 12345;
+        std::uniform_int_distribution<std::uint32_t> seedDistribution(1, (std::numeric_limits<std::uint32_t>::max)());
+        packet.randomSeed = seedDistribution(randomEngine);
         packet.startTick = matchStartTick;
+
+        std::cout << "Random Seed: " << packet.randomSeed << '\n';
 
         for (auto& [peer, session] : sessions)
         {

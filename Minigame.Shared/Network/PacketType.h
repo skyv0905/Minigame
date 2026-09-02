@@ -10,4 +10,10 @@ namespace Minigame::Network
         PlayerInput,
         GameResult
     };
+
+    enum class PacketSendType
+    {
+        Unreliable,
+        Reliable
+    };
 }

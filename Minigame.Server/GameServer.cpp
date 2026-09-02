@@ -13,7 +13,7 @@ namespace Minigame::Server
     namespace
     {
         template<typename T>
-        bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags)
+        bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags, enet_uint8 channel)
         {
             Minigame::Network::ByteBuffer data = Minigame::Network::Serialize(packet);
 
@@ -23,7 +23,7 @@ namespace Minigame::Server
                 return false;
             }
 
-            if (enet_peer_send(peer, 0, enetPacket) != 0)
+            if (enet_peer_send(peer, channel, enetPacket) != 0)
             {
                 enet_packet_destroy(enetPacket);
                 return false;
@@ -263,7 +263,7 @@ namespace Minigame::Server
         Minigame::Network::AssignPlayerPacket packet{};
         packet.playerId = playerId;
 
-        SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE);
+        SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, 0);
     }
 
     void GameServer::Impl::OnPlayerDisconnected(ENetPeer* peer)

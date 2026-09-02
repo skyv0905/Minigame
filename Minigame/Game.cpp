@@ -17,7 +17,6 @@ void Game::Run()
     SetExitKey(KEY_NULL);
 
     sceneManager.LoadScenes();
-    networkClient.Test();
     if (!networkClient.Connect("127.0.0.1", 5000))
     {
         std::cerr << "Failed to try connect server\n";
@@ -79,7 +78,6 @@ void Game::Update()
     if (inputManager.IsPressed(InputAction::Debug))
     {
         gameServices.debugMode = !gameServices.debugMode;
-        networkClient.SendReliable("Message");
     }
 }
 

@@ -1,7 +1,6 @@
 #include "NetworkClient.h"
 #include <enet/enet.h>
 #include <iostream>
-#include "Network/PacketSerializer.h"
 
 namespace Minigame::Network
 {
@@ -151,22 +150,22 @@ namespace Minigame::Network
 		}
 	}
 
-	void NetworkClient::Test()
+	bool NetworkClient::SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, unsigned char channel)
 	{
-
-	}
-
-	bool NetworkClient::SendReliable(const std::string& message)
-	{
-		if (!impl->connected || impl->server == nullptr || message.empty())
+		if (!impl->connected || impl->server == nullptr || data.empty() || channel >= 2)
 			return false;
 
-		ENetPacket* packet = enet_packet_create(message.data(), message.size(), ENET_PACKET_FLAG_RELIABLE);
+		enet_uint32 flags = 0;
+		if (packetSendType == PacketSendType::Reliable)
+			flags = ENET_PACKET_FLAG_RELIABLE;
 
+		ENetPacket* packet = enet_packet_create(data.data(), data.size(), flags);
 		if (packet == nullptr)
+		{
 			return false;
+		}
 
-		if (enet_peer_send(impl->server, 0, packet) != 0)
+		if (enet_peer_send(impl->server, channel, packet) != 0)
 		{
 			enet_packet_destroy(packet);
 			return false;

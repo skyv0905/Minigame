@@ -20,6 +20,7 @@ namespace Minigame::Components
 		const Font* font = nullptr;
 		float fontSize = 18.0f;
 		std::string targetTag = "LocalPlayer";
+		Color healthColor{ 90, 150, 255, 255 };
 
 		void DrawText(const char* text, Vector2 position, float size, Color color) const;
 		void DrawStat(const char* label, const char* value, const char* value_detail, Rectangle bounds) const;

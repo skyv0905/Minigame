@@ -130,6 +130,7 @@ namespace Minigame::Network
         case PacketType::GameStart:
         case PacketType::GameClosed:
         case PacketType::PlayerInput:
+        case PacketType::WorldState:
         case PacketType::GameResult:
             return type;
 
@@ -189,6 +190,23 @@ namespace Minigame::Network
         WriteFloat(buffer, packet.moveX);
         WriteFloat(buffer, packet.moveY);
         WriteUInt8(buffer, packet.fire ? 1 : 0);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const WorldStatePacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<WorldStatePacket>::PayloadSize);
+        WriteHeader<WorldStatePacket>(buffer);
+        WriteUInt32(buffer, packet.serverTick);
+        WriteUInt32(buffer, packet.playerCount);
+        for (const PlayerState& player : packet.players)
+        {
+            WriteUInt32(buffer, player.playerId);
+            WriteFloat(buffer, player.positionX);
+            WriteFloat(buffer, player.positionY);
+        }
         return buffer;
     }
 #pragma endregion
@@ -275,6 +293,26 @@ namespace Minigame::Network
         }
 
         packet.fire = fire == 1;
+        return packet;
+    }
+
+    template<>
+    std::optional<WorldStatePacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<WorldStatePacket>(data, offset))
+            return std::nullopt;
+
+        WorldStatePacket packet{};
+        if (!ReadUInt32(data, offset, packet.serverTick) || !ReadUInt32(data, offset, packet.playerCount) || packet.playerCount > WorldStatePacket::MaxPlayers)
+            return std::nullopt;
+
+        for (PlayerState& player : packet.players)
+        {
+            if (!ReadUInt32(data, offset, player.playerId) || !ReadFloat(data, offset, player.positionX) || !ReadFloat(data, offset, player.positionY))
+                return std::nullopt;
+        }
+
         return packet;
     }
 #pragma endregion

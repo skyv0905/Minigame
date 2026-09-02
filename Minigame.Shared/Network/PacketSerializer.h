@@ -50,6 +50,12 @@ namespace Minigame::Network
         static constexpr PacketType Type = PacketType::PlayerInput;
         static constexpr std::uint32_t PayloadSize = 4 + 4 + 4 + 1;
     };
+    template<>
+    struct PacketTraits<WorldStatePacket>
+    {
+        static constexpr PacketType Type = PacketType::WorldState;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + WorldStatePacket::MaxPlayers * (4 + 4 + 4);
+    };
 
     // ------------------------------ //
 
@@ -66,6 +72,8 @@ namespace Minigame::Network
     ByteBuffer Serialize(const GameClosedPacket& packet);
     template<>
     ByteBuffer Serialize(const PlayerInputPacket& packet);
+    template<>
+    ByteBuffer Serialize(const WorldStatePacket& packet);
 
     // ------------------------------ //
 
@@ -82,4 +90,6 @@ namespace Minigame::Network
     std::optional<GameClosedPacket> Deserialize(std::span<const std::uint8_t> data);
     template<>
     std::optional<PlayerInputPacket> Deserialize(std::span<const std::uint8_t> data);
+    template<>
+    std::optional<WorldStatePacket> Deserialize(std::span<const std::uint8_t> data);
 }

@@ -35,6 +35,9 @@ namespace Minigame::Components
 
     void PlayerController::Update(float deltaTime)
     {
+        if (gameServices.session.HasNetworkMatch() && !owner.ContainsTag("LocalPlayer"))
+            return;
+
         if (isDead)
             return;
 
@@ -116,7 +119,7 @@ namespace Minigame::Components
 
     void PlayerController::OnLevelUp(int level)
     {
-        float m = level % 5 == 0 ? 2 : 1;
+        float m = level % 5 == 0 ? 2.0f : 1.0f;
         attackPower += 5.0f * m;
         moveSpeed += 10.0f * m;
         bulletDistance += 5.0f * m;

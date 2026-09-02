@@ -15,6 +15,7 @@ namespace Minigame::Network
 
 		std::optional<GameStartPacket> pendingGameStart;
 		std::optional<GameClosedPacket> pendingGameClosed;
+		std::optional<WorldStatePacket> latestWorldState;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -72,12 +73,18 @@ namespace Minigame::Network
 
 		impl->disconnecting = true;
 		impl->playerId = 0;
+		impl->latestWorldState.reset();
 		enet_peer_disconnect(impl->server, 0);
 	}
 
 	bool NetworkClient::IsConnected() const
 	{
 		return impl->connected;
+	}
+
+	std::uint32_t NetworkClient::GetPlayerId() const
+	{
+		return impl->playerId;
 	}
 
 	void NetworkClient::Update(float deltaTime)
@@ -150,6 +157,18 @@ namespace Minigame::Network
 					impl->pendingGameClosed = *packet;
 					break;
 				}
+				case PacketType::WorldState:
+				{
+					auto packet = Deserialize<WorldStatePacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid WorldState Packet\n";
+						break;
+					}
+
+					impl->latestWorldState = *packet;
+					break;
+				}
 				default:
 				{
 					break;
@@ -166,6 +185,7 @@ namespace Minigame::Network
 				impl->disconnecting = false;
 				impl->server = nullptr;
 				impl->playerId = 0;
+				impl->latestWorldState.reset();
 				std::cout << "Server Disconnected\n";
 				break;
 			}
@@ -194,6 +214,11 @@ namespace Minigame::Network
 		auto packet = impl->pendingGameClosed;
 		impl->pendingGameClosed.reset();
 		return packet;
+	}
+
+	std::optional<WorldStatePacket> NetworkClient::GetLatestWorldState() const
+	{
+		return impl->latestWorldState;
 	}
 
 	bool NetworkClient::SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, PacketChannelType channel)

@@ -1,5 +1,6 @@
 #include "PlayerStatsUI.h"
 #include "Health.h"
+#include "HealthBar.h"
 #include "PlayerController.h"
 #include "Exp.h"
 #include "../GameObject.h"
@@ -16,6 +17,7 @@ namespace Minigame::Components
 	{
 		auto* target = owner.GetScene().FindGameObjectWithTag(targetTag);
 		auto* health = target ? target->GetComponent<Minigame::Components::Health>() : nullptr;
+		auto* healthBar = target ? target->GetComponent<Minigame::Components::HealthBar>() : nullptr;
 		auto* exp = target ? target->GetComponent<Minigame::Components::Exp>() : nullptr;
 		auto* playerController = target ? target->GetComponent<Minigame::Components::PlayerController>() : nullptr;
 
@@ -38,7 +40,7 @@ namespace Minigame::Components
 
 			DrawText(TextFormat("HP  %.0f / %.0f", currentHealth, maxHealth), Vector2{ 24.0f, panelY + 15.0f }, fontSize, WHITE);
 			DrawRectangleRec(healthBackground, Color{ 8, 11, 18, 255 });
-			DrawRectangleRec(healthForeground, Color{ 90, 150, 255, 255 });
+			DrawRectangleRec(healthForeground, healthBar ? healthBar->GetHealthColor() : healthColor);
 			DrawRectangleLinesEx(healthBackground, 1.0f, Color{ 135, 155, 195, 255 });
 		}
 

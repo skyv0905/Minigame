@@ -11,6 +11,7 @@ namespace Minigame::Network
         GameStart,
         GameClosed,
         PlayerInput,
+        WorldState,
         GameResult
     };
 

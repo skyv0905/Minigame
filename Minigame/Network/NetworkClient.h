@@ -18,6 +18,7 @@ namespace Minigame::Network
 		bool Connect(const std::string& address, unsigned short port);
 		void Disconnect();
 		bool IsConnected() const;
+		std::uint32_t GetPlayerId() const;
 
 		void Update(float deltaTime);
 
@@ -29,6 +30,7 @@ namespace Minigame::Network
 
 		std::optional<GameStartPacket> ConsumeGameStartPacket();
 		std::optional<GameClosedPacket> ConsumeGameClosedPacket();
+		std::optional<WorldStatePacket> GetLatestWorldState() const;
 
 	private:
 		class Impl;

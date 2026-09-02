@@ -55,4 +55,9 @@ namespace Minigame::Components
 	{
 		this->healthColor = color;
 	}
+
+	Color HealthBar::GetHealthColor() const
+	{
+		return healthColor;
+	}
 }

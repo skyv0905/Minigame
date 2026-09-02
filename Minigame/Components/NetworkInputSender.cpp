@@ -1,5 +1,6 @@
 #include "NetworkInputSender.h"
 #include "../GameServices.h"
+#include "../GameObject.h"
 #include "../GameSession.h"
 #include "../InputManager.h"
 #include "../Network/NetworkClient.h"
@@ -14,7 +15,7 @@ namespace Minigame::Components
 
     void NetworkInputSender::Update(float deltaTime)
     {
-        if (!gameServices.session.HasNetworkMatch())
+        if (!gameServices.session.HasNetworkMatch() || !owner.ContainsTag("LocalPlayer"))
             return;
 
         fireBuffered = fireBuffered || gameServices.input.IsPressed(InputAction::Fire) || gameServices.input.IsDown(InputAction::Fire);

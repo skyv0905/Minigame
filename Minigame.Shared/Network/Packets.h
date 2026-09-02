@@ -1,6 +1,8 @@
 #pragma once
 
 #include "PacketType.h"
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace Minigame::Network
@@ -39,5 +41,21 @@ namespace Minigame::Network
         float moveX;
         float moveY;
         bool fire;
+    };
+
+    struct PlayerState
+    {
+        std::uint32_t playerId;
+        float positionX;
+        float positionY;
+    };
+
+    struct WorldStatePacket
+    {
+        static constexpr std::size_t MaxPlayers = 2;
+
+        std::uint32_t serverTick;
+        std::uint32_t playerCount;
+        std::array<PlayerState, MaxPlayers> players;
     };
 }

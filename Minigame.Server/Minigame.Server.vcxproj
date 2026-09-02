@@ -148,10 +148,12 @@
   <ItemGroup>
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ServerWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="ServerWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Minigame.Shared\Minigame.Shared.vcxproj">

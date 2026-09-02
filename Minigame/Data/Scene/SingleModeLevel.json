@@ -224,26 +224,17 @@
       [
         {
           "type": "PlayerSpawner",
-          "position":
-          {
-            "x": 700,
-            "y": 500
-          },
-          "aniName": "Ball_Star1",
-          "bulletTint":
-          {
-            "r": 155,
-            "g": 240,
-            "b": 255,
-            "a": 255
-          },
-          "healthColor":
-          {
-            "r": 90,
-            "g": 150,
-            "b": 255,
-            "a": 255
-          }
+          "playerCount": 1,
+          "players":
+          [
+            {
+              "playerId": 1,
+              "position": { "x": 700, "y": 500 },
+              "aniName": "Ball_Star1",
+              "bulletTint": { "r": 155, "g": 240, "b": 255, "a": 255 },
+              "healthColor": { "r": 90, "g": 150, "b": 255, "a": 255 }
+            }
+          ]
         }
       ]
     },

@@ -10,6 +10,7 @@
 #include "Components/Animator.h"
 #include "Components/PlayerSpawner.h"
 #include "Components/PlayerController.h"
+#include "Components/PlayerControllerNetwork.h"
 #include "Components/NetworkInputSender.h"
 #include "Components/MobController.h"
 #include "Components/Health.h"
@@ -135,45 +136,36 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
     }
     else if (type == "PlayerSpawner")
     {
-        auto& component = gameObject.AddComponent<Minigame::Components::PlayerSpawner>();
+		auto& component = gameObject.AddComponent<Minigame::Components::PlayerSpawner>(gameServices);
+		component.SetPlayerCount(componentData.value("playerCount", 0u));
 
-        if (componentData.contains("position"))
-        {
-            component.SetPosition(componentData.at("position").get<Vector2>());
-        }
+		for (const auto& playerData : componentData.value("players", json::array()))
+		{
+			Minigame::Components::PlayerSpawnInfo player{};
+			player.playerId = playerData.value("playerId", 0u);
+			player.position = playerData.value("position", Vector2{});
+			player.animation = playerData.value("aniName", "");
 
-        if (componentData.contains("aniName"))
-        {
-            component.SetAnimation(componentData.at("aniName").get<std::string>());
-        }
+			const auto& bulletTintData = playerData.value("bulletTint", json::object());
+			player.bulletTint = Color
+			{
+				static_cast<unsigned char>(bulletTintData.value("r", 255)),
+				static_cast<unsigned char>(bulletTintData.value("g", 255)),
+				static_cast<unsigned char>(bulletTintData.value("b", 255)),
+				static_cast<unsigned char>(bulletTintData.value("a", 255))
+			};
 
-        if (componentData.contains("bulletTint"))
-        {
-            const auto& bulletTintData = componentData.at("bulletTint");
-            Color bulletTint
-            {
-                static_cast<unsigned char>(bulletTintData.value("r", 255)),
-                static_cast<unsigned char>(bulletTintData.value("g", 255)),
-                static_cast<unsigned char>(bulletTintData.value("b", 255)),
-                static_cast<unsigned char>(bulletTintData.value("a", 255))
-            };
+			const auto& healthColorData = playerData.value("healthColor", json::object());
+			player.healthColor = Color
+			{
+				static_cast<unsigned char>(healthColorData.value("r", 255)),
+				static_cast<unsigned char>(healthColorData.value("g", 255)),
+				static_cast<unsigned char>(healthColorData.value("b", 255)),
+				static_cast<unsigned char>(healthColorData.value("a", 255))
+			};
 
-            component.SetBulletTint(bulletTint);
-        }
-
-        if (componentData.contains("healthColor"))
-        {
-            const auto& healthColorData = componentData.at("healthColor");
-            Color healthColor
-            {
-                static_cast<unsigned char>(healthColorData.value("r", 255)),
-                static_cast<unsigned char>(healthColorData.value("g", 255)),
-                static_cast<unsigned char>(healthColorData.value("b", 255)),
-                static_cast<unsigned char>(healthColorData.value("a", 255))
-            };
-
-            component.SetHealthColor(healthColor);
-        }
+			component.AddPlayer(std::move(player));
+		}
     }
     else if (type == "PlayerController")
     {
@@ -207,6 +199,10 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
 
             component.SetBulletTint(bulletTint);
         }
+    }
+    else if (type == "PlayerControllerNetwork")
+    {
+        gameObject.AddComponent<Minigame::Components::PlayerControllerNetwork>(gameServices);
     }
     else if (type == "MobController")
     {

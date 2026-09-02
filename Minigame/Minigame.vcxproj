@@ -179,6 +179,7 @@
     <ClCompile Include="Components\MobController.cpp" />
     <ClCompile Include="Components\NetworkInputSender.cpp" />
     <ClCompile Include="Components\PlayerController.cpp" />
+    <ClCompile Include="Components\PlayerControllerNetwork.cpp" />
     <ClCompile Include="Components\PlayerMessage.cpp" />
     <ClCompile Include="Components\PlayerSpawner.cpp" />
     <ClCompile Include="Components\PlayerStatsUI.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="Components\MobController.h" />
     <ClInclude Include="Components\NetworkInputSender.h" />
     <ClInclude Include="Components\PlayerController.h" />
+    <ClInclude Include="Components\PlayerControllerNetwork.h" />
     <ClInclude Include="Components\PlayerMessage.h" />
     <ClInclude Include="Components\PlayerSpawner.h" />
     <ClInclude Include="Components\PlayerStatsUI.h" />

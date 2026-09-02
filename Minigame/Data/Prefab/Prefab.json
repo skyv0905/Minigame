@@ -47,6 +47,9 @@
         "type": "NetworkInputSender"
       },
       {
+        "type": "PlayerControllerNetwork"
+      },
+      {
         "type": "Health",
         "maxHealth": 100
       },

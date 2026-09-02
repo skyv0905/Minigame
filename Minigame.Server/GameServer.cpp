@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "Network/PacketSerializer.h"
 #include "ClientSession.h"
+#include "ServerWorld.h"
 
 namespace Minigame::Server
 {
@@ -45,6 +46,7 @@ namespace Minigame::Server
 
         ENetHost* server = nullptr;
         std::unordered_map<ENetPeer*, ClientSession> sessions;
+        ServerWorld world;
 
         static constexpr std::uint32_t TickRate = 30;
         static constexpr double TickInterval = 1.0 / TickRate;
@@ -58,6 +60,7 @@ namespace Minigame::Server
         void OnPlayerDisconnected(ENetPeer* peer);
 
         void OnAllPlayersReady();
+        void BroadcastWorldState();
     };
 
 	GameServer::GameServer() : impl(std::make_unique<Impl>())
@@ -216,9 +219,11 @@ namespace Minigame::Server
                         break;
                     }
 
-                    std::cout << "Player " << session->second.playerId
-                        << " input: " << packet->moveX << ", " << packet->moveY << '\n';
-                    //HandlePlayerInput(session->second.playerId, *packet);
+                    if (!impl->gameStarted || packet->sequence <= session->second.lastInputSequence)
+                        break;
+
+                    session->second.lastInputSequence = packet->sequence;
+                    impl->world.SetPlayerInput(session->second.playerId, *packet);
                     break;
                 }
 
@@ -254,6 +259,12 @@ namespace Minigame::Server
                 }))
         {
             impl->OnAllPlayersReady();
+        }
+
+        if (impl->gameStarted)
+        {
+            impl->world.Update(static_cast<float>(Impl::TickInterval));
+            impl->BroadcastWorldState();
         }
 	}
 
@@ -311,6 +322,7 @@ namespace Minigame::Server
 
         std::uint32_t playerId = session->second.playerId;
         sessions.erase(session);
+        world.RemovePlayer(playerId);
 
         if (gameStarted)
         {
@@ -334,6 +346,14 @@ namespace Minigame::Server
         if (gameStarted)
             return;
 
+        world.Reset();
+        for (auto& [peer, session] : sessions)
+        {
+            session.lastInputSequence = 0;
+            const Vector2 spawnPosition = session.playerId == 1 ? Vector2{ 53.0f, 114.0f } : Vector2{ 1313.0f, 654.0f };
+            world.AddPlayer(session.playerId, spawnPosition);
+        }
+
         matchStartTick = serverTick;
         Minigame::Network::GameStartPacket packet{};
         packet.randomSeed = 12345;
@@ -349,5 +369,28 @@ namespace Minigame::Server
         }
 
         gameStarted = true;
+    }
+
+    void GameServer::Impl::BroadcastWorldState()
+    {
+        Minigame::Network::WorldStatePacket packet{};
+        packet.serverTick = serverTick;
+
+        for (const auto& [playerId, player] : world.GetPlayers())
+        {
+            if (packet.playerCount >= packet.players.size())
+                break;
+
+            auto& state = packet.players[packet.playerCount++];
+            state.playerId = playerId;
+            state.positionX = player.position.x;
+            state.positionY = player.position.y;
+        }
+
+        for (auto& [peer, session] : sessions)
+        {
+            if (!SendPacket(peer, packet, 0, Minigame::Network::PacketChannelType::Gameplay))
+                std::cerr << "Failed to send WorldState to player " << session.playerId << '\n';
+        }
     }
 }

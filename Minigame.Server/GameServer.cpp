@@ -9,6 +9,7 @@
 #include <chrono>
 #include <algorithm>
 #include "Network/PacketSerializer.h"
+#include "ClientSession.h"
 
 namespace Minigame::Server
 {
@@ -34,13 +35,6 @@ namespace Minigame::Server
             return true;
         }
     }
-
-    struct ClientSession
-    {
-        ENetPeer* peer = nullptr;
-        std::uint32_t playerId = 0;
-        bool ready = false;
-    };
 
     class GameServer::Impl
     {

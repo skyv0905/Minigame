@@ -17,10 +17,6 @@ void Game::Run()
     SetExitKey(KEY_NULL);
 
     sceneManager.LoadScenes();
-    if (!networkClient.Connect("127.0.0.1", 5000))
-    {
-        std::cerr << "Failed to try connect server\n";
-    }
 
     Image icon = LoadImage(ResourceManager::GetResourcePath("icon.png").c_str());
     SetWindowIcon(icon);
@@ -74,6 +70,24 @@ void Game::Update()
     sceneManager.Update(deltaTime);
     timerManager.Update(deltaTime);
     networkClient.Update(deltaTime);
+
+    if (auto gameStart = networkClient.ConsumeGameStartPacket())
+    {
+		const int sceneIndex = gameSession.ConsumePendingMultiScene();
+        if (sceneIndex >= 0)
+        {
+            randomManager.SetSeed(gameStart->randomSeed);
+            gameSession.Reset();
+            gameSession.BeginNetworkMatch(gameStart->startTick);
+            sceneManager.SelectScene(sceneIndex);
+        }
+    }
+    if (networkClient.ConsumeGameClosedPacket())
+    {
+        networkClient.Disconnect();
+        gameSession.Reset();
+        sceneManager.SelectScene(0);
+    }
 
     if (inputManager.IsPressed(InputAction::Debug))
     {

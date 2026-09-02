@@ -20,8 +20,10 @@
 #include "Components/MapBuilder.h"
 #include "Components/Button.h"
 #include "Components/TextUI.h"
+#include "Network/NetworkClient.h"
 #include "JsonUtils.h"
 #include <fstream>
+#include <iostream>
 
 GameObjectFactory::GameObjectFactory(GameServices& gameServices, SceneManager& sceneManager) : gameServices(gameServices), sceneManager(sceneManager)
 {
@@ -448,6 +450,21 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                         {
                             gameServices.session.Reset();
                             sceneManager.SelectScene(0);
+                        });
+                }
+                else if (func == "StartMulti")
+                {
+                    int sceneNum = onClickData.value("value", 0);
+                    component.SetOnClick([this, sceneNum]()
+                        {
+                            if (gameServices.network.Connect("127.0.0.1", 5000))
+                            {
+								gameServices.session.SetPendingMultiScene(sceneNum);
+                            }
+                            else
+                            {
+                                std::cerr << "Failed to try connect server\n";
+                            }
                         });
                 }
             }

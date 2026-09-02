@@ -45,13 +45,45 @@
             "x": 200,
             "y": 50
           },
-          "text": "게임 시작",
+          "text": "싱글 게임 시작",
           "font": "Maplestory Bold.ttf",
           "fontSize": 24,
           "onClick":
           {
             "func": "SelectScene",
             "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "StartMultiButton",
+      "zOrder": 100,
+      "components": [
+        {
+          "type": "Transform",
+          "position":
+          {
+            "x": 583,
+            "y": 380
+          },
+          "rotation": 0,
+          "scale": 1
+        },
+        {
+          "type": "Button",
+          "size":
+          {
+            "x": 200,
+            "y": 50
+          },
+          "text": "멀티 게임 시작",
+          "font": "Maplestory Bold.ttf",
+          "fontSize": 24,
+          "onClick":
+          {
+            "func": "StartMulti",
+            "value": 2
           }
         }
       ]

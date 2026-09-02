@@ -7,6 +7,8 @@ namespace Minigame::Network
     enum class PacketType : std::uint16_t
     {
         AssignPlayer,
+        GameStart,
+        GameClosed,
         PlayerInput,
         GameResult
     };
@@ -15,5 +17,11 @@ namespace Minigame::Network
     {
         Unreliable,
         Reliable
+    };
+
+	enum class PacketChannelType : std::uint8_t
+    {
+        Control = 0,
+        Gameplay = 1
     };
 }

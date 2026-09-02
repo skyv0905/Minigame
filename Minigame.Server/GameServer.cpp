@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <atomic>
 #include <thread>
+#include <chrono>
 #include "Network/PacketSerializer.h"
 
 namespace Minigame::Server
@@ -13,7 +14,7 @@ namespace Minigame::Server
     namespace
     {
         template<typename T>
-        bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags, enet_uint8 channel)
+        bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags, Minigame::Network::PacketChannelType channel)
         {
             Minigame::Network::ByteBuffer data = Minigame::Network::Serialize(packet);
 
@@ -23,7 +24,7 @@ namespace Minigame::Server
                 return false;
             }
 
-            if (enet_peer_send(peer, channel, enetPacket) != 0)
+            if (enet_peer_send(peer, static_cast<enet_uint8>(channel), enetPacket) != 0)
             {
                 enet_packet_destroy(enetPacket);
                 return false;
@@ -44,10 +45,18 @@ namespace Minigame::Server
     {
     public:
         bool initialized = false;
+        bool gameStarted = false;
         std::atomic_bool running = false;
 
         ENetHost* server = nullptr;
         std::unordered_map<ENetPeer*, ClientSession> sessions;
+
+        static constexpr std::uint32_t TickRate = 30;
+        static constexpr double TickInterval = 1.0 / TickRate;
+        std::uint32_t serverTick = 0;
+        std::uint32_t matchStartTick = 0;
+        double tickAccumulator = 0.0;
+        std::chrono::steady_clock::time_point previousTime = std::chrono::steady_clock::now();
 
         std::uint32_t FindAvailablePlayerId() const;
         void OnPlayerConnected(ENetPeer* peer);
@@ -136,7 +145,22 @@ namespace Minigame::Server
 	void GameServer::Loop()
 	{
         GetPackets();
-        Update();
+
+        const auto now = std::chrono::steady_clock::now();
+        const std::chrono::duration<double> elapsed = now - impl->previousTime;
+        impl->previousTime = now;
+        impl->tickAccumulator += elapsed.count();
+
+        constexpr int maxUpdatesPerLoop = 5;
+        int updateCount = 0;
+
+        while (impl->tickAccumulator >= Impl::TickInterval && updateCount < maxUpdatesPerLoop)
+        {
+            Update();
+            impl->serverTick++;
+            impl->tickAccumulator -= Impl::TickInterval;
+            updateCount++;
+        }
 	}
 
     void GameServer::GetPackets()
@@ -155,7 +179,7 @@ namespace Minigame::Server
 
             case ENET_EVENT_TYPE_RECEIVE:
             {
-                std::cout << "Packed Received: " << event.packet->dataLength << " bytes\n";
+                //std::cout << "Packed Received: " << event.packet->dataLength << " bytes\n";
                 std::span<const std::uint8_t> data(event.packet->data, event.packet->dataLength);
 
 				const auto packetType = Minigame::Network::ReadPacketType(data);
@@ -183,8 +207,8 @@ namespace Minigame::Server
                         break;
                     }
 
-                    std::cout << "Player " << session->second.playerId
-                        << " input: " << packet->moveX << ", " << packet->moveY << '\n';
+                    //std::cout << "Player " << session->second.playerId
+                    //    << " input: " << packet->moveX << ", " << packet->moveY << '\n';
                     //HandlePlayerInput(session->second.playerId, *packet);
                     break;
                 }
@@ -214,7 +238,7 @@ namespace Minigame::Server
 
 	void GameServer::Update()
 	{
-        if (impl->sessions.size() == 2)
+        if (!impl->gameStarted && impl->sessions.size() == 2)
         {
             impl->OnAllPlayersReady();
         }
@@ -263,7 +287,7 @@ namespace Minigame::Server
         Minigame::Network::AssignPlayerPacket packet{};
         packet.playerId = playerId;
 
-        SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, 0);
+        SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Control);
     }
 
     void GameServer::Impl::OnPlayerDisconnected(ENetPeer* peer)
@@ -274,9 +298,44 @@ namespace Minigame::Server
 
         std::uint32_t playerId = session->second.playerId;
         sessions.erase(session);
+
+        if (gameStarted)
+        {
+            Minigame::Network::GameClosedPacket packet{};
+            packet.closed = true;
+
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Control))
+                {
+                    std::cerr << "Failed to send GameClosed to player " << session.playerId << '\n';
+                    return;
+                }
+            }
+
+            gameStarted = false;
+        }
     }
 
     void GameServer::Impl::OnAllPlayersReady()
     {
+        if (gameStarted)
+            return;
+
+        matchStartTick = serverTick;
+        Minigame::Network::GameStartPacket packet{};
+        packet.randomSeed = 12345;
+        packet.startTick = matchStartTick;
+
+        for (auto& [peer, session] : sessions)
+        {
+            if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Control))
+            {
+                std::cerr << "Failed to send GameStart to player " << session.playerId << '\n';
+                return;
+            }
+        }
+
+        gameStarted = true;
     }
 }

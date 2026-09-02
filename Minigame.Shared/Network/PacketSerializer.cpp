@@ -126,6 +126,8 @@ namespace Minigame::Network
         switch (type)
         {
         case PacketType::AssignPlayer:
+        case PacketType::GameStart:
+        case PacketType::GameClosed:
         case PacketType::PlayerInput:
         case PacketType::GameResult:
             return type;
@@ -144,6 +146,27 @@ namespace Minigame::Network
         buffer.reserve(HeaderSize + PacketTraits<AssignPlayerPacket>::PayloadSize);
         WriteHeader<AssignPlayerPacket>(buffer);
         WriteUInt32(buffer, packet.playerId);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const GameStartPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<GameStartPacket>::PayloadSize);
+        WriteHeader<GameStartPacket>(buffer);
+        WriteUInt32(buffer, packet.randomSeed);
+        WriteUInt32(buffer, packet.startTick);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const GameClosedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<GameClosedPacket>::PayloadSize);
+        WriteHeader<GameClosedPacket>(buffer);
+        WriteUInt8(buffer, packet.closed ? 1 : 0);
         return buffer;
     }
 
@@ -177,6 +200,45 @@ namespace Minigame::Network
             return std::nullopt;
         }
 
+        return packet;
+    }
+
+    template<>
+    std::optional<GameStartPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<GameStartPacket>(data, offset))
+        {
+            return std::nullopt;
+        }
+
+        GameStartPacket packet{};
+        if (!ReadUInt32(data, offset, packet.randomSeed) ||
+            !ReadUInt32(data, offset, packet.startTick))
+        {
+            return std::nullopt;
+        }
+
+        return packet;
+    }
+
+    template<>
+    std::optional<GameClosedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<GameClosedPacket>(data, offset))
+        {
+            return std::nullopt;
+        }
+
+        GameClosedPacket packet{};
+        std::uint8_t closed = 0;
+        if (!ReadUInt8(data, offset, closed) || closed > 1)
+        {
+            return std::nullopt;
+        }
+
+        packet.closed = closed == 1;
         return packet;
     }
 

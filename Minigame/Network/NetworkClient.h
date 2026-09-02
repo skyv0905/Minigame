@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <optional>
 #include "Network/PacketSerializer.h"
 
 namespace Minigame::Network
@@ -21,15 +22,18 @@ namespace Minigame::Network
 		void Update(float deltaTime);
 
 		template<typename T>
-		bool SendPacket(const T& packet, PacketSendType packetSendType = PacketSendType::Unreliable, unsigned char channel = 0)
+		bool SendPacket(const T& packet, PacketSendType packetSendType, PacketChannelType channel)
 		{
 			return SendSerializedPacket(Serialize(packet), packetSendType, channel);
 		}
+
+		std::optional<GameStartPacket> ConsumeGameStartPacket();
+		std::optional<GameClosedPacket> ConsumeGameClosedPacket();
 
 	private:
 		class Impl;
 		std::unique_ptr<Impl> impl;
 
-		bool SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, unsigned char channel);
+		bool SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, PacketChannelType channel);
 	};
 }

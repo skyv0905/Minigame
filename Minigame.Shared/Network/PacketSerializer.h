@@ -27,6 +27,18 @@ namespace Minigame::Network
         static constexpr std::uint32_t PayloadSize = 4;
     };
     template<>
+    struct PacketTraits<GameStartPacket>
+    {
+        static constexpr PacketType Type = PacketType::GameStart;
+        static constexpr std::uint32_t PayloadSize = 4 + 4;
+    };
+    template<>
+    struct PacketTraits<GameClosedPacket>
+    {
+        static constexpr PacketType Type = PacketType::GameClosed;
+        static constexpr std::uint32_t PayloadSize = 1;
+    };
+    template<>
     struct PacketTraits<PlayerInputPacket>
     {
         static constexpr PacketType Type = PacketType::PlayerInput;
@@ -41,6 +53,10 @@ namespace Minigame::Network
     template<>
     ByteBuffer Serialize(const AssignPlayerPacket& packet);
     template<>
+    ByteBuffer Serialize(const GameStartPacket& packet);
+    template<>
+    ByteBuffer Serialize(const GameClosedPacket& packet);
+    template<>
     ByteBuffer Serialize(const PlayerInputPacket& packet);
 
     // ------------------------------ //
@@ -50,6 +66,10 @@ namespace Minigame::Network
 
     template<>
     std::optional<AssignPlayerPacket> Deserialize(std::span<const std::uint8_t> data);
+    template<>
+    std::optional<GameStartPacket> Deserialize(std::span<const std::uint8_t> data);
+    template<>
+    std::optional<GameClosedPacket> Deserialize(std::span<const std::uint8_t> data);
     template<>
     std::optional<PlayerInputPacket> Deserialize(std::span<const std::uint8_t> data);
 }

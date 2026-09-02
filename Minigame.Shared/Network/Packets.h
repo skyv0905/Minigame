@@ -19,6 +19,17 @@ namespace Minigame::Network
         std::uint32_t playerId;
     };
 
+    struct GameStartPacket
+    {
+        std::uint32_t randomSeed;
+        std::uint32_t startTick;
+    };
+
+    struct GameClosedPacket
+    {
+        bool closed;
+    };
+
     struct PlayerInputPacket
     {
         std::uint32_t sequence;

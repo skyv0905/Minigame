@@ -13,6 +13,9 @@ namespace Minigame::Network
 
 		std::uint32_t playerId = 0;
 
+		std::optional<GameStartPacket> pendingGameStart;
+		std::optional<GameClosedPacket> pendingGameClosed;
+
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
 	};
@@ -97,7 +100,7 @@ namespace Minigame::Network
 
 			case ENET_EVENT_TYPE_RECEIVE:
 			{
-				std::cout << "Packet Received: " << event.packet->dataLength << " bytes\n";
+				//std::cout << "Packet Received: " << event.packet->dataLength << " bytes\n";
 				std::span<const std::uint8_t> data(event.packet->data, event.packet->dataLength);
 
 				const auto packetType = Minigame::Network::ReadPacketType(data);
@@ -123,7 +126,30 @@ namespace Minigame::Network
 					std::cout << "Assigned Player ID: " << impl->playerId << '\n';
 					break;
 				}
+				case PacketType::GameStart:
+				{
+					auto packet = Deserialize<GameStartPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid GameStart Packet\n";
+						break;
+					}
 
+					impl->pendingGameStart = *packet;
+					break;
+				}
+				case PacketType::GameClosed:
+				{
+					auto packet = Deserialize<GameClosedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid GameClosed Packet\n";
+						break;
+					}
+
+					impl->pendingGameClosed = *packet;
+					break;
+				}
 				default:
 				{
 					break;
@@ -150,11 +176,35 @@ namespace Minigame::Network
 		}
 	}
 
-	bool NetworkClient::SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, unsigned char channel)
+	std::optional<GameStartPacket> NetworkClient::ConsumeGameStartPacket()
 	{
-		if (!impl->connected || impl->server == nullptr || data.empty() || channel >= 2)
+		if (!impl->pendingGameStart)
+			return std::nullopt;
+
+		auto packet = impl->pendingGameStart;
+		impl->pendingGameStart.reset();
+		return packet;
+	}
+
+	std::optional<GameClosedPacket> NetworkClient::ConsumeGameClosedPacket()
+	{
+		if (!impl->pendingGameClosed)
+			return std::nullopt;
+
+		auto packet = impl->pendingGameClosed;
+		impl->pendingGameClosed.reset();
+		return packet;
+	}
+
+	bool NetworkClient::SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, PacketChannelType channel)
+	{
+		if (!impl->connected || impl->server == nullptr || data.empty())
 			return false;
 
+		const enet_uint8 channelID = static_cast<enet_uint8>(channel);
+		if (channelID >= 2)
+			return false;
+		
 		enet_uint32 flags = 0;
 		if (packetSendType == PacketSendType::Reliable)
 			flags = ENET_PACKET_FLAG_RELIABLE;
@@ -165,7 +215,7 @@ namespace Minigame::Network
 			return false;
 		}
 
-		if (enet_peer_send(impl->server, channel, packet) != 0)
+		if (enet_peer_send(impl->server, channelID, packet) != 0)
 		{
 			enet_packet_destroy(packet);
 			return false;

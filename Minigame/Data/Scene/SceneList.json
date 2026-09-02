@@ -8,6 +8,10 @@
     {
       "name": "SingleModeLevel",
       "index": 1
+    },
+    {
+      "name": "MultiModeLevel",
+      "index": 2
     }
   ]
 }

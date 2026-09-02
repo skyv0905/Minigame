@@ -7,6 +7,7 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 #include "Network/PacketSerializer.h"
 
 namespace Minigame::Server
@@ -192,6 +193,20 @@ namespace Minigame::Server
 
                 switch (packetType.value())
                 {
+                case Minigame::Network::PacketType::PlayerReady:
+                {
+                    auto packet = Minigame::Network::Deserialize<Minigame::Network::PlayerReadyPacket>(data);
+                    auto session = impl->sessions.find(event.peer);
+                    if (!packet || session == impl->sessions.end() || impl->gameStarted)
+                    {
+                        std::cerr << "Invalid PlayerReady Packet\n";
+                        break;
+                    }
+
+                    session->second.ready = true;
+                    std::cout << "Player " << session->second.playerId << " Ready\n";
+                    break;
+                }
                 case Minigame::Network::PacketType::PlayerInput:
                 {
                     auto packet = Minigame::Network::Deserialize<Minigame::Network::PlayerInputPacket>(data);
@@ -238,7 +253,11 @@ namespace Minigame::Server
 
 	void GameServer::Update()
 	{
-        if (!impl->gameStarted && impl->sessions.size() == 2)
+        if (!impl->gameStarted && impl->sessions.size() == 2 &&
+            std::all_of(impl->sessions.begin(), impl->sessions.end(), [](const auto& entry)
+                {
+                    return entry.second.ready;
+                }))
         {
             impl->OnAllPlayersReady();
         }
@@ -302,7 +321,6 @@ namespace Minigame::Server
         if (gameStarted)
         {
             Minigame::Network::GameClosedPacket packet{};
-            packet.closed = true;
 
             for (auto& [peer, session] : sessions)
             {

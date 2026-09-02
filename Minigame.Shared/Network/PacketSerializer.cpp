@@ -126,6 +126,7 @@ namespace Minigame::Network
         switch (type)
         {
         case PacketType::AssignPlayer:
+        case PacketType::PlayerReady:
         case PacketType::GameStart:
         case PacketType::GameClosed:
         case PacketType::PlayerInput:
@@ -150,6 +151,15 @@ namespace Minigame::Network
     }
 
     template<>
+    ByteBuffer Serialize(const PlayerReadyPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize);
+        WriteHeader<PlayerReadyPacket>(buffer);
+        return buffer;
+    }
+
+    template<>
     ByteBuffer Serialize(const GameStartPacket& packet)
     {
         ByteBuffer buffer;
@@ -166,7 +176,6 @@ namespace Minigame::Network
         ByteBuffer buffer;
         buffer.reserve(HeaderSize + PacketTraits<GameClosedPacket>::PayloadSize);
         WriteHeader<GameClosedPacket>(buffer);
-        WriteUInt8(buffer, packet.closed ? 1 : 0);
         return buffer;
     }
 
@@ -204,6 +213,18 @@ namespace Minigame::Network
     }
 
     template<>
+    std::optional<PlayerReadyPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<PlayerReadyPacket>(data, offset))
+        {
+            return std::nullopt;
+        }
+
+        return PlayerReadyPacket{};
+    }
+
+    template<>
     std::optional<GameStartPacket> Deserialize(std::span<const std::uint8_t> data)
     {
         std::size_t offset = 0;
@@ -231,15 +252,7 @@ namespace Minigame::Network
             return std::nullopt;
         }
 
-        GameClosedPacket packet{};
-        std::uint8_t closed = 0;
-        if (!ReadUInt8(data, offset, closed) || closed > 1)
-        {
-            return std::nullopt;
-        }
-
-        packet.closed = closed == 1;
-        return packet;
+        return GameClosedPacket{};
     }
 
     template<>

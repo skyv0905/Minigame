@@ -10,7 +10,7 @@ class SceneManager
 public:
     explicit SceneManager(GameServices& gameServices);
 
-    void Update(float deltaTime);
+    void Update(float deltaTime, bool updateCurrentScene = true);
     void Draw();
 
     void LoadScenes();

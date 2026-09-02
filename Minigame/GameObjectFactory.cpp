@@ -460,6 +460,7 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                             if (gameServices.network.Connect("127.0.0.1", 5000))
                             {
 								gameServices.session.SetPendingMultiScene(sceneNum);
+                                sceneManager.SelectScene(sceneNum);
                             }
                             else
                             {

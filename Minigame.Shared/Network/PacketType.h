@@ -7,6 +7,7 @@ namespace Minigame::Network
     enum class PacketType : std::uint16_t
     {
         AssignPlayer,
+        PlayerReady,
         GameStart,
         GameClosed,
         PlayerInput,

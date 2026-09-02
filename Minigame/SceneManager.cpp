@@ -5,9 +5,9 @@ SceneManager::SceneManager(GameServices& gameServices) : gameServices(gameServic
 {
 }
 
-void SceneManager::Update(float deltaTime)
+void SceneManager::Update(float deltaTime, bool updateCurrentScene)
 {
-	if (currentScene)
+	if (currentScene && updateCurrentScene)
 	{
 		currentScene->Update(deltaTime);
 	}

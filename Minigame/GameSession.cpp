@@ -15,6 +15,7 @@ void GameSession::Reset()
     stage = 1;
     gameState = GameState::GamePlaying;
     pendingMultiScene = -1;
+    multiSceneReadySent = false;
     matchStartServerTick = 0;
     networkMatchActive = false;
 }
@@ -32,6 +33,12 @@ GameState GameSession::GetGameState() const
 void GameSession::SetPendingMultiScene(int sceneIndex)
 {
 	pendingMultiScene = sceneIndex;
+	multiSceneReadySent = false;
+}
+
+int GameSession::GetPendingMultiScene() const
+{
+    return pendingMultiScene;
 }
 
 int GameSession::ConsumePendingMultiScene()
@@ -39,6 +46,16 @@ int GameSession::ConsumePendingMultiScene()
 	int sceneIndex = pendingMultiScene;
 	pendingMultiScene = -1;
 	return sceneIndex;
+}
+
+bool GameSession::IsMultiSceneReadySent() const
+{
+    return multiSceneReadySent;
+}
+
+void GameSession::MarkMultiSceneReadySent()
+{
+    multiSceneReadySent = true;
 }
 
 void GameSession::BeginNetworkMatch(std::uint32_t startServerTick)

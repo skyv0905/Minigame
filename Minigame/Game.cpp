@@ -65,21 +65,20 @@ void Game::Update()
         sceneManager.SelectScene(0);
         gameSession.Reset();
     }
+    if (inputManager.IsPressed(InputAction::Debug))
+    {
+        gameServices.debugMode = !gameServices.debugMode;
+    }
 
-    musicPlayer.Update();
-    sceneManager.Update(deltaTime);
-    timerManager.Update(deltaTime);
     networkClient.Update(deltaTime);
 
     if (auto gameStart = networkClient.ConsumeGameStartPacket())
     {
-		const int sceneIndex = gameSession.ConsumePendingMultiScene();
-        if (sceneIndex >= 0)
+        if (gameSession.GetPendingMultiScene() >= 0)
         {
             randomManager.SetSeed(gameStart->randomSeed);
             gameSession.Reset();
             gameSession.BeginNetworkMatch(gameStart->startTick);
-            sceneManager.SelectScene(sceneIndex);
         }
     }
     if (networkClient.ConsumeGameClosedPacket())
@@ -89,9 +88,23 @@ void Game::Update()
         sceneManager.SelectScene(0);
     }
 
-    if (inputManager.IsPressed(InputAction::Debug))
+    const int pendingMultiScene = gameSession.GetPendingMultiScene();
+    const bool waitingForGameStart = pendingMultiScene >= 0 && sceneManager.GetCurrentSceneIndex() == pendingMultiScene && !gameSession.HasNetworkMatch(); // 게임시작됨
+
+    musicPlayer.Update();
+    sceneManager.Update(deltaTime, !waitingForGameStart);
+    if (!waitingForGameStart)
     {
-        gameServices.debugMode = !gameServices.debugMode;
+        timerManager.Update(deltaTime);
+    }
+
+	if (pendingMultiScene >= 0 && sceneManager.GetCurrentSceneIndex() == pendingMultiScene && !gameSession.IsMultiSceneReadySent()) // 씬 로딩 완료 후, 서버에 준비 완료 패킷 전송
+    {
+        Minigame::Network::PlayerReadyPacket readyPacket{};
+        if (networkClient.SendPacket(readyPacket, Minigame::Network::PacketSendType::Reliable, Minigame::Network::PacketChannelType::Control))
+        {
+            gameSession.MarkMultiSceneReadySent();
+        }
     }
 }
 

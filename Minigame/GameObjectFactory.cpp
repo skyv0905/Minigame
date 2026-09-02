@@ -8,6 +8,7 @@
 #include "Components/Transform.h"
 #include "Components/SpriteRenderer.h"
 #include "Components/Animator.h"
+#include "Components/PlayerSpawner.h"
 #include "Components/PlayerController.h"
 #include "Components/NetworkInputSender.h"
 #include "Components/MobController.h"
@@ -130,6 +131,48 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
             {
                 component.SetDefaultState(componentData.at("defaultState").get<std::string>());
             }
+        }
+    }
+    else if (type == "PlayerSpawner")
+    {
+        auto& component = gameObject.AddComponent<Minigame::Components::PlayerSpawner>();
+
+        if (componentData.contains("position"))
+        {
+            component.SetPosition(componentData.at("position").get<Vector2>());
+        }
+
+        if (componentData.contains("aniName"))
+        {
+            component.SetAnimation(componentData.at("aniName").get<std::string>());
+        }
+
+        if (componentData.contains("bulletTint"))
+        {
+            const auto& bulletTintData = componentData.at("bulletTint");
+            Color bulletTint
+            {
+                static_cast<unsigned char>(bulletTintData.value("r", 255)),
+                static_cast<unsigned char>(bulletTintData.value("g", 255)),
+                static_cast<unsigned char>(bulletTintData.value("b", 255)),
+                static_cast<unsigned char>(bulletTintData.value("a", 255))
+            };
+
+            component.SetBulletTint(bulletTint);
+        }
+
+        if (componentData.contains("healthColor"))
+        {
+            const auto& healthColorData = componentData.at("healthColor");
+            Color healthColor
+            {
+                static_cast<unsigned char>(healthColorData.value("r", 255)),
+                static_cast<unsigned char>(healthColorData.value("g", 255)),
+                static_cast<unsigned char>(healthColorData.value("b", 255)),
+                static_cast<unsigned char>(healthColorData.value("a", 255))
+            };
+
+            component.SetHealthColor(healthColor);
         }
     }
     else if (type == "PlayerController")

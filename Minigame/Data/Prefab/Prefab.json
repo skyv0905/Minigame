@@ -1,4 +1,102 @@
 {
+  "Player":
+  {
+    "name": "Player",
+    "zOrder": 50,
+    "components":
+    [
+      {
+        "type": "Transform",
+        "position":
+        {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "scale": 1
+      },
+      {
+        "type": "SpriteRenderer"
+      },
+      {
+        "type": "Animator",
+        "states":
+        [
+          "Ball_Star1",
+          "Ball_Star2"
+        ],
+        "defaultState": "Ball_Star1"
+      },
+      {
+        "type": "PlayerController",
+        "speed": 150,
+        "bulletSpeed": 250,
+        "bulletDistance": 200,
+        "bulletPrefab": "Bullet",
+        "bulletTint":
+        {
+          "r": 155,
+          "g": 240,
+          "b": 255,
+          "a": 255
+        },
+        "fireCooldown": 1,
+        "attackPower": 25
+      },
+      {
+        "type": "NetworkInputSender"
+      },
+      {
+        "type": "Health",
+        "maxHealth": 100
+      },
+      {
+        "type": "Exp",
+        "initialLevel": 1,
+        "requiredExp": 100,
+        "requiredExpGrowthRate": 1.25
+      },
+      {
+        "type": "HealthBar",
+        "offset": { "x": 0, "y": -30 },
+        "size": { "x": 55, "y": 6 },
+        "healthColor":
+        {
+          "r": 90,
+          "g": 150,
+          "b": 255,
+          "a": 255
+        }
+      },
+      {
+        "type": "PlayerMessage",
+        "font": "Maplestory Bold.ttf",
+        "fontSize": 20,
+        "offset":
+        {
+          "x": 0,
+          "y": -45
+        }
+      },
+      {
+        "type": "Collider",
+        "size":
+        {
+          "x": 31,
+          "y": 31
+        },
+        "offset":
+        {
+          "x": -15,
+          "y": -15
+        }
+      }
+    ],
+    "tags":
+    [
+      "Player"
+    ]
+  },
   "Bullet":
   {
     "name": "Bullet",

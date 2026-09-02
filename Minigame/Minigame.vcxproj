@@ -85,6 +85,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies);winmm.lib;ws2_32.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -103,6 +104,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies);winmm.lib;ws2_32.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -121,7 +123,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies);winmm.lib;ws2_32.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -150,7 +152,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies);winmm.lib;ws2_32.lib;$(CoreLibraryDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -178,6 +180,7 @@
     <ClCompile Include="Components\NetworkInputSender.cpp" />
     <ClCompile Include="Components\PlayerController.cpp" />
     <ClCompile Include="Components\PlayerMessage.cpp" />
+    <ClCompile Include="Components\PlayerSpawner.cpp" />
     <ClCompile Include="Components\PlayerStatsUI.cpp" />
     <ClCompile Include="Components\SpriteRenderer.cpp" />
     <ClCompile Include="Components\TextUI.cpp" />
@@ -215,6 +218,7 @@
     <ClInclude Include="Components\NetworkInputSender.h" />
     <ClInclude Include="Components\PlayerController.h" />
     <ClInclude Include="Components\PlayerMessage.h" />
+    <ClInclude Include="Components\PlayerSpawner.h" />
     <ClInclude Include="Components\PlayerStatsUI.h" />
     <ClInclude Include="Components\SpriteRenderer.h" />
     <ClInclude Include="Components\TextUI.h" />

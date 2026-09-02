@@ -8,6 +8,7 @@ namespace Minigame::Server
     {
         ENetPeer* peer = nullptr;
         std::uint32_t playerId = 0;
+		std::uint32_t lastInputSequence = 0;
         bool ready = false;
     };
 }

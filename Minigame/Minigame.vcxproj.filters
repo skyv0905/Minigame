@@ -132,6 +132,9 @@
     <ClCompile Include="Network\NetworkClient.cpp">
       <Filter>소스 파일\Network</Filter>
     </ClCompile>
+    <ClCompile Include="Components\PlayerSpawner.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -241,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="Network\NetworkClient.h">
       <Filter>헤더 파일\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\PlayerSpawner.h">
+      <Filter>헤더 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

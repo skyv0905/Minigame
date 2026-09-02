@@ -216,8 +216,8 @@ namespace Minigame::Server
                         break;
                     }
 
-                    //std::cout << "Player " << session->second.playerId
-                    //    << " input: " << packet->moveX << ", " << packet->moveY << '\n';
+                    std::cout << "Player " << session->second.playerId
+                        << " input: " << packet->moveX << ", " << packet->moveY << '\n';
                     //HandlePlayerInput(session->second.playerId, *packet);
                     break;
                 }

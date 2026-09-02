@@ -175,6 +175,7 @@
     <ClCompile Include="Components\HealthBar.cpp" />
     <ClCompile Include="Components\MapBuilder.cpp" />
     <ClCompile Include="Components\MobController.cpp" />
+    <ClCompile Include="Components\NetworkInputSender.cpp" />
     <ClCompile Include="Components\PlayerController.cpp" />
     <ClCompile Include="Components\PlayerMessage.cpp" />
     <ClCompile Include="Components\PlayerStatsUI.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Components\HealthBar.h" />
     <ClInclude Include="Components\MapBuilder.h" />
     <ClInclude Include="Components\MobController.h" />
+    <ClInclude Include="Components\NetworkInputSender.h" />
     <ClInclude Include="Components\PlayerController.h" />
     <ClInclude Include="Components\PlayerMessage.h" />
     <ClInclude Include="Components\PlayerStatsUI.h" />

@@ -260,6 +260,9 @@
           "attackPower": 25
         },
         {
+          "type": "NetworkInputSender"
+        },
+        {
           "type": "Health",
           "maxHealth": 100
         },

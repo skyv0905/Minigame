@@ -9,6 +9,7 @@
 #include "Components/SpriteRenderer.h"
 #include "Components/Animator.h"
 #include "Components/PlayerController.h"
+#include "Components/NetworkInputSender.h"
 #include "Components/MobController.h"
 #include "Components/Health.h"
 #include "Components/Exp.h"
@@ -269,6 +270,10 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
         {
             component.SetOffset(componentData.at("offset").get<Vector2>());
         }
+    }
+    else if (type == "NetworkInputSender")
+    {
+        gameObject.AddComponent<Minigame::Components::NetworkInputSender>(gameServices);
     }
     else if (type == "PlayerStatsUI")
     {

@@ -126,6 +126,10 @@ void Game::InitInputManager()
     inputManager.BindKey(InputAction::MoveRight, KeyboardKey::KEY_RIGHT);
     inputManager.BindKey(InputAction::MoveUp, KeyboardKey::KEY_UP);
     inputManager.BindKey(InputAction::MoveDown, KeyboardKey::KEY_DOWN);
+    inputManager.BindKey(InputAction::MoveLeft, KeyboardKey::KEY_A);
+    inputManager.BindKey(InputAction::MoveRight, KeyboardKey::KEY_D);
+    inputManager.BindKey(InputAction::MoveUp, KeyboardKey::KEY_W);
+    inputManager.BindKey(InputAction::MoveDown, KeyboardKey::KEY_S);
 
     inputManager.BindKey(InputAction::Fire, KeyboardKey::KEY_SPACE);
     inputManager.BindKey(InputAction::Fire, KeyboardKey::KEY_LEFT_CONTROL);

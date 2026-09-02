@@ -108,6 +108,9 @@
     <ClCompile Include="Components\MobController.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Components\NetworkInputSender.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
     <ClCompile Include="Components\Controller.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
@@ -213,6 +216,9 @@
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\MobController.h">
+      <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\NetworkInputSender.h">
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\Controller.h">

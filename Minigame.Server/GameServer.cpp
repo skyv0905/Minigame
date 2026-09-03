@@ -12,7 +12,11 @@
 #include <algorithm>
 #include "Network/PacketSerializer.h"
 #include "ClientSession.h"
+#include "ServerDataLoader.h"
+#include "ServerMapBuilder.h"
 #include "ServerWorld.h"
+
+extern "C" const char* GetApplicationDirectory(void);
 
 namespace Minigame::Server
 {
@@ -349,18 +353,31 @@ namespace Minigame::Server
         if (gameStarted)
             return;
 
-        world.Reset();
-        for (auto& [peer, session] : sessions)
-        {
-            session.lastInputSequence = 0;
-            const Vector2 spawnPosition = session.playerId == 1 ? Vector2{ 53.0f, 114.0f } : Vector2{ 1313.0f, 654.0f };
-            world.AddPlayer(session.playerId, spawnPosition);
-        }
-
-        matchStartTick = serverTick;
         Minigame::Network::GameStartPacket packet{};
         std::uniform_int_distribution<std::uint32_t> seedDistribution(1, (std::numeric_limits<std::uint32_t>::max)());
         packet.randomSeed = seedDistribution(randomEngine);
+
+        const std::string dataDirectory = ::GetApplicationDirectory();
+        ServerDataLoader dataLoader;
+        const auto sceneData = dataLoader.LoadJson(dataDirectory + "Data/Scene/MultiModeLevel.json");
+        const auto prefabData = dataLoader.LoadJson(dataDirectory + "Data/Prefab/Prefab.json");
+        if (!sceneData || !prefabData)
+        {
+            std::cerr << "Failed to load server map data\n";
+            return;
+        }
+
+        ServerMapBuilder mapBuilder;
+        if (!mapBuilder.Build(*sceneData, *prefabData, world, packet.randomSeed))
+        {
+            std::cerr << "Failed to build server map\n";
+            return;
+        }
+
+        for (auto& [peer, session] : sessions)
+            session.lastInputSequence = 0;
+
+        matchStartTick = serverTick;
         packet.startTick = matchStartTick;
 
         std::cout << "Random Seed: " << packet.randomSeed << '\n';

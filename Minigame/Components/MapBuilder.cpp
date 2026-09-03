@@ -14,9 +14,7 @@ namespace Minigame::Components
 {
 	MapBuilder::MapBuilder(GameObject& owner, GameServices& gameServices) :
 		Component(owner),
-		gameServices(gameServices),
-		mapRandomGenerator(gameServices.random.CreateGenerator(RandomStream::Map)),
-		spawnRandomGenerator(gameServices.random.CreateGenerator(RandomStream::Spawn))
+		gameServices(gameServices)
 	{
 	}
 
@@ -33,6 +31,9 @@ namespace Minigame::Components
 	{
 		if (needBuild)
 		{
+			mapRandomGenerator = gameServices.random.CreateGenerator(RandomStream::Map);
+			spawnRandomGenerator = gameServices.random.CreateGenerator(RandomStream::Spawn);
+
 			Build();
 			SpawnMobAndPowerUps();
 			return;
@@ -96,9 +97,9 @@ namespace Minigame::Components
 		const float offsetx = playArea.x - blockSize.x;
 		const float offsety = playArea.y - blockSize.y;
 
-		for (int y = 0; y < grid.y + 2; y++)
+		for (int y = 0; y < static_cast<int>(grid.y) + 2; y++)
 		{
-			for (int x = 0; x < grid.x + 2; x++)
+			for (int x = 0; x < static_cast<int>(grid.x) + 2; x++)
 			{
 				auto* outWall = owner.GetScene().Instantiate("OutWall");
 				if (outWall == nullptr)
@@ -126,7 +127,7 @@ namespace Minigame::Components
 					outWallCollider->SetSize(blockSize);
 				}
 
-				if (y > 0 && y < grid.y + 1)
+				if (y > 0 && y < static_cast<int>(grid.y) + 1)
 				{
 					x += static_cast<int>(grid.x);
 				}
@@ -142,22 +143,22 @@ namespace Minigame::Components
 		std::uniform_int_distribution<std::size_t> ud(0, presetSize - 1);
 		std::bernoulli_distribution bd(0.5);
 
-		for (int y = 0; y < grid.y; y += static_cast<int>(chunkSize.y))
+		for (int y = 0; y < static_cast<int>(grid.y); y += static_cast<int>(chunkSize.y))
 		{
-			for (int x = 0; x < grid.x; x += static_cast<int>(chunkSize.x))
+			for (int x = 0; x < static_cast<int>(grid.x); x += static_cast<int>(chunkSize.x))
 			{
 				const bool flipX = bd(mapRandomGenerator);
 				const std::size_t index = ud(mapRandomGenerator);
 				const auto& preset = chunkPresets[index];
 
-				for (int cy = 0; cy < preset.size(); cy++)
+				for (std::size_t cy = 0; cy < preset.size(); cy++)
 				{
 					const auto& row = preset[cy];
-					for (int cx = 0; cx < row.size(); cx++)
+					for (std::size_t cx = 0; cx < row.size(); cx++)
 					{
 						const char& type = row[flipX ? row.size() - 1 - cx : cx];
-						const int px = x + cx;
-						const int py = y + cy;
+						const int px = x + static_cast<int>(cx);
+						const int py = y + static_cast<int>(cy);
 						switch (type)
 						{
 						case 'W':

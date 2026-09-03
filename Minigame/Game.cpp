@@ -89,7 +89,7 @@ void Game::Update()
     }
 
     const int pendingMultiScene = gameSession.GetPendingMultiScene();
-    const bool waitingForGameStart = pendingMultiScene >= 0 && sceneManager.GetCurrentSceneIndex() == pendingMultiScene && !gameSession.HasNetworkMatch(); // 게임시작됨
+    const bool waitingForGameStart = pendingMultiScene >= 0 && sceneManager.GetCurrentSceneIndex() == pendingMultiScene && !gameSession.HasNetworkMatch(); // 서버부터 게임 시작 대기 중
 
     musicPlayer.Update();
     sceneManager.Update(deltaTime, !waitingForGameStart);

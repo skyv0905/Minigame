@@ -124,6 +124,10 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\Minigame\Data\Scene\MultiModeLevel.json" "$(TargetDir)Data\Scene\" /I /Y
+xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefab\" /I /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -144,15 +148,23 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\Minigame\Data\Scene\MultiModeLevel.json" "$(TargetDir)Data\Scene\" /I /Y
+xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefab\" /I /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ServerDataLoader.cpp" />
+    <ClCompile Include="ServerMapBuilder.cpp" />
     <ClCompile Include="ServerWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="ServerDataLoader.h" />
+    <ClInclude Include="ServerMapBuilder.h" />
     <ClInclude Include="ServerWorld.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,19 +1,39 @@
 #include "ServerWorld.h"
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace Minigame::Server
 {
     void ServerWorld::Reset()
     {
         players.clear();
+        walls.clear();
+        mobs.clear();
+        powerUps.clear();
     }
 
-    void ServerWorld::AddPlayer(std::uint32_t playerId, Vector2 spawnPosition)
+    void ServerWorld::AddWall(ServerWall wall)
+    {
+        walls.push_back(std::move(wall));
+    }
+
+    void ServerWorld::AddMob(ServerMob mob)
+    {
+        mobs.insert_or_assign(mob.objectId, std::move(mob));
+    }
+
+    void ServerWorld::AddPowerUp(ServerPowerUp powerUp)
+    {
+        powerUps.insert_or_assign(powerUp.objectId, std::move(powerUp));
+    }
+
+    void ServerWorld::AddPlayer(std::uint32_t playerId, Vector2 spawnPosition, ServerCollider collider)
     {
         ServerPlayer player{};
         player.playerId = playerId;
         player.position = spawnPosition;
+        player.collider = collider;
         players.insert_or_assign(playerId, player);
     }
 
@@ -56,5 +76,20 @@ namespace Minigame::Server
     const std::unordered_map<std::uint32_t, ServerPlayer>& ServerWorld::GetPlayers() const
     {
         return players;
+    }
+
+    const std::vector<ServerWall>& ServerWorld::GetWalls() const
+    {
+        return walls;
+    }
+
+    const std::unordered_map<std::uint32_t, ServerMob>& ServerWorld::GetMobs() const
+    {
+        return mobs;
+    }
+
+    const std::unordered_map<std::uint32_t, ServerPowerUp>& ServerWorld::GetPowerUps() const
+    {
+        return powerUps;
     }
 }

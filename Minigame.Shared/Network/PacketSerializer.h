@@ -24,7 +24,7 @@ namespace Minigame::Network
     struct PacketTraits<AssignPlayerPacket>
     {
         static constexpr PacketType Type = PacketType::AssignPlayer;
-        static constexpr std::uint32_t PayloadSize = 4;
+        static constexpr std::uint32_t PayloadSize = 1;
     };
     template<>
     struct PacketTraits<PlayerReadyPacket>
@@ -54,7 +54,8 @@ namespace Minigame::Network
     struct PacketTraits<WorldStatePacket>
     {
         static constexpr PacketType Type = PacketType::WorldState;
-        static constexpr std::uint32_t PayloadSize = 4 + 4 + WorldStatePacket::MaxPlayers * (4 + 4 + 4);
+        static constexpr std::uint32_t BasePayloadSize = 4 + WorldStatePacket::MaxPlayers * (1 + 2 + 2) + 4;
+        static constexpr std::uint32_t MobStateSize = 4 + 1 + 2 + 2;
     };
 
     // ------------------------------ //

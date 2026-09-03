@@ -25,13 +25,13 @@ namespace Minigame::Components
         if (!worldState || (hasAppliedState && worldState->serverTick == lastAppliedServerTick))
             return;
 
-        for (std::uint32_t i = 0; i < worldState->playerCount; i++)
+        for (std::size_t i = 0; i < worldState->players.size(); i++)
         {
             const auto& player = worldState->players[i];
             if (player.playerId != playerId)
                 continue;
 
-            transform->SetPosition(Vector2{ player.positionX, player.positionY });
+            transform->SetPosition(Vector2{ static_cast<float>(player.positionX), static_cast<float>(player.positionY) });
             lastAppliedServerTick = worldState->serverTick;
             hasAppliedState = true;
             return;

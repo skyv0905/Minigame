@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
+#include <cmath>
 #include "Network/PacketSerializer.h"
 #include "ClientSession.h"
 #include "ServerDataLoader.h"
@@ -22,6 +23,16 @@ namespace Minigame::Server
 {
     namespace
     {
+        std::uint16_t EncodePosition(float value)
+        {
+            if (!std::isfinite(value))
+                return 0;
+
+            const long rounded = std::lround(value);
+            const long maximum = static_cast<long>((std::numeric_limits<std::uint16_t>::max)());
+            return static_cast<std::uint16_t>(std::clamp(rounded, 0L, maximum));
+        }
+
         template<typename T>
         bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags, Minigame::Network::PacketChannelType channel)
         {
@@ -401,13 +412,25 @@ namespace Minigame::Server
 
         for (const auto& [playerId, player] : world.GetPlayers())
         {
-            if (packet.playerCount >= packet.players.size())
+            auto state = std::find_if(packet.players.begin(), packet.players.end(), [playerId](const auto& playerState) { return playerState.playerId == 0; });
+            if (state == packet.players.end())
                 break;
 
-            auto& state = packet.players[packet.playerCount++];
-            state.playerId = playerId;
-            state.positionX = player.position.x;
-            state.positionY = player.position.y;
+            state->playerId = static_cast<std::uint8_t>(playerId);
+            state->positionX = EncodePosition(player.position.x);
+            state->positionY = EncodePosition(player.position.y);
+        }
+
+        for (const auto& [objectId, mob] : world.GetMobs())
+        {
+            if (packet.mobCount >= packet.mobs.size())
+                break;
+
+            auto& state = packet.mobs[packet.mobCount++];
+            state.objectId = objectId;
+            state.targetPlayerId = static_cast<std::uint8_t>(mob.targetPlayerId);
+            state.positionX = EncodePosition(mob.position.x);
+            state.positionY = EncodePosition(mob.position.y);
         }
 
         for (auto& [peer, session] : sessions)

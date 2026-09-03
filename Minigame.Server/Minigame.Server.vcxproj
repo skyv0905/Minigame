@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgApplocalDeps>true</VcpkgApplocalDeps>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -154,15 +155,23 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BulletSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MobSystem.cpp" />
+    <ClCompile Include="PlayerSystem.cpp" />
     <ClCompile Include="ServerDataLoader.cpp" />
     <ClCompile Include="ServerMapBuilder.cpp" />
     <ClCompile Include="ServerWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BulletSystem.h" />
     <ClInclude Include="ClientSession.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="MobSystem.h" />
+    <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="ServerDataLoader.h" />
     <ClInclude Include="ServerMapBuilder.h" />
     <ClInclude Include="ServerWorld.h" />

@@ -42,6 +42,14 @@ namespace Minigame::Network
             WriteUInt32(buffer, PacketTraits<T>::PayloadSize);
         }
 
+        template<typename T>
+        void WriteHeader(ByteBuffer& buffer, std::uint32_t payloadSize)
+        {
+            WriteUInt16(buffer, static_cast<std::uint16_t>(PacketTraits<T>::Type));
+            WriteUInt16(buffer, ProtocolVersion);
+            WriteUInt32(buffer, payloadSize);
+        }
+
         bool ReadUInt8(std::span<const std::uint8_t> data, std::size_t& offset, std::uint8_t& value)
         {
             if (offset + 1 > data.size())
@@ -94,11 +102,10 @@ namespace Minigame::Network
         }
 
         template<typename T>
-        bool ReadHeader(std::span<const std::uint8_t> data, std::size_t& offset)
+        bool ReadHeader(std::span<const std::uint8_t> data, std::size_t& offset, std::uint32_t& payloadSize)
         {
             std::uint16_t type = 0;
             std::uint16_t version = 0;
-            std::uint32_t payloadSize = 0;
 
             if (!ReadUInt16(data, offset, type) || !ReadUInt16(data, offset, version) ||
                 !ReadUInt32(data, offset, payloadSize))
@@ -106,8 +113,14 @@ namespace Minigame::Network
                 return false;
             }
 
-            return type == static_cast<std::uint16_t>(PacketTraits<T>::Type) && version == ProtocolVersion &&
-                payloadSize == PacketTraits<T>::PayloadSize && data.size() == HeaderSize + payloadSize;
+            return type == static_cast<std::uint16_t>(PacketTraits<T>::Type) && version == ProtocolVersion && data.size() == HeaderSize + payloadSize;
+        }
+
+        template<typename T>
+        bool ReadHeader(std::span<const std::uint8_t> data, std::size_t& offset)
+        {
+            std::uint32_t payloadSize = 0;
+            return ReadHeader<T>(data, offset, payloadSize) && payloadSize == PacketTraits<T>::PayloadSize;
         }
     }
 #pragma endregion
@@ -147,7 +160,7 @@ namespace Minigame::Network
         ByteBuffer buffer;
         buffer.reserve(HeaderSize + PacketTraits<AssignPlayerPacket>::PayloadSize);
         WriteHeader<AssignPlayerPacket>(buffer);
-        WriteUInt32(buffer, packet.playerId);
+        WriteUInt8(buffer, packet.playerId);
         return buffer;
     }
 
@@ -196,16 +209,26 @@ namespace Minigame::Network
     template<>
     ByteBuffer Serialize(const WorldStatePacket& packet)
     {
+        const std::uint32_t mobCount = packet.mobCount <= WorldStatePacket::MaxMobs ? packet.mobCount : static_cast<std::uint32_t>(WorldStatePacket::MaxMobs);
+        const std::uint32_t payloadSize = PacketTraits<WorldStatePacket>::BasePayloadSize + mobCount * PacketTraits<WorldStatePacket>::MobStateSize;
         ByteBuffer buffer;
-        buffer.reserve(HeaderSize + PacketTraits<WorldStatePacket>::PayloadSize);
-        WriteHeader<WorldStatePacket>(buffer);
+        buffer.reserve(HeaderSize + payloadSize);
+        WriteHeader<WorldStatePacket>(buffer, payloadSize);
         WriteUInt32(buffer, packet.serverTick);
-        WriteUInt32(buffer, packet.playerCount);
         for (const PlayerState& player : packet.players)
         {
-            WriteUInt32(buffer, player.playerId);
-            WriteFloat(buffer, player.positionX);
-            WriteFloat(buffer, player.positionY);
+            WriteUInt8(buffer, player.playerId);
+            WriteUInt16(buffer, player.positionX);
+            WriteUInt16(buffer, player.positionY);
+        }
+        WriteUInt32(buffer, mobCount);
+        for (std::uint32_t i = 0; i < mobCount; i++)
+        {
+            const MobState& mob = packet.mobs[i];
+            WriteUInt32(buffer, mob.objectId);
+            WriteUInt8(buffer, mob.targetPlayerId);
+            WriteUInt16(buffer, mob.positionX);
+            WriteUInt16(buffer, mob.positionY);
         }
         return buffer;
     }
@@ -222,7 +245,7 @@ namespace Minigame::Network
         }
 
         AssignPlayerPacket packet{};
-        if (!ReadUInt32(data, offset, packet.playerId))
+        if (!ReadUInt8(data, offset, packet.playerId))
         {
             return std::nullopt;
         }
@@ -300,16 +323,31 @@ namespace Minigame::Network
     std::optional<WorldStatePacket> Deserialize(std::span<const std::uint8_t> data)
     {
         std::size_t offset = 0;
-        if (!ReadHeader<WorldStatePacket>(data, offset))
+        std::uint32_t payloadSize = 0;
+        if (!ReadHeader<WorldStatePacket>(data, offset, payloadSize))
             return std::nullopt;
 
         WorldStatePacket packet{};
-        if (!ReadUInt32(data, offset, packet.serverTick) || !ReadUInt32(data, offset, packet.playerCount) || packet.playerCount > WorldStatePacket::MaxPlayers)
+        if (!ReadUInt32(data, offset, packet.serverTick))
             return std::nullopt;
 
         for (PlayerState& player : packet.players)
         {
-            if (!ReadUInt32(data, offset, player.playerId) || !ReadFloat(data, offset, player.positionX) || !ReadFloat(data, offset, player.positionY))
+            if (!ReadUInt8(data, offset, player.playerId) || !ReadUInt16(data, offset, player.positionX) || !ReadUInt16(data, offset, player.positionY))
+                return std::nullopt;
+        }
+
+        if (!ReadUInt32(data, offset, packet.mobCount) || packet.mobCount > WorldStatePacket::MaxMobs)
+            return std::nullopt;
+
+        const std::uint32_t expectedPayloadSize = PacketTraits<WorldStatePacket>::BasePayloadSize + packet.mobCount * PacketTraits<WorldStatePacket>::MobStateSize;
+        if (payloadSize != expectedPayloadSize)
+            return std::nullopt;
+
+        for (std::uint32_t i = 0; i < packet.mobCount; i++)
+        {
+            MobState& mob = packet.mobs[i];
+            if (!ReadUInt32(data, offset, mob.objectId) || !ReadUInt8(data, offset, mob.targetPlayerId) || !ReadUInt16(data, offset, mob.positionX) || !ReadUInt16(data, offset, mob.positionY))
                 return std::nullopt;
         }
 

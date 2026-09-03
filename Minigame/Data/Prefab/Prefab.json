@@ -242,6 +242,9 @@
         "exp": 15
       },
       {
+        "type": "MobControllerNetwork"
+      },
+      {
         "type": "SpriteRenderer"
       },
       {
@@ -317,6 +320,9 @@
         "attackPower": 4,
         "detectionRange": 280,
         "exp": 30
+      },
+      {
+        "type": "MobControllerNetwork"
       },
       {
         "type": "SpriteRenderer"
@@ -396,6 +402,9 @@
         "exp": 60
       },
       {
+        "type": "MobControllerNetwork"
+      },
+      {
         "type": "SpriteRenderer"
       },
       {
@@ -471,6 +480,9 @@
         "attackPower": 25,
         "detectionRange": 530,
         "exp": 80
+      },
+      {
+        "type": "MobControllerNetwork"
       },
       {
         "type": "SpriteRenderer"

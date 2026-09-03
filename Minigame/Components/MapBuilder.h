@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <random>
+#include <cstdint>
 #include <raylib.h>
 
 struct GameServices;
@@ -68,6 +69,7 @@ namespace Minigame::Components
 		std::vector<std::string> powerUps;
 
 		bool stageEnd = false;
+		std::uint32_t nextNetworkObjectId = 1;
 
 		void SpawnWall(float x, float y);
 

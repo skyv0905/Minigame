@@ -13,6 +13,7 @@
 #include "Components/PlayerControllerNetwork.h"
 #include "Components/NetworkInputSender.h"
 #include "Components/MobController.h"
+#include "Components/MobControllerNetwork.h"
 #include "Components/Health.h"
 #include "Components/Exp.h"
 #include "Components/HealthBar.h"
@@ -240,6 +241,10 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
 
             component.SetBulletTint(bulletTint);
         }
+    }
+    else if (type == "MobControllerNetwork")
+    {
+        gameObject.AddComponent<Minigame::Components::MobControllerNetwork>(gameServices);
     }
     else if (type == "Collider")
     {

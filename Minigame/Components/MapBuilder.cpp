@@ -2,6 +2,7 @@
 #include "SpriteRenderer.h"
 #include "Collider.h"
 #include "TextUI.h"
+#include "MobControllerNetwork.h"
 #include "../GameServices.h"
 #include "../ResourceManager.h"
 #include "../GameSession.h"
@@ -9,6 +10,7 @@
 #include "../GameObject.h"
 #include "../Scene.h"
 #include "../RandomManager.h"
+#include "Network/Packets.h"
 
 namespace Minigame::Components
 {
@@ -88,6 +90,7 @@ namespace Minigame::Components
 		theme = "yellowToyCastle.img";
 
 		needBuild = false;
+		nextNetworkObjectId = static_cast<std::uint32_t>(Minigame::Network::WorldStatePacket::MaxPlayers + 1);
 		spawnPoints.clear();
 
 		// outline
@@ -274,6 +277,13 @@ namespace Minigame::Components
 		if (mobTransform)
 		{
 			mobTransform->SetPosition(pos);
+		}
+
+		if (gameServices.session.HasNetworkMatch())
+		{
+			if (auto* networkController = mob->GetComponent<Minigame::Components::MobControllerNetwork>())
+				networkController->SetObjectId(nextNetworkObjectId);
+			nextNetworkObjectId++;
 		}
 	}
 

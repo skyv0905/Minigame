@@ -1,6 +1,10 @@
 #pragma once
 
+#include "BulletSystem.h"
+#include "CollisionSystem.h"
+#include "MobSystem.h"
 #include "Network/Packets.h"
+#include "PlayerSystem.h"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -21,11 +25,22 @@ namespace Minigame::Server
         bool fire = false;
     };
 
+    enum class ColliderType
+    {
+        None,
+        Player,
+        Wall,
+        Mob,
+        Bullet,
+        PowerUp
+    };
+
     struct ServerCollider
     {
         Vector2 size;
         Vector2 offset;
         bool isTrigger = false;
+        ColliderType type = ColliderType::None;
     };
 
     struct ServerPlayer
@@ -45,6 +60,7 @@ namespace Minigame::Server
     struct ServerMob
     {
         std::uint32_t objectId = 0;
+        std::uint32_t targetPlayerId = 0;
         std::string prefab;
         Vector2 position;
         ServerCollider collider;
@@ -86,6 +102,16 @@ namespace Minigame::Server
 
     private:
         static constexpr float PlayerSpeed = 150.0f;
+
+        friend class PlayerSystem;
+        friend class MobSystem;
+        friend class BulletSystem;
+        friend class CollisionSystem;
+
+        PlayerSystem playerSystem;
+        MobSystem mobSystem;
+        BulletSystem bulletSystem;
+        CollisionSystem collisionSystem;
 
         std::unordered_map<std::uint32_t, ServerPlayer> players;
         std::vector<ServerWall> walls;

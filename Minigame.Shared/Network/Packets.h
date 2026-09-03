@@ -7,7 +7,7 @@
 
 namespace Minigame::Network
 {
-    inline constexpr std::uint16_t ProtocolVersion = 1;
+    inline constexpr std::uint16_t ProtocolVersion = 3;
 
     struct PacketHeader
     {
@@ -18,7 +18,7 @@ namespace Minigame::Network
 
     struct AssignPlayerPacket
     {
-        std::uint32_t playerId;
+        std::uint8_t playerId;
     };
 
     struct PlayerReadyPacket
@@ -45,17 +45,27 @@ namespace Minigame::Network
 
     struct PlayerState
     {
-        std::uint32_t playerId;
-        float positionX;
-        float positionY;
+        std::uint8_t playerId;
+        std::uint16_t positionX;
+        std::uint16_t positionY;
+    };
+
+    struct MobState
+    {
+        std::uint32_t objectId;
+        std::uint8_t targetPlayerId;
+        std::uint16_t positionX;
+        std::uint16_t positionY;
     };
 
     struct WorldStatePacket
     {
         static constexpr std::size_t MaxPlayers = 2;
+        static constexpr std::size_t MaxMobs = 64;
 
         std::uint32_t serverTick;
-        std::uint32_t playerCount;
         std::array<PlayerState, MaxPlayers> players;
+        std::uint32_t mobCount;
+        std::array<MobState, MaxMobs> mobs;
     };
 }

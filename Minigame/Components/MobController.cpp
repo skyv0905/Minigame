@@ -5,6 +5,7 @@
 #include "Bullet.h"
 #include "Exp.h"
 #include "../GameServices.h"
+#include "../GameSession.h"
 #include "../SoundPlayer.h"
 #include "../Scene.h"
 #include <raymath.h>
@@ -17,6 +18,9 @@ namespace Minigame::Components
 
     void MobController::Start()
     {
+        if (gameServices.session.HasNetworkMatch())
+            return;
+
         Controller::Start();
         canFire = false;
         fireTimer = gameServices.timer.SetTimeout(fireCooldown, [this]()
@@ -34,6 +38,9 @@ namespace Minigame::Components
 
     void MobController::Update(float deltaTime)
     {
+        if (gameServices.session.HasNetworkMatch())
+            return;
+
         if (isOnRegen)
         {
             if (!animator)
@@ -144,6 +151,9 @@ namespace Minigame::Components
 
     void MobController::OnCollisionEnter(const CollisionInfo& info)
     {
+        if (gameServices.session.HasNetworkMatch())
+            return;
+
         if (info.other.ContainsTag("Wall") || info.other.ContainsTag("Mob") || info.other.ContainsTag("Player"))
         {
             if (transform == nullptr)

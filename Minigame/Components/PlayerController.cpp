@@ -35,6 +35,9 @@ namespace Minigame::Components
 
     void PlayerController::Update(float deltaTime)
     {
+        if (gameServices.session.GetGameState() != GameState::GamePlaying)
+            return;
+
         if (gameServices.session.HasNetworkMatch() && !owner.ContainsTag("LocalPlayer"))
             return;
 
@@ -73,6 +76,9 @@ namespace Minigame::Components
 
     void PlayerController::OnCollisionEnter(const CollisionInfo& info)
     {
+        if (gameServices.session.GetGameState() != GameState::GamePlaying)
+            return;
+
         if (isDead)
             return;
 

@@ -16,9 +16,12 @@ namespace Minigame::Network
 
 		std::optional<GameStartPacket> pendingGameStart;
 		std::optional<GameClosedPacket> pendingGameClosed;
+		std::optional<GameResultPacket> pendingGameResult;
 		std::optional<WorldStatePacket> latestWorldState;
 		std::deque<BulletSpawnPacket> pendingBulletSpawns;
 		std::deque<BulletDestroyPacket> pendingBulletDestroys;
+		std::deque<ExpChangedPacket> pendingExpChanges;
+		std::deque<HpChangedPacket> pendingHpChanges;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -79,6 +82,9 @@ namespace Minigame::Network
 		impl->latestWorldState.reset();
 		impl->pendingBulletSpawns.clear();
 		impl->pendingBulletDestroys.clear();
+		impl->pendingExpChanges.clear();
+		impl->pendingHpChanges.clear();
+		impl->pendingGameResult.reset();
 		enet_peer_disconnect(impl->server, 0);
 	}
 
@@ -198,6 +204,42 @@ namespace Minigame::Network
 					impl->pendingBulletDestroys.push_back(*packet);
 					break;
 				}
+				case PacketType::ExpChanged:
+				{
+					auto packet = Deserialize<ExpChangedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid ExpChanged Packet\n";
+						break;
+					}
+
+					impl->pendingExpChanges.push_back(*packet);
+					break;
+				}
+				case PacketType::HpChanged:
+				{
+					auto packet = Deserialize<HpChangedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid HpChanged Packet\n";
+						break;
+					}
+
+					impl->pendingHpChanges.push_back(*packet);
+					break;
+				}
+				case PacketType::GameResult:
+				{
+					auto packet = Deserialize<GameResultPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid GameResult Packet\n";
+						break;
+					}
+
+					impl->pendingGameResult = *packet;
+					break;
+				}
 				default:
 				{
 					break;
@@ -217,6 +259,9 @@ namespace Minigame::Network
 				impl->latestWorldState.reset();
 				impl->pendingBulletSpawns.clear();
 				impl->pendingBulletDestroys.clear();
+				impl->pendingExpChanges.clear();
+				impl->pendingHpChanges.clear();
+				impl->pendingGameResult.reset();
 				std::cout << "Server Disconnected\n";
 				break;
 			}
@@ -269,6 +314,36 @@ namespace Minigame::Network
 
 		const BulletDestroyPacket packet = impl->pendingBulletDestroys.front();
 		impl->pendingBulletDestroys.pop_front();
+		return packet;
+	}
+
+	std::optional<ExpChangedPacket> NetworkClient::ConsumeExpChangedPacket()
+	{
+		if (impl->pendingExpChanges.empty())
+			return std::nullopt;
+
+		const ExpChangedPacket packet = impl->pendingExpChanges.front();
+		impl->pendingExpChanges.pop_front();
+		return packet;
+	}
+
+	std::optional<HpChangedPacket> NetworkClient::ConsumeHpChangedPacket()
+	{
+		if (impl->pendingHpChanges.empty())
+			return std::nullopt;
+
+		const HpChangedPacket packet = impl->pendingHpChanges.front();
+		impl->pendingHpChanges.pop_front();
+		return packet;
+	}
+
+	std::optional<GameResultPacket> NetworkClient::ConsumeGameResultPacket()
+	{
+		if (!impl->pendingGameResult)
+			return std::nullopt;
+
+		auto packet = impl->pendingGameResult;
+		impl->pendingGameResult.reset();
 		return packet;
 	}
 

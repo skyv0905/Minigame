@@ -93,4 +93,22 @@ namespace Minigame::Network
     {
         std::uint32_t bulletId;
     };
+
+    struct ExpChangedPacket
+    {
+        std::uint8_t playerId;
+        std::uint32_t newExp;
+        std::uint32_t newLevel;
+    };
+
+    struct HpChangedPacket
+    {
+        std::uint32_t objectId;
+        float newHp;
+    };
+
+    struct GameResultPacket
+    {
+        std::uint8_t winnerPlayerId;
+    };
 }

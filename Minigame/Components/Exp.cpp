@@ -35,6 +35,21 @@ namespace Minigame::Components
 		}
 	}
 
+	void Exp::SetNetworkState(int newExp, int newLevel)
+	{
+		newLevel = std::max(1, newLevel);
+		while (level < newLevel)
+		{
+			level++;
+			requiredExp = std::max(1, static_cast<int>(std::ceil(requiredExp * requiredExpGrowthRate)));
+			if (onLevelUp)
+			{
+				onLevelUp(level);
+			}
+		}
+		currentExp = std::clamp(newExp, 0, requiredExp - 1);
+	}
+
 	int Exp::GetCurrentExp() const
 	{
 		return currentExp;

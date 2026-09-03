@@ -14,6 +14,8 @@ namespace Minigame::Network
         WorldState,
         BulletSpawn,
         BulletDestroy,
+        ExpChanged,
+        HpChanged,
         GameResult
     };
 

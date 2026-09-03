@@ -37,6 +37,11 @@ namespace Minigame::Components
         currentHealth = std::min(newHealth, maxHealth);
     }
 
+    void Health::SetCurrentHealth(float health)
+    {
+        currentHealth = std::clamp(health, 0.0f, maxHealth);
+    }
+
     bool Health::IsDead() const
     {
         return currentHealth <= 0.0f;

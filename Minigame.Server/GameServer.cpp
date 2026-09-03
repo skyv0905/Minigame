@@ -66,6 +66,7 @@ namespace Minigame::Server
     public:
         bool initialized = false;
         bool gameStarted = false;
+        bool gameFinished = false;
         std::atomic_bool running = false;
 
         ENetHost* server = nullptr;
@@ -85,7 +86,9 @@ namespace Minigame::Server
         void OnPlayerDisconnected(ENetPeer* peer);
 
         void OnAllPlayersReady();
+        bool TryFinishGame();
         void BroadcastBulletEvents();
+        void BroadcastStatEvents();
         void BroadcastWorldState();
     };
 
@@ -278,7 +281,7 @@ namespace Minigame::Server
 
 	void GameServer::Update()
 	{
-        if (!impl->gameStarted && impl->sessions.size() == 2 &&
+        if (!impl->gameStarted && !impl->gameFinished && impl->sessions.size() == 2 &&
             std::all_of(impl->sessions.begin(), impl->sessions.end(), [](const auto& entry)
                 {
                     return entry.second.ready;
@@ -290,7 +293,10 @@ namespace Minigame::Server
         if (impl->gameStarted)
         {
             impl->world.Update(static_cast<float>(Impl::TickInterval));
+            impl->BroadcastStatEvents();
             impl->BroadcastBulletEvents();
+            if (impl->TryFinishGame())
+                return;
             impl->BroadcastWorldState();
         }
 	}
@@ -350,6 +356,12 @@ namespace Minigame::Server
         std::uint32_t playerId = session->second.playerId;
         sessions.erase(session);
         world.RemovePlayer(playerId);
+
+        if (sessions.empty())
+        {
+            gameFinished = false;
+            world.Reset();
+        }
 
         if (gameStarted)
         {
@@ -412,6 +424,38 @@ namespace Minigame::Server
         }
 
         gameStarted = true;
+    }
+
+    bool GameServer::Impl::TryFinishGame()
+    {
+        bool anyPlayerDead = false;
+        std::uint8_t winnerPlayerId = 0;
+        for (const auto& [playerId, player] : world.GetPlayers())
+        {
+            if (world.IsPlayerDead(playerId))
+            {
+                anyPlayerDead = true;
+            }
+            else
+            {
+                winnerPlayerId = static_cast<std::uint8_t>(playerId);
+            }
+        }
+        if (!anyPlayerDead)
+            return false;
+
+        Minigame::Network::GameResultPacket packet{ winnerPlayerId };
+        for (auto& [peer, session] : sessions)
+        {
+            if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Control))
+            {
+                std::cerr << "Failed to send GameResult to player " << session.playerId << '\n';
+            }
+        }
+
+        gameStarted = false;
+        gameFinished = true;
+        return true;
     }
 
     void GameServer::Impl::BroadcastWorldState()
@@ -480,6 +524,31 @@ namespace Minigame::Server
                 if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
                 {
 					std::cerr << "Failed to send BulletDestroy to player " << session.playerId << '\n';
+                }
+            }
+        }
+    }
+
+    void GameServer::Impl::BroadcastStatEvents()
+    {
+        for (const Minigame::Network::HpChangedPacket& packet : world.ConsumeHpChangedPackets())
+        {
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+                    std::cerr << "Failed to send HpChanged to player " << session.playerId << '\n';
+                }
+            }
+        }
+
+        for (const Minigame::Network::ExpChangedPacket& packet : world.ConsumeExpChangedPackets())
+        {
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+                    std::cerr << "Failed to send ExpChanged to player " << session.playerId << '\n';
                 }
             }
         }

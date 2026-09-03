@@ -102,8 +102,11 @@ namespace Minigame::Server
             return false;
 
         const auto* controller = FindComponent(prefabData.at("Player"), "PlayerController");
-        if (controller == nullptr)
+        const auto* health = FindComponent(prefabData.at("Player"), "Health");
+        const auto* experience = FindComponent(prefabData.at("Player"), "Exp");
+        if (controller == nullptr || health == nullptr || experience == nullptr)
             return false;
+
         const std::string bulletPrefab = controller->value("bulletPrefab", "");
         ServerCollider bulletCollider{};
         if (!prefabData.contains(bulletPrefab) || !ReadCollider(prefabData.at(bulletPrefab), bulletCollider))
@@ -122,6 +125,12 @@ namespace Minigame::Server
             player.position = ReadVector2(playerData.at("position"));
             player.collider = playerCollider;
             player.bulletCollider = bulletCollider;
+            player.health.maxHealth = std::max(0.0f, health->value("maxHealth", 0.0f));
+            player.health.currentHealth = player.health.maxHealth;
+            player.exp.level = std::max(1, experience->value("initialLevel", 1));
+            player.exp.requiredExp = std::max(1, experience->value("requiredExp", 100));
+            player.exp.requiredExpGrowthRate = std::max(1.0f, experience->value("requiredExpGrowthRate", 1.05f));
+            player.moveSpeed = controller->value("speed", 150.0f);
             player.bulletSpeed = controller->value("bulletSpeed", 500.0f);
             player.bulletDistance = controller->value("bulletDistance", 300.0f);
             player.fireCooldown = controller->value("fireCooldown", 0.15f);
@@ -295,7 +304,8 @@ namespace Minigame::Server
         mob.attackPower = controller->value("attackPower", 10.0f);
         mob.detectionRange = controller->value("detectionRange", 100.0f);
         mob.exp = controller->value("exp", 0);
-        mob.health = health->at("maxHealth").get<float>();
+        mob.health.maxHealth = std::max(0.0f, health->at("maxHealth").get<float>());
+        mob.health.currentHealth = mob.health.maxHealth;
         const std::string bulletPrefab = controller->value("bulletPrefab", "");
         if (!ReadCollider(data, mob.collider) || !prefabData.contains(bulletPrefab) || !ReadCollider(prefabData.at(bulletPrefab), mob.bulletCollider))
             return false;

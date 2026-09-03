@@ -158,7 +158,9 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
     <ClCompile Include="BulletSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="HealthSystem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ExpSystem.cpp" />
     <ClCompile Include="MobSystem.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
     <ClCompile Include="ServerDataLoader.cpp" />
@@ -170,6 +172,8 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="HealthSystem.h" />
+    <ClInclude Include="ExpSystem.h" />
     <ClInclude Include="MobSystem.h" />
     <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="ServerDataLoader.h" />

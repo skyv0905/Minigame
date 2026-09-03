@@ -34,6 +34,9 @@ public:
 	GameObject* FindGameObjectByID(GameObjectID id);
 	void ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet);
 	void ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet);
+	void ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet);
+	void ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet);
+	void ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId);
 
 private:
 	GameServices& gameServices;

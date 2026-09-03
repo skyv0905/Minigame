@@ -63,6 +63,10 @@ void Game::Update()
             return;
         }
 
+        if (gameServices.network.IsConnected())
+        {
+            gameServices.network.Disconnect();
+        }
         sceneManager.SelectScene(0);
         gameSession.Reset();
     }
@@ -81,6 +85,18 @@ void Game::Update()
     while (auto packet = networkClient.ConsumeBulletDestroyPacket())
     {
         sceneManager.ApplyBulletDestroy(*packet);
+    }
+    while (auto packet = networkClient.ConsumeExpChangedPacket())
+    {
+        sceneManager.ApplyExpChanged(*packet);
+    }
+    while (auto packet = networkClient.ConsumeHpChangedPacket())
+    {
+        sceneManager.ApplyHpChanged(*packet);
+    }
+    if (auto packet = networkClient.ConsumeGameResultPacket())
+    {
+        sceneManager.ApplyGameResult(*packet, networkClient.GetPlayerId());
     }
 
     if (auto gameStart = networkClient.ConsumeGameStartPacket())

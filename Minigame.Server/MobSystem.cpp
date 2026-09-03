@@ -13,11 +13,17 @@ namespace Minigame::Server
         for (auto& [objectId, mob] : world.mobs)
         {
             mob.targetPlayerId = 0;
+            if (world.healthSystem.IsDead(mob.health))
+                continue;
+
             const ServerPlayer* target = nullptr;
             std::uint32_t targetPlayerId = std::numeric_limits<std::uint32_t>::max();
             float closestDistanceSquared = mob.detectionRange * mob.detectionRange;
             for (const auto& [playerId, player] : world.players)
             {
+                if (world.healthSystem.IsDead(player.health))
+                    continue;
+
                 const float dx = player.position.x - mob.position.x;
                 const float dy = player.position.y - mob.position.y;
                 const float distanceSquared = dx * dx + dy * dy;

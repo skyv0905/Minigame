@@ -67,6 +67,30 @@ void SceneManager::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPack
 	}
 }
 
+void SceneManager::ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyExpChanged(packet);
+	}
+}
+
+void SceneManager::ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyHpChanged(packet);
+	}
+}
+
+void SceneManager::ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyGameResult(packet, localPlayerId);
+	}
+}
+
 void SceneManager::ApplyPendingSceneChange()
 {
 	if (pendingSceneIndex < 0)

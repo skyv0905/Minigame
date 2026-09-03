@@ -12,6 +12,7 @@ namespace Minigame::Components
         void Hit(float damage);
         void Kill();
         void Heal(float rate);
+        void SetCurrentHealth(float health);
         bool IsDead() const;
 
         float GetCurrentHealth() const;

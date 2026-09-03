@@ -13,6 +13,8 @@ namespace Minigame::Server
         powerUps.clear();
         spawnedBullets.clear();
         destroyedBulletIds.clear();
+        expChangedPackets.clear();
+        hpChangedPackets.clear();
         nextObjectId = 1;
     }
 
@@ -97,6 +99,12 @@ namespace Minigame::Server
         return powerUps;
     }
 
+    bool ServerWorld::IsPlayerDead(std::uint32_t playerId) const
+    {
+        const auto player = players.find(playerId);
+        return player != players.end() && healthSystem.IsDead(player->second.health);
+    }
+
     std::vector<ServerBullet> ServerWorld::ConsumeSpawnedBullets()
     {
         std::vector<ServerBullet> result = std::move(spawnedBullets);
@@ -108,6 +116,20 @@ namespace Minigame::Server
     {
         std::vector<std::uint32_t> result = std::move(destroyedBulletIds);
         destroyedBulletIds.clear();
+        return result;
+    }
+
+    std::vector<Minigame::Network::ExpChangedPacket> ServerWorld::ConsumeExpChangedPackets()
+    {
+        std::vector<Minigame::Network::ExpChangedPacket> result = std::move(expChangedPackets);
+        expChangedPackets.clear();
+        return result;
+    }
+
+    std::vector<Minigame::Network::HpChangedPacket> ServerWorld::ConsumeHpChangedPackets()
+    {
+        std::vector<Minigame::Network::HpChangedPacket> result = std::move(hpChangedPackets);
+        hpChangedPackets.clear();
         return result;
     }
 }

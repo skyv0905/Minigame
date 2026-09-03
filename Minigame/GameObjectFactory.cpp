@@ -497,6 +497,10 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                 {
                     component.SetOnClick([this]()
                         {
+                            if (gameServices.network.IsConnected())
+                            {
+                                gameServices.network.Disconnect();
+                            }
                             gameServices.session.Reset();
                             sceneManager.SelectScene(0);
                         });

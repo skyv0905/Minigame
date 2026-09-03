@@ -13,6 +13,7 @@ namespace Minigame::Components
 		void SetOnLevelUp(std::function<void(int)> callback);
 
 		void AddExp(int amount);
+		void SetNetworkState(int newExp, int newLevel);
 
 		int GetCurrentExp() const;
 		int GetRequiredExp() const;

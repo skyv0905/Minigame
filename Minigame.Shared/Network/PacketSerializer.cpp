@@ -146,6 +146,8 @@ namespace Minigame::Network
         case PacketType::WorldState:
         case PacketType::BulletSpawn:
         case PacketType::BulletDestroy:
+        case PacketType::ExpChanged:
+        case PacketType::HpChanged:
         case PacketType::GameResult:
             return type;
 
@@ -261,6 +263,39 @@ namespace Minigame::Network
         buffer.reserve(HeaderSize + PacketTraits<BulletDestroyPacket>::PayloadSize);
         WriteHeader<BulletDestroyPacket>(buffer);
         WriteUInt32(buffer, packet.bulletId);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const ExpChangedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<ExpChangedPacket>::PayloadSize);
+        WriteHeader<ExpChangedPacket>(buffer);
+        WriteUInt8(buffer, packet.playerId);
+        WriteUInt32(buffer, packet.newExp);
+        WriteUInt32(buffer, packet.newLevel);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const HpChangedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<HpChangedPacket>::PayloadSize);
+        WriteHeader<HpChangedPacket>(buffer);
+        WriteUInt32(buffer, packet.objectId);
+        WriteFloat(buffer, packet.newHp);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const GameResultPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<GameResultPacket>::PayloadSize);
+        WriteHeader<GameResultPacket>(buffer);
+        WriteUInt8(buffer, packet.winnerPlayerId);
         return buffer;
     }
 #pragma endregion
@@ -416,6 +451,45 @@ namespace Minigame::Network
 
         BulletDestroyPacket packet{};
         if (!ReadUInt32(data, offset, packet.bulletId))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<ExpChangedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<ExpChangedPacket>(data, offset))
+            return std::nullopt;
+
+        ExpChangedPacket packet{};
+        if (!ReadUInt8(data, offset, packet.playerId) || !ReadUInt32(data, offset, packet.newExp) || !ReadUInt32(data, offset, packet.newLevel))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<HpChangedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<HpChangedPacket>(data, offset))
+            return std::nullopt;
+
+        HpChangedPacket packet{};
+        if (!ReadUInt32(data, offset, packet.objectId) || !ReadFloat(data, offset, packet.newHp))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<GameResultPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<GameResultPacket>(data, offset))
+            return std::nullopt;
+
+        GameResultPacket packet{};
+        if (!ReadUInt8(data, offset, packet.winnerPlayerId) || packet.winnerPlayerId > WorldStatePacket::MaxPlayers)
             return std::nullopt;
         return packet;
     }

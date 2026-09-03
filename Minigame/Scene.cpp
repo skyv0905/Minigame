@@ -2,12 +2,16 @@
 #include <iostream>
 #include <algorithm>
 #include "MusicPlayer.h"
+#include "GameSession.h"
 #include "GameObjectFactory.h"
 #include "Components/Bullet.h"
 #include "Components/Controller.h"
+#include "Components/Exp.h"
+#include "Components/Health.h"
 #include "Components/MobControllerNetwork.h"
 #include "Components/SpriteRenderer.h"
 #include "Components/Transform.h"
+#include "Components/TextUI.h"
 #include "Network/NetworkClient.h"
 
 Scene::Scene(GameServices& gameServices, GameObjectFactory& gameObjectFactory, std::string name, int index) :
@@ -210,6 +214,56 @@ void Scene::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& pac
         {
             DestroyGameObject(*gameObject);
             return;
+        }
+    }
+}
+
+void Scene::ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet)
+{
+    GameObject* player = FindNetworkObject(packet.playerId);
+    if (player == nullptr)
+        return;
+
+    if (auto* exp = player->GetComponent<Minigame::Components::Exp>())
+    {
+        exp->SetNetworkState(static_cast<int>(packet.newExp), static_cast<int>(packet.newLevel));
+    }
+}
+
+void Scene::ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet)
+{
+    GameObject* object = FindNetworkObject(packet.objectId);
+    if (object == nullptr)
+        return;
+
+    if (auto* health = object->GetComponent<Minigame::Components::Health>())
+    {
+        health->SetCurrentHealth(packet.newHp);
+        if (auto* controller = object->GetComponent<Minigame::Components::MobControllerNetwork>())
+        {
+            packet.newHp <= 0 ? controller->MarkDead() : controller->MarkHit();
+        }
+    }
+}
+
+void Scene::ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId)
+{
+    std::string resultText = "무승부";
+    GameState resultState = GameState::GameOver;
+    if (packet.winnerPlayerId != 0)
+    {
+        const bool won = packet.winnerPlayerId == localPlayerId;
+        resultText = won ? "승리!" : "저런...";
+        resultState = won ? GameState::GameClear : GameState::GameOver;
+    }
+
+    gameServices.session.SetGameState(resultState);
+    Instantiate("MainMenuButton");
+    if (GameObject* textUIGameObject = Instantiate("TextUI"))
+    {
+        if (auto* textUI = textUIGameObject->GetComponent<Minigame::Components::TextUI>())
+        {
+            textUI->SetText(resultText);
         }
     }
 }

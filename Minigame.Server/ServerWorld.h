@@ -2,6 +2,8 @@
 
 #include "BulletSystem.h"
 #include "CollisionSystem.h"
+#include "ExpSystem.h"
+#include "HealthSystem.h"
 #include "MobSystem.h"
 #include "Network/Packets.h"
 #include "PlayerSystem.h"
@@ -44,6 +46,20 @@ namespace Minigame::Server
         ColliderType type = ColliderType::None;
     };
 
+    struct ServerHealth
+    {
+        float maxHealth = 0.0f;
+        float currentHealth = 0.0f;
+    };
+
+    struct ServerExp
+    {
+        int currentExp = 0;
+        int requiredExp = 100;
+        int level = 1;
+        float requiredExpGrowthRate = 1.05f;
+    };
+
     struct ServerPlayer
     {
         std::uint32_t playerId = 0;
@@ -52,6 +68,9 @@ namespace Minigame::Server
         ServerCollider collider;
         ServerCollider bulletCollider;
         ServerPlayerInput input;
+        ServerHealth health;
+        ServerExp exp;
+        float moveSpeed = 150.0f;
         float bulletSpeed = 500.0f;
         float bulletDistance = 300.0f;
         float fireCooldown = 0.15f;
@@ -82,7 +101,7 @@ namespace Minigame::Server
         float fireCooldownRemaining = 0.0f;
         float attackPower = 0.0f;
         float detectionRange = 0.0f;
-        float health = 0.0f;
+        ServerHealth health;
         int exp = 0;
     };
 
@@ -128,21 +147,26 @@ namespace Minigame::Server
         const std::unordered_map<std::uint32_t, ServerMob>& GetMobs() const;
         const std::unordered_map<std::uint32_t, ServerBullet>& GetBullets() const;
         const std::unordered_map<std::uint32_t, ServerPowerUp>& GetPowerUps() const;
+        bool IsPlayerDead(std::uint32_t playerId) const;
         std::vector<ServerBullet> ConsumeSpawnedBullets();
         std::vector<std::uint32_t> ConsumeDestroyedBulletIds();
+        std::vector<Minigame::Network::ExpChangedPacket> ConsumeExpChangedPackets();
+        std::vector<Minigame::Network::HpChangedPacket> ConsumeHpChangedPackets();
 
     private:
-        static constexpr float PlayerSpeed = 150.0f;
-
         friend class PlayerSystem;
         friend class MobSystem;
         friend class BulletSystem;
         friend class CollisionSystem;
+        friend class HealthSystem;
+        friend class ExpSystem;
 
         PlayerSystem playerSystem;
         MobSystem mobSystem;
         BulletSystem bulletSystem;
         CollisionSystem collisionSystem;
+        HealthSystem healthSystem;
+        ExpSystem expSystem;
 
         std::unordered_map<std::uint32_t, ServerPlayer> players;
         std::vector<ServerWall> walls;
@@ -151,6 +175,8 @@ namespace Minigame::Server
         std::unordered_map<std::uint32_t, ServerPowerUp> powerUps;
         std::vector<ServerBullet> spawnedBullets;
         std::vector<std::uint32_t> destroyedBulletIds;
+        std::vector<Minigame::Network::ExpChangedPacket> expChangedPackets;
+        std::vector<Minigame::Network::HpChangedPacket> hpChangedPackets;
         std::uint32_t nextObjectId = 1;
     };
 }

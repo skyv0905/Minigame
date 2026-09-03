@@ -56,6 +56,7 @@ namespace Minigame::Server
     void BulletSystem::Update(ServerWorld& world, float deltaTime)
     {
         std::vector<std::uint32_t> bulletsToRemove;
+        std::vector<std::uint32_t> mobsToRemove;
         for (auto& [objectId, bullet] : world.bullets)
         {
             const float moveDistance = bullet.moveSpeed * deltaTime;
@@ -66,21 +67,83 @@ namespace Minigame::Server
 
             for (const ServerWall& wall : world.walls)
             {
-                hit = hit || IsOverlapping(bullet.position, bullet.collider, wall.position, wall.collider);
-            }
-
-            if (bullet.createdFromType == ColliderType::Player)
-            {
-                for (const auto& [mobId, mob] : world.mobs)
+                if (IsOverlapping(bullet.position, bullet.collider, wall.position, wall.collider))
                 {
-                    hit = hit || IsOverlapping(bullet.position, bullet.collider, mob.position, mob.collider);
+                    hit = true;
+                    break;
                 }
             }
-            else if (bullet.createdFromType == ColliderType::Mob)
+
+            if (!hit && bullet.createdFromType == ColliderType::Player)
             {
-                for (const auto& [playerId, player] : world.players)
+                for (auto& [mobId, mob] : world.mobs)
                 {
-                    hit = hit || IsOverlapping(bullet.position, bullet.collider, player.position, player.collider);
+                    if (world.healthSystem.IsDead(mob.health) || !IsOverlapping(bullet.position, bullet.collider, mob.position, mob.collider))
+                        continue;
+
+                    const float previousHealth = mob.health.currentHealth;
+                    world.healthSystem.Hit(mob.health, bullet.attackPower);
+                    if (mob.health.currentHealth != previousHealth)
+                    {
+                        world.hpChangedPackets.push_back({ mobId, mob.health.currentHealth });
+                    }
+                    if (world.healthSystem.IsDead(mob.health))
+                    {
+                        mobsToRemove.push_back(mobId);
+                        const auto player = world.players.find(bullet.createdFrom);
+                        if (player != world.players.end())
+                        {
+                            const int previousExp = player->second.exp.currentExp;
+                            const int previousLevel = player->second.exp.level;
+                            world.expSystem.AddExp(player->second, mob.exp);
+                            if (player->second.exp.currentExp != previousExp || player->second.exp.level != previousLevel)
+                            {
+                                world.expChangedPackets.push_back(
+                                    {
+                                        static_cast<std::uint8_t>(player->first),
+                                        static_cast<std::uint32_t>(player->second.exp.currentExp),
+                                        static_cast<std::uint32_t>(player->second.exp.level)
+                                    });
+                            }
+                        }
+                    }
+                    hit = true;
+                    break;
+                }
+
+                if (!hit)
+                {
+                    for (auto& [playerId, player] : world.players)
+                    {
+                        if (playerId == bullet.createdFrom || world.healthSystem.IsDead(player.health) || !IsOverlapping(bullet.position, bullet.collider, player.position, player.collider))
+                            continue;
+
+                        const float previousHealth = player.health.currentHealth;
+                        world.healthSystem.Hit(player.health, bullet.attackPower * 0.08f);
+                        if (player.health.currentHealth != previousHealth)
+                        {
+                            world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
+                        }
+                        hit = true;
+                        break;
+                    }
+                }
+            }
+            else if (!hit && bullet.createdFromType == ColliderType::Mob)
+            {
+                for (auto& [playerId, player] : world.players)
+                {
+                    if (world.healthSystem.IsDead(player.health) || !IsOverlapping(bullet.position, bullet.collider, player.position, player.collider))
+                        continue;
+
+                    const float previousHealth = player.health.currentHealth;
+                    world.healthSystem.Hit(player.health, bullet.attackPower);
+                    if (player.health.currentHealth != previousHealth)
+                    {
+                        world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
+                    }
+                    hit = true;
+                    break;
                 }
             }
 
@@ -94,11 +157,15 @@ namespace Minigame::Server
             world.bullets.erase(objectId);
             world.destroyedBulletIds.push_back(objectId);
         }
+        for (const std::uint32_t objectId : mobsToRemove)
+        {
+            world.mobs.erase(objectId);
+        }
 
         for (auto& [playerId, player] : world.players)
         {
             player.fireCooldownRemaining = std::max(0.0f, player.fireCooldownRemaining - deltaTime);
-            if (player.input.fireSequence <= player.lastProcessedFireSequence || player.fireCooldownRemaining > 0.0f)
+            if (world.healthSystem.IsDead(player.health) || player.input.fireSequence <= player.lastProcessedFireSequence || player.fireCooldownRemaining > 0.0f)
             {
                 continue;
             }
@@ -112,7 +179,7 @@ namespace Minigame::Server
         for (auto& [mobId, mob] : world.mobs)
         {
             mob.fireCooldownRemaining = std::max(0.0f, mob.fireCooldownRemaining - deltaTime);
-            if (mob.targetPlayerId == 0 || mob.fireCooldownRemaining > 0.0f)
+            if (world.healthSystem.IsDead(mob.health) || mob.targetPlayerId == 0 || mob.fireCooldownRemaining > 0.0f)
             {
                 continue;
             }

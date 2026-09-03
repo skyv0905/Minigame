@@ -24,12 +24,17 @@ namespace Minigame::Server
         player->second.input.moveX = moveX;
         player->second.input.moveY = moveY;
         player->second.input.fire = packet.fire;
+        player->second.input.fireSequence = packet.fireSequence;
     }
 
     void PlayerSystem::Update(ServerWorld& world, float deltaTime)
     {
         for (auto& [playerId, player] : world.players)
         {
+            if (player.input.moveX != 0.0f || player.input.moveY != 0.0f)
+            {
+                player.forward = Vector2{ player.input.moveX, player.input.moveY };
+            }
             player.position.x += player.input.moveX * ServerWorld::PlayerSpeed * deltaTime;
             player.position.y += player.input.moveY * ServerWorld::PlayerSpeed * deltaTime;
         }

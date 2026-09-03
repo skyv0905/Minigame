@@ -84,4 +84,9 @@ namespace Minigame::Components
     {
         objectId = id;
     }
+
+    std::uint32_t MobControllerNetwork::GetObjectId() const
+    {
+        return objectId;
+    }
 }

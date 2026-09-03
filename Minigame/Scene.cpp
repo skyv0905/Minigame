@@ -3,6 +3,12 @@
 #include <algorithm>
 #include "MusicPlayer.h"
 #include "GameObjectFactory.h"
+#include "Components/Bullet.h"
+#include "Components/Controller.h"
+#include "Components/MobControllerNetwork.h"
+#include "Components/SpriteRenderer.h"
+#include "Components/Transform.h"
+#include "Network/NetworkClient.h"
 
 Scene::Scene(GameServices& gameServices, GameObjectFactory& gameObjectFactory, std::string name, int index) :
     gameServices(gameServices), gameObjectFactory(gameObjectFactory),
@@ -129,6 +135,83 @@ GameObject* Scene::FindGameObjectByID(GameObjectID id)
     }
 
     return nullptr;
+}
+
+GameObject* Scene::FindNetworkObject(std::uint32_t objectId)
+{
+    if (objectId <= Minigame::Network::WorldStatePacket::MaxPlayers)
+    {
+        return FindGameObjectWithTag("Player" + std::to_string(objectId));
+    }
+
+    for (auto& gameObject : gameObjects)
+    {
+        auto* controller = gameObject->GetComponent<Minigame::Components::MobControllerNetwork>();
+        if (controller && controller->GetObjectId() == objectId)
+        {
+            return gameObject.get();
+        }
+    }
+    return nullptr;
+}
+
+void Scene::ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet)
+{
+    GameObject* createdFrom = FindNetworkObject(packet.createdFrom);
+    if (createdFrom == nullptr)
+        return;
+
+    if (packet.createdFrom == gameServices.network.GetPlayerId())
+    {
+        for (auto& gameObject : gameObjects)
+        {
+            auto* bullet = gameObject->GetComponent<Minigame::Components::Bullet>();
+            if (bullet && bullet->GetCreatedFrom() == createdFrom->GetID() && bullet->GetFireSequence() == packet.fireSequence && bullet->GetNetworkObjectId() == 0)
+            {
+                bullet->SetNetworkObjectId(packet.bulletId);
+                bullet->SetServerAuthoritative(true);
+                return;
+            }
+        }
+    }
+
+    GameObject* bulletObject = Instantiate("Bullet");
+    if (bulletObject == nullptr)
+        return;
+
+    if (auto* transform = bulletObject->GetComponent<Minigame::Components::Transform>())
+    {
+        transform->SetPosition(Vector2{ Minigame::Network::DecodePosition(packet.positionX), Minigame::Network::DecodePosition(packet.positionY) });
+    }
+
+    if (auto* bullet = bulletObject->GetComponent<Minigame::Components::Bullet>())
+    {
+        bullet->SetCreatedFrom(createdFrom->GetID());
+        bullet->SetFireSequence(packet.fireSequence);
+        bullet->SetNetworkObjectId(packet.bulletId);
+        bullet->SetDirection(Vector2{ static_cast<float>(packet.directionX) / 127.0f, static_cast<float>(packet.directionY) / 127.0f });
+        bullet->SetMoveSpeed(Minigame::Network::DecodePosition(packet.moveSpeed));
+        bullet->SetMaxDistance(Minigame::Network::DecodePosition(packet.maxDistance));
+        bullet->SetServerAuthoritative(true);
+    }
+    if (const auto* controller = createdFrom->GetComponent<Minigame::Components::Controller>())
+    {
+        if (auto* renderer = bulletObject->GetComponent<Minigame::Components::SpriteRenderer>())
+            renderer->SetTint(controller->GetBulletTint());
+    }
+}
+
+void Scene::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet)
+{
+    for (auto& gameObject : gameObjects)
+    {
+        auto* bullet = gameObject->GetComponent<Minigame::Components::Bullet>();
+        if (bullet && bullet->GetNetworkObjectId() == packet.bulletId)
+        {
+            DestroyGameObject(*gameObject);
+            return;
+        }
+    }
 }
 
 void Scene::CheckCollisions()

@@ -49,11 +49,11 @@ namespace Minigame::Components
         float spacing = 1.0f;
         if (font)
         {
-            textWidth = MeasureTextEx(*font, text.c_str(), fontSize, spacing).x;
+            textWidth = static_cast<int>(MeasureTextEx(*font, text.c_str(), fontSize, spacing).x);
         }
         else
         {
-            textWidth = MeasureText(text.c_str(), fontSize);
+            textWidth = MeasureText(text.c_str(), static_cast<int>(fontSize));
         }
 
         float x = bounds.x + (bounds.width - textWidth) / 2.0f;
@@ -65,7 +65,7 @@ namespace Minigame::Components
         }
         else
         {
-            DrawText(text.c_str(), static_cast<int>(x), static_cast<int>(y), fontSize, BLACK);
+            DrawText(text.c_str(), static_cast<int>(x), static_cast<int>(y), static_cast<int>(fontSize), BLACK);
         }
     }
 

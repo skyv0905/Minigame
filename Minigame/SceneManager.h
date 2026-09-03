@@ -18,6 +18,8 @@ public:
     void ReloadCurrentScene();
 
     int GetCurrentSceneIndex() const;
+    void ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet);
+    void ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet);
 
 private:
     GameServices& gameServices;

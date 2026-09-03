@@ -30,6 +30,8 @@ namespace Minigame::Network
 
 		std::optional<GameStartPacket> ConsumeGameStartPacket();
 		std::optional<GameClosedPacket> ConsumeGameClosedPacket();
+		std::optional<BulletSpawnPacket> ConsumeBulletSpawnPacket();
+		std::optional<BulletDestroyPacket> ConsumeBulletDestroyPacket();
 		std::optional<WorldStatePacket> GetLatestWorldState() const;
 
 	private:

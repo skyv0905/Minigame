@@ -34,6 +34,12 @@ namespace Minigame::Server
             return static_cast<std::uint16_t>(rounded);
         }
 
+        std::int8_t EncodeDirection(float value)
+        {
+            const long rounded = std::lround(std::clamp(value, -1.0f, 1.0f) * 127.0f);
+            return static_cast<std::int8_t>(rounded);
+        }
+
         template<typename T>
         bool SendPacket(ENetPeer* peer, const T& packet, enet_uint32 flags, Minigame::Network::PacketChannelType channel)
         {
@@ -79,6 +85,7 @@ namespace Minigame::Server
         void OnPlayerDisconnected(ENetPeer* peer);
 
         void OnAllPlayersReady();
+        void BroadcastBulletEvents();
         void BroadcastWorldState();
     };
 
@@ -283,6 +290,7 @@ namespace Minigame::Server
         if (impl->gameStarted)
         {
             impl->world.Update(static_cast<float>(Impl::TickInterval));
+            impl->BroadcastBulletEvents();
             impl->BroadcastWorldState();
         }
 	}
@@ -438,6 +446,42 @@ namespace Minigame::Server
         {
             if (!SendPacket(peer, packet, 0, Minigame::Network::PacketChannelType::Gameplay))
                 std::cerr << "Failed to send WorldState to player " << session.playerId << '\n';
+        }
+    }
+
+    void GameServer::Impl::BroadcastBulletEvents()
+    {
+        for (const ServerBullet& bullet : world.ConsumeSpawnedBullets())
+        {
+            Minigame::Network::BulletSpawnPacket packet{};
+            packet.bulletId = bullet.objectId;
+            packet.createdFrom = bullet.createdFrom;
+            packet.fireSequence = bullet.fireSequence;
+            packet.positionX = EncodePosition(bullet.position.x);
+            packet.positionY = EncodePosition(bullet.position.y);
+            packet.directionX = EncodeDirection(bullet.direction.x);
+            packet.directionY = EncodeDirection(bullet.direction.y);
+            packet.moveSpeed = EncodePosition(bullet.moveSpeed);
+            packet.maxDistance = EncodePosition(bullet.maxDistance);
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+					std::cerr << "Failed to send BulletSpawn to player " << session.playerId << '\n';
+                }
+            }
+        }
+
+        for (const std::uint32_t bulletId : world.ConsumeDestroyedBulletIds())
+        {
+            Minigame::Network::BulletDestroyPacket packet{ bulletId };
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+					std::cerr << "Failed to send BulletDestroy to player " << session.playerId << '\n';
+                }
+            }
         }
     }
 }

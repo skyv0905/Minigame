@@ -1,4 +1,5 @@
 #include "NetworkInputSender.h"
+#include "PlayerController.h"
 #include "../GameServices.h"
 #include "../GameObject.h"
 #include "../GameSession.h"
@@ -49,6 +50,10 @@ namespace Minigame::Components
         packet.moveX = direction.x;
         packet.moveY = direction.y;
         packet.fire = fireBuffered || gameServices.input.IsDown(InputAction::Fire);
+        if (const auto* controller = owner.GetComponent<Minigame::Components::PlayerController>())
+        {
+            packet.fireSequence = controller->GetFireSequence();
+        }
 
         if (!gameServices.network.SendPacket(packet, Minigame::Network::PacketSendType::Unreliable, Minigame::Network::PacketChannelType::Gameplay))
             return false;

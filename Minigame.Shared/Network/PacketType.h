@@ -12,6 +12,8 @@ namespace Minigame::Network
         GameClosed,
         PlayerInput,
         WorldState,
+        BulletSpawn,
+        BulletDestroy,
         GameResult
     };
 

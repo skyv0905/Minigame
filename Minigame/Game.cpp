@@ -54,6 +54,7 @@ void Game::Update()
 {
     float deltaTime = GetFrameTime();
 
+    // Keyboard Events
     if (inputManager.IsPressed(InputAction::Exit))
     {
         if (sceneManager.GetCurrentSceneIndex() == 0)
@@ -70,7 +71,17 @@ void Game::Update()
         gameServices.debugMode = !gameServices.debugMode;
     }
 
+    // network
     networkClient.Update(deltaTime);
+
+    while (auto packet = networkClient.ConsumeBulletSpawnPacket())
+    {
+        sceneManager.ApplyBulletSpawn(*packet);
+    }
+    while (auto packet = networkClient.ConsumeBulletDestroyPacket())
+    {
+        sceneManager.ApplyBulletDestroy(*packet);
+    }
 
     if (auto gameStart = networkClient.ConsumeGameStartPacket())
     {
@@ -112,7 +123,7 @@ void Game::Draw()
 {
     BeginDrawing();
 
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     //DrawText("Hello raylib!", 100, 100, 30, BLACK);
     sceneManager.Draw();
     DrawText(TextFormat("Stage %d", gameSession.GetStage()), 10, 10, 15, BLACK);

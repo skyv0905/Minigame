@@ -1,5 +1,6 @@
 #include "NetworkClient.h"
 #include <enet/enet.h>
+#include <deque>
 #include <iostream>
 
 namespace Minigame::Network
@@ -16,6 +17,8 @@ namespace Minigame::Network
 		std::optional<GameStartPacket> pendingGameStart;
 		std::optional<GameClosedPacket> pendingGameClosed;
 		std::optional<WorldStatePacket> latestWorldState;
+		std::deque<BulletSpawnPacket> pendingBulletSpawns;
+		std::deque<BulletDestroyPacket> pendingBulletDestroys;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -74,6 +77,8 @@ namespace Minigame::Network
 		impl->disconnecting = true;
 		impl->playerId = 0;
 		impl->latestWorldState.reset();
+		impl->pendingBulletSpawns.clear();
+		impl->pendingBulletDestroys.clear();
 		enet_peer_disconnect(impl->server, 0);
 	}
 
@@ -169,6 +174,30 @@ namespace Minigame::Network
 					impl->latestWorldState = *packet;
 					break;
 				}
+				case PacketType::BulletSpawn:
+				{
+					auto packet = Deserialize<BulletSpawnPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid BulletSpawn Packet\n";
+						break;
+					}
+
+					impl->pendingBulletSpawns.push_back(*packet);
+					break;
+				}
+				case PacketType::BulletDestroy:
+				{
+					auto packet = Deserialize<BulletDestroyPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid BulletDestroy Packet\n";
+						break;
+					}
+
+					impl->pendingBulletDestroys.push_back(*packet);
+					break;
+				}
 				default:
 				{
 					break;
@@ -186,6 +215,8 @@ namespace Minigame::Network
 				impl->server = nullptr;
 				impl->playerId = 0;
 				impl->latestWorldState.reset();
+				impl->pendingBulletSpawns.clear();
+				impl->pendingBulletDestroys.clear();
 				std::cout << "Server Disconnected\n";
 				break;
 			}
@@ -219,6 +250,26 @@ namespace Minigame::Network
 	std::optional<WorldStatePacket> NetworkClient::GetLatestWorldState() const
 	{
 		return impl->latestWorldState;
+	}
+
+	std::optional<BulletSpawnPacket> NetworkClient::ConsumeBulletSpawnPacket()
+	{
+		if (impl->pendingBulletSpawns.empty())
+			return std::nullopt;
+
+		const BulletSpawnPacket packet = impl->pendingBulletSpawns.front();
+		impl->pendingBulletSpawns.pop_front();
+		return packet;
+	}
+
+	std::optional<BulletDestroyPacket> NetworkClient::ConsumeBulletDestroyPacket()
+	{
+		if (impl->pendingBulletDestroys.empty())
+			return std::nullopt;
+
+		const BulletDestroyPacket packet = impl->pendingBulletDestroys.front();
+		impl->pendingBulletDestroys.pop_front();
+		return packet;
 	}
 
 	bool NetworkClient::SendSerializedPacket(const ByteBuffer& data, PacketSendType packetSendType, PacketChannelType channel)

@@ -43,7 +43,7 @@ namespace Minigame::Components
 
 		movedDistance += Vector2Distance(oldPosition, newPosition);
 
-		if (movedDistance >= maxDistance)
+		if (!serverAuthoritative && movedDistance >= maxDistance)
 		{
 			owner.GetScene().DestroyGameObject(owner);
 		}
@@ -51,6 +51,9 @@ namespace Minigame::Components
 
 	void Bullet::OnCollisionEnter(const CollisionInfo& info)
 	{
+		if (serverAuthoritative)
+			return;
+
 		if (isHit || info.other.ContainsTag("Bullet") || info.other.ContainsTag("PowerUp"))
 		{
 			return;
@@ -112,6 +115,31 @@ namespace Minigame::Components
 	float Bullet::GetAttackPower() const
 	{
 		return attackPower;
+	}
+
+	void Bullet::SetNetworkObjectId(std::uint32_t id)
+	{
+		networkObjectId = id;
+	}
+
+	std::uint32_t Bullet::GetNetworkObjectId() const
+	{
+		return networkObjectId;
+	}
+
+	void Bullet::SetServerAuthoritative(bool value)
+	{
+		serverAuthoritative = value;
+	}
+
+	void Bullet::SetFireSequence(std::uint32_t sequence)
+	{
+		fireSequence = sequence;
+	}
+
+	std::uint32_t Bullet::GetFireSequence() const
+	{
+		return fireSequence;
 	}
 
 	void Bullet::InitRotation()

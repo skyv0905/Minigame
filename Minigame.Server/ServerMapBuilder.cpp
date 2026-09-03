@@ -77,7 +77,7 @@ namespace Minigame::Server
                     return false;
 
                 nextObjectId = std::max(nextObjectId, player.playerId + 1);
-                builtWorld.AddPlayer(player.playerId, player.position, player.collider);
+                builtWorld.AddPlayer(player);
             }
 
             if (!BuildMap(*mapBuilderData, prefabData, builtWorld, randomSeed, stage, nextObjectId))
@@ -101,6 +101,14 @@ namespace Minigame::Server
         if (!ReadCollider(prefabData.at("Player"), playerCollider))
             return false;
 
+        const auto* controller = FindComponent(prefabData.at("Player"), "PlayerController");
+        if (controller == nullptr)
+            return false;
+        const std::string bulletPrefab = controller->value("bulletPrefab", "");
+        ServerCollider bulletCollider{};
+        if (!prefabData.contains(bulletPrefab) || !ReadCollider(prefabData.at(bulletPrefab), bulletCollider))
+            return false;
+
         const auto& playerDataList = componentData.at("players");
         const std::size_t playerCount = componentData.value("playerCount", playerDataList.size());
         if (playerCount == 0 || playerCount > playerDataList.size())
@@ -113,6 +121,11 @@ namespace Minigame::Server
             player.playerId = playerData.at("playerId").get<std::uint32_t>();
             player.position = ReadVector2(playerData.at("position"));
             player.collider = playerCollider;
+            player.bulletCollider = bulletCollider;
+            player.bulletSpeed = controller->value("bulletSpeed", 500.0f);
+            player.bulletDistance = controller->value("bulletDistance", 300.0f);
+            player.fireCooldown = controller->value("fireCooldown", 0.15f);
+            player.attackPower = controller->value("attackPower", 10.0f);
             players.push_back(player);
         }
         return true;
@@ -283,7 +296,8 @@ namespace Minigame::Server
         mob.detectionRange = controller->value("detectionRange", 100.0f);
         mob.exp = controller->value("exp", 0);
         mob.health = health->at("maxHealth").get<float>();
-        if (!ReadCollider(data, mob.collider))
+        const std::string bulletPrefab = controller->value("bulletPrefab", "");
+        if (!ReadCollider(data, mob.collider) || !prefabData.contains(bulletPrefab) || !ReadCollider(prefabData.at(bulletPrefab), mob.bulletCollider))
             return false;
 
         world.AddMob(std::move(mob));

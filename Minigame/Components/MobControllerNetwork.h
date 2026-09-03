@@ -22,6 +22,7 @@ namespace Minigame::Components
         void Update(float deltaTime) override;
 
         void SetObjectId(std::uint32_t id);
+        std::uint32_t GetObjectId() const;
 
     private:
         GameServices& gameServices;

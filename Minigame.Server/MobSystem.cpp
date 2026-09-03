@@ -38,6 +38,7 @@ namespace Minigame::Server
             const float directionX = target->position.x - mob.position.x;
             const float directionY = target->position.y - mob.position.y;
             const float inverseDistance = 1.0f / std::sqrt(closestDistanceSquared);
+            mob.forward = Vector2{ directionX * inverseDistance, directionY * inverseDistance };
             mob.position.x += directionX * inverseDistance * mob.speed * deltaTime;
             mob.position.y += directionY * inverseDistance * mob.speed * deltaTime;
         }

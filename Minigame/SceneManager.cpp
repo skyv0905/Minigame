@@ -51,6 +51,22 @@ int SceneManager::GetCurrentSceneIndex() const
 	return currentSceneIndex;
 }
 
+void SceneManager::ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyBulletSpawn(packet);
+	}
+}
+
+void SceneManager::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyBulletDestroy(packet);
+	}
+}
+
 void SceneManager::ApplyPendingSceneChange()
 {
 	if (pendingSceneIndex < 0)

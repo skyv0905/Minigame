@@ -8,6 +8,7 @@
 #include "GameObject.h"
 #include "IDGenerator.h"
 #include "Components/Collider.h"
+#include "Network/Packets.h"
 
 struct GameServices;
 class GameObjectFactory;
@@ -31,6 +32,8 @@ public:
 	GameObject* FindGameObject(const std::string& name);
 	GameObject* FindGameObjectWithTag(const std::string& name);
 	GameObject* FindGameObjectByID(GameObjectID id);
+	void ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet);
+	void ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet);
 
 private:
 	GameServices& gameServices;
@@ -47,5 +50,6 @@ private:
 
 	void CheckCollisions();
 	void FlushPendingGameObjects();
+	GameObject* FindNetworkObject(std::uint32_t objectId);
 };
 

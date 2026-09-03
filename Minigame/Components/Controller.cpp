@@ -88,6 +88,16 @@ namespace Minigame::Components
         return fireCooldown;
     }
 
+    Color Controller::GetBulletTint() const
+    {
+        return bulletTint;
+    }
+
+    std::uint32_t Controller::GetFireSequence() const
+    {
+        return fireSequence;
+    }
+
     std::string Controller::GetMoveSpeedDetail() const
     {
         return moveSpeedMultiplier == 100 ? ""
@@ -121,6 +131,8 @@ namespace Minigame::Components
         if (bullet == nullptr)
             return;
 
+        fireSequence++;
+
         auto* bulletTransform = bullet->GetComponent<Minigame::Components::Transform>();
         if (bulletTransform)
         {
@@ -131,6 +143,7 @@ namespace Minigame::Components
         if (bulletComponent)
         {
             bulletComponent->SetCreatedFrom(owner.GetID());
+			bulletComponent->SetFireSequence(fireSequence);
 			bulletComponent->SetAttackPower(GetFinalAttackPower());
             bulletComponent->SetMaxDistance(GetFinalBulletDistance());
             bulletComponent->SetMoveSpeed(GetFinalBulletSpeed());

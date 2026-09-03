@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include "Component.h"
 #include "Transform.h"
@@ -34,6 +35,8 @@ namespace Minigame::Components
 		float GetFinalBulletDistance() const;
 		float GetFinalAttackPower() const;
 		float GetFireCooldown() const;
+		Color GetBulletTint() const;
+		std::uint32_t GetFireSequence() const;
 
 		std::string GetMoveSpeedDetail() const;
 		std::string GetBulletSpeedDetail() const;
@@ -60,6 +63,7 @@ namespace Minigame::Components
 		float fireCooldown = 0.15f;
 
 		float attackPower = 10.0f;
+		std::uint32_t fireSequence = 0;
 
 		int moveSpeedMultiplier = 100;
 		int bulletSpeedMultiplier = 100;

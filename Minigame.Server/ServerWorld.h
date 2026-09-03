@@ -23,6 +23,7 @@ namespace Minigame::Server
         float moveX = 0.0f;
         float moveY = 0.0f;
         bool fire = false;
+        std::uint32_t fireSequence = 0;
     };
 
     enum class ColliderType
@@ -47,8 +48,16 @@ namespace Minigame::Server
     {
         std::uint32_t playerId = 0;
         Vector2 position;
+        Vector2 forward{ 1.0f, 0.0f };
         ServerCollider collider;
+        ServerCollider bulletCollider;
         ServerPlayerInput input;
+        float bulletSpeed = 500.0f;
+        float bulletDistance = 300.0f;
+        float fireCooldown = 0.15f;
+        float fireCooldownRemaining = 0.0f;
+        float attackPower = 10.0f;
+        std::uint32_t lastProcessedFireSequence = 0;
     };
 
     struct ServerWall
@@ -63,15 +72,33 @@ namespace Minigame::Server
         std::uint32_t targetPlayerId = 0;
         std::string prefab;
         Vector2 position;
+        Vector2 forward{ 1.0f, 0.0f };
         ServerCollider collider;
+        ServerCollider bulletCollider;
         float speed = 0.0f;
         float bulletSpeed = 0.0f;
         float bulletDistance = 0.0f;
         float fireCooldown = 0.0f;
+        float fireCooldownRemaining = 0.0f;
         float attackPower = 0.0f;
         float detectionRange = 0.0f;
         float health = 0.0f;
         int exp = 0;
+    };
+
+    struct ServerBullet
+    {
+        std::uint32_t objectId = 0;
+        std::uint32_t createdFrom = 0;
+        std::uint32_t fireSequence = 0;
+        ColliderType createdFromType = ColliderType::None;
+        Vector2 position;
+        Vector2 direction;
+        ServerCollider collider;
+        float movedDistance = 0.0f;
+        float maxDistance = 0.0f;
+        float moveSpeed = 0.0f;
+        float attackPower = 0.0f;
     };
 
     struct ServerPowerUp
@@ -87,9 +114,10 @@ namespace Minigame::Server
     {
     public:
         void Reset();
-        void AddPlayer(std::uint32_t playerId, Vector2 spawnPosition, ServerCollider collider = {});
+        void AddPlayer(ServerPlayer player);
         void AddWall(ServerWall wall);
         void AddMob(ServerMob mob);
+        void AddBullet(ServerBullet bullet);
         void AddPowerUp(ServerPowerUp powerUp);
         void RemovePlayer(std::uint32_t playerId);
         void SetPlayerInput(std::uint32_t playerId, const Minigame::Network::PlayerInputPacket& packet);
@@ -98,7 +126,10 @@ namespace Minigame::Server
         const std::unordered_map<std::uint32_t, ServerPlayer>& GetPlayers() const;
         const std::vector<ServerWall>& GetWalls() const;
         const std::unordered_map<std::uint32_t, ServerMob>& GetMobs() const;
+        const std::unordered_map<std::uint32_t, ServerBullet>& GetBullets() const;
         const std::unordered_map<std::uint32_t, ServerPowerUp>& GetPowerUps() const;
+        std::vector<ServerBullet> ConsumeSpawnedBullets();
+        std::vector<std::uint32_t> ConsumeDestroyedBulletIds();
 
     private:
         static constexpr float PlayerSpeed = 150.0f;
@@ -116,6 +147,10 @@ namespace Minigame::Server
         std::unordered_map<std::uint32_t, ServerPlayer> players;
         std::vector<ServerWall> walls;
         std::unordered_map<std::uint32_t, ServerMob> mobs;
+        std::unordered_map<std::uint32_t, ServerBullet> bullets;
         std::unordered_map<std::uint32_t, ServerPowerUp> powerUps;
+        std::vector<ServerBullet> spawnedBullets;
+        std::vector<std::uint32_t> destroyedBulletIds;
+        std::uint32_t nextObjectId = 1;
     };
 }

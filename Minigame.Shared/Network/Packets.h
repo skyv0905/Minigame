@@ -7,7 +7,7 @@
 
 namespace Minigame::Network
 {
-    inline constexpr std::uint16_t ProtocolVersion = 4;
+    inline constexpr std::uint16_t ProtocolVersion = 5;
     inline constexpr float PositionUnitsPerPixel = 4.0f;
 
     inline constexpr float DecodePosition(std::uint16_t value)
@@ -47,6 +47,7 @@ namespace Minigame::Network
         float moveX;
         float moveY;
         bool fire;
+        std::uint32_t fireSequence;
     };
 
     struct PlayerState
@@ -73,5 +74,23 @@ namespace Minigame::Network
         std::array<PlayerState, MaxPlayers> players;
         std::uint32_t mobCount;
         std::array<MobState, MaxMobs> mobs;
+    };
+
+    struct BulletSpawnPacket
+    {
+        std::uint32_t bulletId;
+        std::uint32_t createdFrom;
+        std::uint32_t fireSequence;
+        std::uint16_t positionX;
+        std::uint16_t positionY;
+        std::int8_t directionX;
+        std::int8_t directionY;
+        std::uint16_t moveSpeed;
+        std::uint16_t maxDistance;
+    };
+
+    struct BulletDestroyPacket
+    {
+        std::uint32_t bulletId;
     };
 }

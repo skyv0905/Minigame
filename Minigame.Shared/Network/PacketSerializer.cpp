@@ -144,6 +144,8 @@ namespace Minigame::Network
         case PacketType::GameClosed:
         case PacketType::PlayerInput:
         case PacketType::WorldState:
+        case PacketType::BulletSpawn:
+        case PacketType::BulletDestroy:
         case PacketType::GameResult:
             return type;
 
@@ -203,6 +205,7 @@ namespace Minigame::Network
         WriteFloat(buffer, packet.moveX);
         WriteFloat(buffer, packet.moveY);
         WriteUInt8(buffer, packet.fire ? 1 : 0);
+        WriteUInt32(buffer, packet.fireSequence);
         return buffer;
     }
 
@@ -230,6 +233,34 @@ namespace Minigame::Network
             WriteUInt16(buffer, mob.positionX);
             WriteUInt16(buffer, mob.positionY);
         }
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const BulletSpawnPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<BulletSpawnPacket>::PayloadSize);
+        WriteHeader<BulletSpawnPacket>(buffer);
+        WriteUInt32(buffer, packet.bulletId);
+        WriteUInt32(buffer, packet.createdFrom);
+        WriteUInt32(buffer, packet.fireSequence);
+        WriteUInt16(buffer, packet.positionX);
+        WriteUInt16(buffer, packet.positionY);
+        WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionX));
+        WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionY));
+        WriteUInt16(buffer, packet.moveSpeed);
+        WriteUInt16(buffer, packet.maxDistance);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const BulletDestroyPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<BulletDestroyPacket>::PayloadSize);
+        WriteHeader<BulletDestroyPacket>(buffer);
+        WriteUInt32(buffer, packet.bulletId);
         return buffer;
     }
 #pragma endregion
@@ -310,7 +341,8 @@ namespace Minigame::Network
         if (!ReadUInt32(data, offset, packet.sequence) ||
             !ReadFloat(data, offset, packet.moveX) ||
             !ReadFloat(data, offset, packet.moveY) ||
-            !ReadUInt8(data, offset, fire) || fire > 1)
+            !ReadUInt8(data, offset, fire) || fire > 1 ||
+            !ReadUInt32(data, offset, packet.fireSequence))
         {
             return std::nullopt;
         }
@@ -351,6 +383,40 @@ namespace Minigame::Network
                 return std::nullopt;
         }
 
+        return packet;
+    }
+
+    template<>
+    std::optional<BulletSpawnPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<BulletSpawnPacket>(data, offset))
+            return std::nullopt;
+
+        BulletSpawnPacket packet{};
+        std::uint8_t directionX = 0;
+        std::uint8_t directionY = 0;
+        if (!ReadUInt32(data, offset, packet.bulletId) || !ReadUInt32(data, offset, packet.createdFrom) || !ReadUInt32(data, offset, packet.fireSequence) ||
+            !ReadUInt16(data, offset, packet.positionX) || !ReadUInt16(data, offset, packet.positionY) ||
+            !ReadUInt8(data, offset, directionX) || !ReadUInt8(data, offset, directionY) ||
+            !ReadUInt16(data, offset, packet.moveSpeed) || !ReadUInt16(data, offset, packet.maxDistance))
+            return std::nullopt;
+
+        packet.directionX = static_cast<std::int8_t>(directionX);
+        packet.directionY = static_cast<std::int8_t>(directionY);
+        return packet;
+    }
+
+    template<>
+    std::optional<BulletDestroyPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<BulletDestroyPacket>(data, offset))
+            return std::nullopt;
+
+        BulletDestroyPacket packet{};
+        if (!ReadUInt32(data, offset, packet.bulletId))
+            return std::nullopt;
         return packet;
     }
 #pragma endregion

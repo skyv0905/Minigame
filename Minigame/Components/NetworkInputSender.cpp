@@ -6,6 +6,7 @@
 #include "../Network/NetworkClient.h"
 #include "Network/Packets.h"
 #include <algorithm>
+#include <cmath>
 
 namespace Minigame::Components
 {
@@ -34,7 +35,14 @@ namespace Minigame::Components
 
     bool NetworkInputSender::SendInput()
     {
-        const Vector2 direction = gameServices.input.GetMoveAxis();
+        Vector2 direction = gameServices.input.GetMoveAxis();
+        const float lengthSquared = direction.x * direction.x + direction.y * direction.y;
+        if (lengthSquared > 1.0f)
+        {
+            const float inverseLength = 1.0f / std::sqrt(lengthSquared);
+            direction.x *= inverseLength;
+            direction.y *= inverseLength;
+        }
 
         Minigame::Network::PlayerInputPacket packet{};
         packet.sequence = nextSequence;
@@ -49,4 +57,5 @@ namespace Minigame::Components
         fireBuffered = false;
         return true;
     }
+
 }

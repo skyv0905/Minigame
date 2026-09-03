@@ -178,6 +178,7 @@
     <ClCompile Include="Components\MapBuilder.cpp" />
     <ClCompile Include="Components\MobController.cpp" />
     <ClCompile Include="Components\MobControllerNetwork.cpp" />
+    <ClCompile Include="Components\NetworkPositionInterpolator.cpp" />
     <ClCompile Include="Components\NetworkInputSender.cpp" />
     <ClCompile Include="Components\PlayerController.cpp" />
     <ClCompile Include="Components\PlayerControllerNetwork.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Components\MapBuilder.h" />
     <ClInclude Include="Components\MobController.h" />
     <ClInclude Include="Components\MobControllerNetwork.h" />
+    <ClInclude Include="Components\NetworkPositionInterpolator.h" />
     <ClInclude Include="Components\NetworkInputSender.h" />
     <ClInclude Include="Components\PlayerController.h" />
     <ClInclude Include="Components\PlayerControllerNetwork.h" />

@@ -28,9 +28,10 @@ namespace Minigame::Server
             if (!std::isfinite(value))
                 return 0;
 
-            const long rounded = std::lround(value);
             const long maximum = static_cast<long>((std::numeric_limits<std::uint16_t>::max)());
-            return static_cast<std::uint16_t>(std::clamp(rounded, 0L, maximum));
+            const double scaled = static_cast<double>(value) * Minigame::Network::PositionUnitsPerPixel;
+            const long rounded = std::lround(std::clamp(scaled, 0.0, static_cast<double>(maximum)));
+            return static_cast<std::uint16_t>(rounded);
         }
 
         template<typename T>

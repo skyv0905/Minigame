@@ -138,6 +138,12 @@
     <ClCompile Include="Components\PlayerControllerNetwork.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Components\MobControllerNetwork.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\NetworkPositionInterpolator.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -252,6 +258,12 @@
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\PlayerControllerNetwork.h">
+      <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\MobControllerNetwork.h">
+      <Filter>헤더 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\NetworkPositionInterpolator.h">
       <Filter>헤더 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>

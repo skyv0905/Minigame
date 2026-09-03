@@ -76,6 +76,11 @@ namespace Minigame::Components
         if (isDead)
             return;
 
+        if (gameServices.session.HasNetworkMatch() && (info.other.ContainsTag("Player") || info.other.ContainsTag("Mob")))
+        {
+            //return;
+        }
+
         if (info.other.ContainsTag("Wall") || info.other.ContainsTag("Player") || info.other.ContainsTag("Mob"))
         {
             if (transform == nullptr)

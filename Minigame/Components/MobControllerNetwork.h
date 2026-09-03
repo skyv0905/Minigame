@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "NetworkPositionInterpolator.h"
 #include <cstdint>
 
 struct GameServices;
@@ -27,6 +28,7 @@ namespace Minigame::Components
         Transform* transform = nullptr;
         Animator* animator = nullptr;
         SpriteRenderer* spriteRenderer = nullptr;
+        NetworkPositionInterpolator positionInterpolator;
         std::uint32_t objectId = 0;
         std::uint32_t lastAppliedServerTick = 0;
         bool hasAppliedState = false;

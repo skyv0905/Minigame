@@ -4,6 +4,7 @@
 #include "../GameObject.h"
 #include "../GameSession.h"
 #include "../Network/NetworkClient.h"
+#include <algorithm>
 
 namespace Minigame::Components
 {
@@ -22,20 +23,58 @@ namespace Minigame::Components
             return;
 
         const auto worldState = gameServices.network.GetLatestWorldState();
-        if (!worldState || (hasAppliedState && worldState->serverTick == lastAppliedServerTick))
-            return;
-
-        for (std::size_t i = 0; i < worldState->players.size(); i++)
+        if (worldState && (!hasAppliedState || worldState->serverTick != lastAppliedServerTick))
         {
-            const auto& player = worldState->players[i];
-            if (player.playerId != playerId)
-                continue;
+            for (const auto& player : worldState->players)
+            {
+                if (player.playerId != playerId)
+                    continue;
 
-            transform->SetPosition(Vector2{ static_cast<float>(player.positionX), static_cast<float>(player.positionY) });
-            lastAppliedServerTick = worldState->serverTick;
-            hasAppliedState = true;
+                const Vector2 serverPosition{ Minigame::Network::DecodePosition(player.positionX), Minigame::Network::DecodePosition(player.positionY) };
+                if (owner.ContainsTag("LocalPlayer"))
+                {
+                    const Vector2 currentPosition = transform->GetPosition();
+                    const Vector2 error{ serverPosition.x - currentPosition.x, serverPosition.y - currentPosition.y };
+                    const float errorSquared = error.x * error.x + error.y * error.y;
+                    if (errorSquared >= SnapDistance * SnapDistance)
+                    {
+                        transform->SetPosition(serverPosition);
+                        pendingCorrection = Vector2{};
+                    }
+                    else if (errorSquared >= CorrectionDeadZone * CorrectionDeadZone)
+                    {
+                        pendingCorrection = error;
+                    }
+                    else
+                    {
+                        pendingCorrection = Vector2{};
+                    }
+                }
+                else
+                    positionInterpolator.AddSnapshot(worldState->serverTick, serverPosition);
+
+                lastAppliedServerTick = worldState->serverTick;
+                hasAppliedState = true;
+                break;
+            }
+        }
+
+        if (owner.ContainsTag("LocalPlayer"))
+        {
+            const float correctionAmount = std::clamp(CorrectionRate * deltaTime, 0.0f, 1.0f);
+            const Vector2 appliedCorrection{ pendingCorrection.x * correctionAmount, pendingCorrection.y * correctionAmount };
+            Vector2 position = transform->GetPosition();
+            position.x += appliedCorrection.x;
+            position.y += appliedCorrection.y;
+            transform->SetPosition(position);
+            pendingCorrection.x -= appliedCorrection.x;
+            pendingCorrection.y -= appliedCorrection.y;
             return;
         }
+
+        Vector2 interpolatedPosition{};
+        if (positionInterpolator.Update(deltaTime, interpolatedPosition))
+            transform->SetPosition(interpolatedPosition);
     }
 
     void PlayerControllerNetwork::SetPlayerId(std::uint32_t id)

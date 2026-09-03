@@ -7,7 +7,13 @@
 
 namespace Minigame::Network
 {
-    inline constexpr std::uint16_t ProtocolVersion = 3;
+    inline constexpr std::uint16_t ProtocolVersion = 4;
+    inline constexpr float PositionUnitsPerPixel = 4.0f;
+
+    inline constexpr float DecodePosition(std::uint16_t value)
+    {
+        return static_cast<float>(value) / PositionUnitsPerPixel;
+    }
 
     struct PacketHeader
     {

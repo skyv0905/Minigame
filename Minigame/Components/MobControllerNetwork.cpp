@@ -29,55 +29,55 @@ namespace Minigame::Components
             animator->Play("Summon");
     }
 
-    void MobControllerNetwork::Update(float)
+    void MobControllerNetwork::Update(float deltaTime)
     {
         if (!gameServices.session.HasNetworkMatch() || transform == nullptr || objectId == 0)
             return;
 
         const auto worldState = gameServices.network.GetLatestWorldState();
-        if (!worldState || (hasAppliedState && worldState->serverTick == lastAppliedServerTick))
-            return;
-
-        for (std::uint32_t i = 0; i < worldState->mobCount; i++)
+        if (worldState && (!hasAppliedState || worldState->serverTick != lastAppliedServerTick))
         {
-            const auto& mob = worldState->mobs[i];
-            if (mob.objectId != objectId)
-                continue;
-
-            const Vector2 previous = transform->GetPosition();
-            const Vector2 position{ static_cast<float>(mob.positionX), static_cast<float>(mob.positionY) };
-            transform->SetPosition(position);
-            const float moveX = position.x - previous.x;
-            const float moveY = position.y - previous.y;
-            const bool isMoving = moveX != 0.0f || moveY != 0.0f;
-            for (std::size_t playerIndex = 0; playerIndex < worldState->players.size(); playerIndex++)
+            for (std::uint32_t i = 0; i < worldState->mobCount; i++)
             {
-                const auto& player = worldState->players[playerIndex];
-                if (player.playerId != mob.targetPlayerId)
+                const auto& mob = worldState->mobs[i];
+                if (mob.objectId != objectId)
                     continue;
 
-                const int targetDirectionX = static_cast<int>(player.positionX) - static_cast<int>(mob.positionX);
-                if (spriteRenderer && targetDirectionX != 0.0f)
-                    spriteRenderer->SetFlipX(targetDirectionX > 0.0f);
+                positionInterpolator.AddSnapshot(worldState->serverTick, Vector2{ Minigame::Network::DecodePosition(mob.positionX), Minigame::Network::DecodePosition(mob.positionY) });
+                for (const auto& player : worldState->players)
+                {
+                    if (player.playerId != mob.targetPlayerId)
+                        continue;
+
+                    const int targetDirectionX = static_cast<int>(player.positionX) - static_cast<int>(mob.positionX);
+                    if (spriteRenderer && targetDirectionX != 0)
+                        spriteRenderer->SetFlipX(targetDirectionX > 0);
+                    break;
+                }
+
+                lastAppliedServerTick = worldState->serverTick;
+                hasAppliedState = true;
                 break;
             }
-            if (animator && isOnRegen)
-            {
-                if (!animator->IsFinished())
-                {
-                    lastAppliedServerTick = worldState->serverTick;
-                    hasAppliedState = true;
-                    return;
-                }
-                isOnRegen = false;
-            }
-            if (animator)
-                animator->Play(isMoving ? owner.GetName() + "_Move" : owner.GetName() + "_Stand");
-
-            lastAppliedServerTick = worldState->serverTick;
-            hasAppliedState = true;
-            return;
         }
+
+        const Vector2 previous = transform->GetPosition();
+        Vector2 position{};
+        if (!positionInterpolator.Update(deltaTime, position))
+            return;
+
+        transform->SetPosition(position);
+        const bool isMoving = position.x != previous.x || position.y != previous.y;
+        if (animator && isOnRegen)
+        {
+            if (!animator->IsFinished())
+            {
+                return;
+            }
+            isOnRegen = false;
+        }
+        if (animator)
+            animator->Play(isMoving ? owner.GetName() + "_Move" : owner.GetName() + "_Stand");
     }
 
     void MobControllerNetwork::SetObjectId(std::uint32_t id)

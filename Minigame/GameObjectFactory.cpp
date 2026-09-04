@@ -29,6 +29,16 @@
 #include <fstream>
 #include <iostream>
 
+namespace
+{
+    std::string LoadServerAddress()
+    {
+        std::ifstream file(std::string(GetApplicationDirectory()) + "Data/ServerAddress.txt");
+        std::string address;
+        return file >> address ? address : "127.0.0.1";
+    }
+}
+
 GameObjectFactory::GameObjectFactory(GameServices& gameServices, SceneManager& sceneManager) : gameServices(gameServices), sceneManager(sceneManager)
 {
     std::ifstream file(std::string(GetApplicationDirectory()) + "Data/Prefab/Prefab.json");
@@ -510,7 +520,7 @@ void GameObjectFactory::LoadComponent(GameObject& gameObject, const json& compon
                     int sceneNum = onClickData.value("value", 0);
                     component.SetOnClick([this, sceneNum]()
                         {
-                            if (gameServices.network.Connect("127.0.0.1", 5000))
+                            if (gameServices.network.Connect(LoadServerAddress(), 5000))
                             {
 								gameServices.session.SetPendingMultiScene(sceneNum);
                                 sceneManager.SelectScene(sceneNum);

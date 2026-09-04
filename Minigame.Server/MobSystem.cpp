@@ -1,4 +1,5 @@
 #include "MobSystem.h"
+#include "CollisionUtility.h"
 #include "ServerWorld.h"
 #include <algorithm>
 #include <cmath>
@@ -58,8 +59,12 @@ namespace Minigame::Server
                 continue;
 
             mob.forward = Vector2{ directionX * inverseDistance, directionY * inverseDistance };
-            mob.position.x += directionX * inverseDistance * mob.speed * deltaTime;
-            mob.position.y += directionY * inverseDistance * mob.speed * deltaTime;
+            const Vector2 movement{ directionX * inverseDistance * mob.speed * deltaTime, directionY * inverseDistance * mob.speed * deltaTime };
+            if (!IsDiagonalMovementBlocked(mob.position, mob.collider, movement, world.walls))
+            {
+                mob.position.x += movement.x;
+                mob.position.y += movement.y;
+            }
         }
     }
 }

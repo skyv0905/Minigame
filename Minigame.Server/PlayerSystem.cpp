@@ -1,4 +1,5 @@
 #include "PlayerSystem.h"
+#include "CollisionUtility.h"
 #include "ServerWorld.h"
 #include <algorithm>
 #include <cmath>
@@ -39,8 +40,12 @@ namespace Minigame::Server
                 player.forward = Vector2{ player.input.moveX, player.input.moveY };
             }
             const float moveSpeed = std::min(player.moveSpeed * player.moveSpeedMultiplier / 100.0f, 700.0f);
-            player.position.x += player.input.moveX * moveSpeed * deltaTime;
-            player.position.y += player.input.moveY * moveSpeed * deltaTime;
+            const Vector2 movement{ player.input.moveX * moveSpeed * deltaTime, player.input.moveY * moveSpeed * deltaTime };
+            if (!IsDiagonalMovementBlocked(player.position, player.collider, movement, world.walls))
+            {
+                player.position.x += movement.x;
+                player.position.y += movement.y;
+            }
         }
     }
 }

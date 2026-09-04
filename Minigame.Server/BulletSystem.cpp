@@ -33,52 +33,106 @@ namespace Minigame::Server
         std::vector<std::uint32_t> mobsToRemove;
         for (auto& [objectId, bullet] : world.bullets)
         {
-            const float moveDistance = bullet.moveSpeed * deltaTime;
-            bullet.position.x += bullet.direction.x * moveDistance;
-            bullet.position.y += bullet.direction.y * moveDistance;
-            bullet.movedDistance += std::abs(moveDistance);
-            bool hit = bullet.movedDistance >= bullet.maxDistance;
+            const float remainingDistance = (std::max)(0.0f, bullet.maxDistance - bullet.movedDistance);
+            const float moveDistance = (std::min)(std::abs(bullet.moveSpeed * deltaTime), remainingDistance);
+            const bool reachedMaxDistance = moveDistance >= remainingDistance;
+            const Vector2 startPosition = bullet.position;
+            const Vector2 endPosition{ startPosition.x + bullet.direction.x * moveDistance, startPosition.y + bullet.direction.y * moveDistance };
+            float nearestHitTime = 2.0f;
+            ColliderType hitType = ColliderType::None;
             std::uint32_t hitObjectId = 0;
 
             for (const ServerWall& wall : world.walls)
             {
-                if (IsOverlapping(bullet.position, bullet.collider, wall.position, wall.collider))
+                float hitTime = 0.0f;
+                if (SweepCollision(startPosition, endPosition, bullet.collider, wall.position, wall.collider, hitTime) && hitTime < nearestHitTime)
                 {
-                    hit = true;
-                    break;
+                    nearestHitTime = hitTime;
+                    hitType = ColliderType::Wall;
+                    hitObjectId = 0;
                 }
             }
 
-            if (!hit && bullet.createdFromType == ColliderType::Player)
+            if (bullet.createdFromType == ColliderType::Player)
             {
                 for (auto& [mobId, mob] : world.mobs)
                 {
-                    if (mob.state == MobState::Regen || world.healthSystem.IsDead(mob.health) || !IsOverlapping(bullet.position, bullet.collider, mob.position, mob.collider))
+                    if (mob.state == MobState::Regen || world.healthSystem.IsDead(mob.health))
                         continue;
 
-                    const float previousHealth = mob.health.currentHealth;
-                    world.healthSystem.Hit(mob.health, bullet.attackPower);
-                    if (mob.health.currentHealth != previousHealth)
+                    float hitTime = 0.0f;
+                    if (SweepCollision(startPosition, endPosition, bullet.collider, mob.position, mob.collider, hitTime) && hitTime < nearestHitTime)
                     {
-                        world.hpChangedPackets.push_back({ mobId, mob.health.currentHealth });
+                        nearestHitTime = hitTime;
+                        hitType = ColliderType::Mob;
+                        hitObjectId = mobId;
                     }
-                    if (world.healthSystem.IsDead(mob.health))
+                }
+
+                for (auto& [playerId, player] : world.players)
+                {
+                    if (playerId == bullet.createdFrom || world.healthSystem.IsDead(player.health))
+                        continue;
+
+                    float hitTime = 0.0f;
+                    if (SweepCollision(startPosition, endPosition, bullet.collider, player.position, player.collider, hitTime) && hitTime < nearestHitTime)
                     {
-                        mobsToRemove.push_back(mobId);
+                        nearestHitTime = hitTime;
+                        hitType = ColliderType::Player;
+                        hitObjectId = playerId;
+                    }
+                }
+            }
+            else if (bullet.createdFromType == ColliderType::Mob)
+            {
+                for (auto& [playerId, player] : world.players)
+                {
+                    if (world.healthSystem.IsDead(player.health))
+                        continue;
+
+                    float hitTime = 0.0f;
+                    if (SweepCollision(startPosition, endPosition, bullet.collider, player.position, player.collider, hitTime) && hitTime < nearestHitTime)
+                    {
+                        nearestHitTime = hitTime;
+                        hitType = ColliderType::Player;
+                        hitObjectId = playerId;
+                    }
+                }
+            }
+
+            const bool hit = hitType != ColliderType::None;
+            bullet.position.x = startPosition.x + (endPosition.x - startPosition.x) * (hit ? nearestHitTime : 1.0f);
+            bullet.position.y = startPosition.y + (endPosition.y - startPosition.y) * (hit ? nearestHitTime : 1.0f);
+            bullet.movedDistance += moveDistance * (hit ? nearestHitTime : 1.0f);
+
+            if (hitType == ColliderType::Mob)
+            {
+                auto mob = world.mobs.find(hitObjectId);
+                if (mob != world.mobs.end())
+                {
+                    const float previousHealth = mob->second.health.currentHealth;
+                    world.healthSystem.Hit(mob->second.health, bullet.attackPower);
+                    if (mob->second.health.currentHealth != previousHealth)
+                    {
+                        world.hpChangedPackets.push_back({ hitObjectId, mob->second.health.currentHealth });
+                    }
+                    if (world.healthSystem.IsDead(mob->second.health))
+                    {
+                        mobsToRemove.push_back(hitObjectId);
                         const auto player = world.players.find(bullet.createdFrom);
                         if (player != world.players.end())
                         {
                             const int previousExp = player->second.exp.currentExp;
                             const int previousLevel = player->second.exp.level;
-                            world.expSystem.AddExp(player->second, mob.exp);
+                            world.expSystem.AddExp(player->second, mob->second.exp);
                             if (player->second.exp.currentExp != previousExp || player->second.exp.level != previousLevel)
                             {
                                 world.expChangedPackets.push_back(
                                     {
                                         static_cast<std::uint8_t>(player->first),
                                         static_cast<std::uint32_t>(player->second.exp.currentExp),
-                                        static_cast<std::uint32_t>(player->second.exp.level)
-                                    });
+                                        static_cast<std::uint32_t>(player->second.exp.level) 
+                                   });
                             }
                             if (player->second.exp.level != previousLevel)
                             {
@@ -88,53 +142,27 @@ namespace Minigame::Server
                     }
                     else
                     {
-                        mob.state = MobState::Hit;
-                        mob.stateRemaining = ServerMob::HitDuration;
-                    }
-                    hitObjectId = mobId;
-                    hit = true;
-                    break;
-                }
-
-                if (!hit)
-                {
-                    for (auto& [playerId, player] : world.players)
-                    {
-                        if (playerId == bullet.createdFrom || world.healthSystem.IsDead(player.health) || !IsOverlapping(bullet.position, bullet.collider, player.position, player.collider))
-                            continue;
-
-                        const float previousHealth = player.health.currentHealth;
-                        world.healthSystem.Hit(player.health, bullet.attackPower * 0.08f);
-                        if (player.health.currentHealth != previousHealth)
-                        {
-                            world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
-                        }
-                        hitObjectId = playerId;
-                        hit = true;
-                        break;
+                        mob->second.state = MobState::Hit;
+                        mob->second.stateRemaining = ServerMob::HitDuration;
                     }
                 }
             }
-            else if (!hit && bullet.createdFromType == ColliderType::Mob)
+            else if (hitType == ColliderType::Player)
             {
-                for (auto& [playerId, player] : world.players)
+                auto player = world.players.find(hitObjectId);
+                if (player != world.players.end())
                 {
-                    if (world.healthSystem.IsDead(player.health) || !IsOverlapping(bullet.position, bullet.collider, player.position, player.collider))
-                        continue;
-
-                    const float previousHealth = player.health.currentHealth;
-                    world.healthSystem.Hit(player.health, bullet.attackPower);
-                    if (player.health.currentHealth != previousHealth)
+                    const float attackPower = bullet.createdFromType == ColliderType::Player ? bullet.attackPower * 0.08f : bullet.attackPower;
+                    const float previousHealth = player->second.health.currentHealth;
+                    world.healthSystem.Hit(player->second.health, attackPower);
+                    if (player->second.health.currentHealth != previousHealth)
                     {
-                        world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
+                        world.hpChangedPackets.push_back({ hitObjectId, player->second.health.currentHealth });
                     }
-                    hitObjectId = playerId;
-                    hit = true;
-                    break;
                 }
             }
 
-            if (hit)
+            if (hit || reachedMaxDistance)
             {
                 bulletsToDestroy.push_back({ objectId, bullet.createdFrom, hitObjectId });
             }

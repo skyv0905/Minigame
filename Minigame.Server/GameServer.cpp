@@ -76,6 +76,7 @@ namespace Minigame::Server
         std::mt19937 randomEngine{ std::random_device{}() };
         int currentStage = 1;
         float stageTimerRemaining = 0.0f;
+        bool allStagesSpawned = false;
 
         static constexpr std::uint32_t TickRate = 30;
         static constexpr double TickInterval = 1.0 / TickRate;
@@ -421,6 +422,7 @@ namespace Minigame::Server
         packet.startTick = matchStartTick;
         currentStage = 1;
         stageTimerRemaining = mapBuilder.GetNextSpawnCooldown(currentStage);
+        allStagesSpawned = false;
 
         std::cout << "Random Seed: " << packet.randomSeed << '\n';
 
@@ -470,6 +472,9 @@ namespace Minigame::Server
 
     bool GameServer::Impl::TryGoNextStage()
     {
+        if (allStagesSpawned)
+            return false;
+
         stageTimerRemaining = (std::max)(0.0f, stageTimerRemaining - static_cast<float>(TickInterval));
         const bool allMobsDefeated = world.GetMobs().empty();
         if (!allMobsDefeated && stageTimerRemaining > 0.0f)
@@ -491,12 +496,8 @@ namespace Minigame::Server
             return false;
         }
 
-        if (!allMobsDefeated)
-            return false;
-
-        gameStarted = false;
-        gameFinished = true;
-        return true;
+        allStagesSpawned = true;
+        return false;
     }
 
     void GameServer::Impl::BroadcastStageChanged(const Minigame::Network::StageChangedPacket& packet)

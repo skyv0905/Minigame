@@ -49,13 +49,7 @@ namespace Minigame::Components
 		if (gameServices.session.GetGameState() == GameState::GamePlaying && owner.GetScene().FindGameObjectWithTag("Mob") == nullptr)
 		{
 			if (gameServices.session.HasNetworkMatch())
-			{
-				if (stageEnd)
-				{
-					OnGameCleared();
-				}
 				return;
-			}
 
 			if (stageEnd)
 			{

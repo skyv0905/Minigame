@@ -55,6 +55,16 @@ GameObjectID GameObject::GetID() const
     return id;
 }
 
+std::uint32_t GameObject::GetNetworkObjectId() const
+{
+    return networkObjectId;
+}
+
+void GameObject::SetNetworkObjectId(std::uint32_t objectId)
+{
+    networkObjectId = objectId;
+}
+
 int GameObject::GetZOrder() const
 {
     return zOrder;

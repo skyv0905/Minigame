@@ -34,6 +34,8 @@ namespace Minigame::Network
 		std::optional<BulletDestroyPacket> ConsumeBulletDestroyPacket();
 		std::optional<ExpChangedPacket> ConsumeExpChangedPacket();
 		std::optional<HpChangedPacket> ConsumeHpChangedPacket();
+		std::optional<PlayerStatsChangedPacket> ConsumePlayerStatsChangedPacket();
+		std::optional<PowerUpCollectedPacket> ConsumePowerUpCollectedPacket();
 		std::optional<GameResultPacket> ConsumeGameResultPacket();
 		std::optional<WorldStatePacket> GetLatestWorldState() const;
 

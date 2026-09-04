@@ -9,6 +9,7 @@ struct GameServices;
 namespace Minigame::Components
 {
     class Transform;
+    class PlayerMessage;
 
     class PlayerControllerNetwork : public Component
     {
@@ -19,6 +20,7 @@ namespace Minigame::Components
         void Update(float deltaTime) override;
 
         void SetPlayerId(std::uint32_t id);
+        void OnPowerUpCollected(GameObject& powerUp);
 
     private:
         static constexpr float CorrectionRate = 12.0f;
@@ -27,6 +29,7 @@ namespace Minigame::Components
 
         GameServices& gameServices;
         Transform* transform = nullptr;
+        PlayerMessage* playerMessage = nullptr;
         NetworkPositionInterpolator positionInterpolator;
         Vector2 pendingCorrection{};
         std::uint32_t playerId = 0;

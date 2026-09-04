@@ -157,12 +157,14 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
   <ItemGroup>
     <ClCompile Include="BulletSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="CollisionUtility.cpp" />
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="HealthSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ExpSystem.cpp" />
     <ClCompile Include="MobSystem.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
+    <ClCompile Include="PowerUpSystem.cpp" />
     <ClCompile Include="ServerDataLoader.cpp" />
     <ClCompile Include="ServerMapBuilder.cpp" />
     <ClCompile Include="ServerWorld.cpp" />
@@ -171,11 +173,13 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
     <ClInclude Include="BulletSystem.h" />
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="CollisionUtility.h" />
     <ClInclude Include="GameServer.h" />
     <ClInclude Include="HealthSystem.h" />
     <ClInclude Include="ExpSystem.h" />
     <ClInclude Include="MobSystem.h" />
     <ClInclude Include="PlayerSystem.h" />
+    <ClInclude Include="PowerUpSystem.h" />
     <ClInclude Include="ServerDataLoader.h" />
     <ClInclude Include="ServerMapBuilder.h" />
     <ClInclude Include="ServerWorld.h" />

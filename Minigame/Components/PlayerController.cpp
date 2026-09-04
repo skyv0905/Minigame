@@ -100,6 +100,9 @@ namespace Minigame::Components
         }
         else if (info.other.ContainsTag("PowerUp"))
         {
+            if (gameServices.session.HasNetworkMatch())
+                return;
+
             owner.GetScene().DestroyGameObject(info.other);
             OnPowerUpCollected(info.other);
         }

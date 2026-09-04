@@ -22,6 +22,8 @@ namespace Minigame::Network
 		std::deque<BulletDestroyPacket> pendingBulletDestroys;
 		std::deque<ExpChangedPacket> pendingExpChanges;
 		std::deque<HpChangedPacket> pendingHpChanges;
+		std::deque<PlayerStatsChangedPacket> pendingPlayerStatsChanges;
+		std::deque<PowerUpCollectedPacket> pendingPowerUpCollections;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -84,6 +86,8 @@ namespace Minigame::Network
 		impl->pendingBulletDestroys.clear();
 		impl->pendingExpChanges.clear();
 		impl->pendingHpChanges.clear();
+		impl->pendingPlayerStatsChanges.clear();
+		impl->pendingPowerUpCollections.clear();
 		impl->pendingGameResult.reset();
 		enet_peer_disconnect(impl->server, 0);
 	}
@@ -228,6 +232,30 @@ namespace Minigame::Network
 					impl->pendingHpChanges.push_back(*packet);
 					break;
 				}
+				case PacketType::PlayerStatsChanged:
+				{
+					auto packet = Deserialize<PlayerStatsChangedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid PlayerStatsChanged Packet\n";
+						break;
+					}
+
+					impl->pendingPlayerStatsChanges.push_back(*packet);
+					break;
+				}
+				case PacketType::PowerUpCollected:
+				{
+					auto packet = Deserialize<PowerUpCollectedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid PowerUpCollected Packet\n";
+						break;
+					}
+
+					impl->pendingPowerUpCollections.push_back(*packet);
+					break;
+				}
 				case PacketType::GameResult:
 				{
 					auto packet = Deserialize<GameResultPacket>(data);
@@ -261,6 +289,8 @@ namespace Minigame::Network
 				impl->pendingBulletDestroys.clear();
 				impl->pendingExpChanges.clear();
 				impl->pendingHpChanges.clear();
+				impl->pendingPlayerStatsChanges.clear();
+				impl->pendingPowerUpCollections.clear();
 				impl->pendingGameResult.reset();
 				std::cout << "Server Disconnected\n";
 				break;
@@ -334,6 +364,26 @@ namespace Minigame::Network
 
 		const HpChangedPacket packet = impl->pendingHpChanges.front();
 		impl->pendingHpChanges.pop_front();
+		return packet;
+	}
+
+	std::optional<PlayerStatsChangedPacket> NetworkClient::ConsumePlayerStatsChangedPacket()
+	{
+		if (impl->pendingPlayerStatsChanges.empty())
+			return std::nullopt;
+
+		const PlayerStatsChangedPacket packet = impl->pendingPlayerStatsChanges.front();
+		impl->pendingPlayerStatsChanges.pop_front();
+		return packet;
+	}
+
+	std::optional<PowerUpCollectedPacket> NetworkClient::ConsumePowerUpCollectedPacket()
+	{
+		if (impl->pendingPowerUpCollections.empty())
+			return std::nullopt;
+
+		const PowerUpCollectedPacket packet = impl->pendingPowerUpCollections.front();
+		impl->pendingPowerUpCollections.pop_front();
 		return packet;
 	}
 

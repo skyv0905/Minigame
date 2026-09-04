@@ -36,6 +36,8 @@ public:
 	void ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet);
 	void ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet);
 	void ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet);
+	void ApplyPlayerStatsChanged(const Minigame::Network::PlayerStatsChangedPacket& packet);
+	void ApplyPowerUpCollected(const Minigame::Network::PowerUpCollectedPacket& packet);
 	void ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId);
 
 private:

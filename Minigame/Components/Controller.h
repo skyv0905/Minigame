@@ -9,6 +9,10 @@
 #include "../TimerManager.h"
 
 struct GameServices;
+namespace Minigame::Network
+{
+	struct PlayerStatsChangedPacket;
+}
 
 namespace Minigame::Components
 {
@@ -29,6 +33,7 @@ namespace Minigame::Components
 		void SetBulletTint(Color color);
 		void SetFireCooldown(float cooldown);
 		void SetAttackPower(float power);
+		void SetNetworkStats(const Minigame::Network::PlayerStatsChangedPacket& packet);
 
 		float GetFinalMoveSpeed() const;
 		float GetFinalBulletSpeed() const;

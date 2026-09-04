@@ -3,6 +3,8 @@
 #include "../GameServices.h"
 #include "../GameObject.h"
 #include "../Scene.h"
+#include "Network/Packets.h"
+#include <algorithm>
 #include <format>
 
 namespace Minigame::Components
@@ -61,6 +63,19 @@ namespace Minigame::Components
     void Controller::SetAttackPower(float power)
     {
         attackPower = power;
+    }
+
+    void Controller::SetNetworkStats(const Minigame::Network::PlayerStatsChangedPacket& packet)
+    {
+        moveSpeed = packet.moveSpeed;
+        bulletSpeed = packet.bulletSpeed;
+        bulletDistance = packet.bulletDistance;
+        fireCooldown = packet.fireCooldown;
+        attackPower = packet.attackPower;
+        moveSpeedMultiplier = static_cast<int>(packet.moveSpeedMultiplier);
+        bulletSpeedMultiplier = static_cast<int>(packet.bulletSpeedMultiplier);
+        bulletDistanceMultiplier = static_cast<int>(packet.bulletDistanceMultiplier);
+        attackPowerMultiplier = static_cast<int>(packet.attackPowerMultiplier);
     }
 
     float Controller::GetFinalMoveSpeed() const

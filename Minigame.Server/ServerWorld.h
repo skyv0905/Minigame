@@ -7,9 +7,11 @@
 #include "MobSystem.h"
 #include "Network/Packets.h"
 #include "PlayerSystem.h"
+#include "PowerUpSystem.h"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace Minigame::Server
@@ -76,6 +78,10 @@ namespace Minigame::Server
         float fireCooldown = 0.15f;
         float fireCooldownRemaining = 0.0f;
         float attackPower = 10.0f;
+        int moveSpeedMultiplier = 100;
+        int bulletSpeedMultiplier = 100;
+        int bulletDistanceMultiplier = 100;
+        int attackPowerMultiplier = 100;
         std::uint32_t lastProcessedFireSequence = 0;
     };
 
@@ -124,7 +130,7 @@ namespace Minigame::Server
     {
         std::uint32_t objectId = 0;
         std::string prefab;
-        std::string effect;
+        std::unordered_set<std::string> effects;
         Vector2 position;
         ServerCollider collider;
     };
@@ -152,6 +158,8 @@ namespace Minigame::Server
         std::vector<std::uint32_t> ConsumeDestroyedBulletIds();
         std::vector<Minigame::Network::ExpChangedPacket> ConsumeExpChangedPackets();
         std::vector<Minigame::Network::HpChangedPacket> ConsumeHpChangedPackets();
+        std::vector<Minigame::Network::PlayerStatsChangedPacket> ConsumePlayerStatsChangedPackets();
+        std::vector<Minigame::Network::PowerUpCollectedPacket> ConsumePowerUpCollectedPackets();
 
     private:
         friend class PlayerSystem;
@@ -160,6 +168,7 @@ namespace Minigame::Server
         friend class CollisionSystem;
         friend class HealthSystem;
         friend class ExpSystem;
+        friend class PowerUpSystem;
 
         PlayerSystem playerSystem;
         MobSystem mobSystem;
@@ -167,6 +176,7 @@ namespace Minigame::Server
         CollisionSystem collisionSystem;
         HealthSystem healthSystem;
         ExpSystem expSystem;
+        PowerUpSystem powerUpSystem;
 
         std::unordered_map<std::uint32_t, ServerPlayer> players;
         std::vector<ServerWall> walls;
@@ -177,6 +187,10 @@ namespace Minigame::Server
         std::vector<std::uint32_t> destroyedBulletIds;
         std::vector<Minigame::Network::ExpChangedPacket> expChangedPackets;
         std::vector<Minigame::Network::HpChangedPacket> hpChangedPackets;
+        std::vector<Minigame::Network::PlayerStatsChangedPacket> playerStatsChangedPackets;
+        std::vector<Minigame::Network::PowerUpCollectedPacket> powerUpCollectedPackets;
         std::uint32_t nextObjectId = 1;
+
+        void QueuePlayerStatsChanged(const ServerPlayer& player);
     };
 }

@@ -7,6 +7,12 @@
     <ClCompile Include="CollisionSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CollisionUtility.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerUpSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="HealthSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -69,6 +75,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionUtility.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MobSystem.h">

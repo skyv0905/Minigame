@@ -83,6 +83,22 @@ void SceneManager::ApplyHpChanged(const Minigame::Network::HpChangedPacket& pack
 	}
 }
 
+void SceneManager::ApplyPlayerStatsChanged(const Minigame::Network::PlayerStatsChangedPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyPlayerStatsChanged(packet);
+	}
+}
+
+void SceneManager::ApplyPowerUpCollected(const Minigame::Network::PowerUpCollectedPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyPowerUpCollected(packet);
+	}
+}
+
 void SceneManager::ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId)
 {
 	if (currentScene)

@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <string>
 #include <utility>
+#include <cstdint>
 
 #include "Components/Component.h"
 #include "IDGenerator.h"
@@ -26,6 +27,8 @@ public:
 
     const std::string& GetName() const;
     GameObjectID GetID() const;
+    std::uint32_t GetNetworkObjectId() const;
+    void SetNetworkObjectId(std::uint32_t objectId);
     int GetZOrder() const;
     void SetZOrder(int zOrder);
     Scene& GetScene();
@@ -44,6 +47,7 @@ public:
 private:
     Scene& scene;
     GameObjectID id;
+    std::uint32_t networkObjectId = 0;
     std::string name;
     int zOrder = 0;
 

@@ -1,9 +1,12 @@
 #include "PlayerControllerNetwork.h"
 #include "Transform.h"
+#include "PlayerMessage.h"
 #include "../GameServices.h"
 #include "../GameObject.h"
 #include "../GameSession.h"
 #include "../Network/NetworkClient.h"
+#include "../Scene.h"
+#include "../SoundPlayer.h"
 #include <algorithm>
 
 namespace Minigame::Components
@@ -15,6 +18,7 @@ namespace Minigame::Components
     void PlayerControllerNetwork::Awake()
     {
         transform = owner.GetComponent<Transform>();
+        playerMessage = owner.GetComponent<PlayerMessage>();
     }
 
     void PlayerControllerNetwork::Update(float deltaTime)
@@ -80,5 +84,42 @@ namespace Minigame::Components
     void PlayerControllerNetwork::SetPlayerId(std::uint32_t id)
     {
         playerId = id;
+    }
+
+    void PlayerControllerNetwork::OnPowerUpCollected(GameObject& powerUp)
+    {
+        if (playerMessage)
+        {
+            if (powerUp.ContainsTag("incSpeed"))
+            {
+                playerMessage->Show("이동 속도 증가");
+            }
+            if (powerUp.ContainsTag("incAttackPower"))
+            {
+                playerMessage->Show("공격력 증가");
+            }
+            if (powerUp.ContainsTag("incAttackSpeed"))
+            {
+                playerMessage->Show("공격 속도 증가");
+            }
+            if (powerUp.ContainsTag("incBulletDistance"))
+            {
+                playerMessage->Show("사거리 증가");
+            }
+            if (powerUp.ContainsTag("incBulletSpeed"))
+            {
+                playerMessage->Show("발사체 속도 증가");
+            }
+            if (powerUp.ContainsTag("heal1"))
+            {
+                playerMessage->Show("체력 15% 회복");
+            }
+            if (powerUp.ContainsTag("heal2"))
+            {
+                playerMessage->Show("체력 30% 회복");
+            }
+        }
+        gameServices.sounds.Play("UseShopItem.mp3");
+        owner.GetScene().DestroyGameObject(powerUp);
     }
 }

@@ -148,6 +148,8 @@ namespace Minigame::Network
         case PacketType::BulletDestroy:
         case PacketType::ExpChanged:
         case PacketType::HpChanged:
+        case PacketType::PlayerStatsChanged:
+        case PacketType::PowerUpCollected:
         case PacketType::GameResult:
             return type;
 
@@ -286,6 +288,36 @@ namespace Minigame::Network
         WriteHeader<HpChangedPacket>(buffer);
         WriteUInt32(buffer, packet.objectId);
         WriteFloat(buffer, packet.newHp);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const PlayerStatsChangedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<PlayerStatsChangedPacket>::PayloadSize);
+        WriteHeader<PlayerStatsChangedPacket>(buffer);
+        WriteUInt8(buffer, packet.playerId);
+        WriteFloat(buffer, packet.moveSpeed);
+        WriteFloat(buffer, packet.bulletSpeed);
+        WriteFloat(buffer, packet.bulletDistance);
+        WriteFloat(buffer, packet.fireCooldown);
+        WriteFloat(buffer, packet.attackPower);
+        WriteUInt16(buffer, packet.moveSpeedMultiplier);
+        WriteUInt16(buffer, packet.bulletSpeedMultiplier);
+        WriteUInt16(buffer, packet.bulletDistanceMultiplier);
+        WriteUInt16(buffer, packet.attackPowerMultiplier);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const PowerUpCollectedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<PowerUpCollectedPacket>::PayloadSize);
+        WriteHeader<PowerUpCollectedPacket>(buffer);
+        WriteUInt32(buffer, packet.objectId);
+        WriteUInt8(buffer, packet.playerId);
         return buffer;
     }
 
@@ -477,6 +509,35 @@ namespace Minigame::Network
 
         HpChangedPacket packet{};
         if (!ReadUInt32(data, offset, packet.objectId) || !ReadFloat(data, offset, packet.newHp))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<PlayerStatsChangedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<PlayerStatsChangedPacket>(data, offset))
+            return std::nullopt;
+
+        PlayerStatsChangedPacket packet{};
+        if (!ReadUInt8(data, offset, packet.playerId) || !ReadFloat(data, offset, packet.moveSpeed) || !ReadFloat(data, offset, packet.bulletSpeed) ||
+            !ReadFloat(data, offset, packet.bulletDistance) || !ReadFloat(data, offset, packet.fireCooldown) || !ReadFloat(data, offset, packet.attackPower) ||
+            !ReadUInt16(data, offset, packet.moveSpeedMultiplier) || !ReadUInt16(data, offset, packet.bulletSpeedMultiplier) ||
+            !ReadUInt16(data, offset, packet.bulletDistanceMultiplier) || !ReadUInt16(data, offset, packet.attackPowerMultiplier))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<PowerUpCollectedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<PowerUpCollectedPacket>(data, offset))
+            return std::nullopt;
+
+        PowerUpCollectedPacket packet{};
+        if (!ReadUInt32(data, offset, packet.objectId) || !ReadUInt8(data, offset, packet.playerId))
             return std::nullopt;
         return packet;
     }

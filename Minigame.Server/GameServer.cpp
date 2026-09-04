@@ -89,6 +89,7 @@ namespace Minigame::Server
         bool TryFinishGame();
         void BroadcastBulletEvents();
         void BroadcastStatEvents();
+        void BroadcastPowerUpEvents();
         void BroadcastWorldState();
     };
 
@@ -294,6 +295,7 @@ namespace Minigame::Server
         {
             impl->world.Update(static_cast<float>(Impl::TickInterval));
             impl->BroadcastStatEvents();
+            impl->BroadcastPowerUpEvents();
             impl->BroadcastBulletEvents();
             if (impl->TryFinishGame())
                 return;
@@ -549,6 +551,31 @@ namespace Minigame::Server
                 if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
                 {
                     std::cerr << "Failed to send ExpChanged to player " << session.playerId << '\n';
+                }
+            }
+        }
+
+        for (const Minigame::Network::PlayerStatsChangedPacket& packet : world.ConsumePlayerStatsChangedPackets())
+        {
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+                    std::cerr << "Failed to send PlayerStatsChanged to player " << session.playerId << '\n';
+                }
+            }
+        }
+    }
+
+    void GameServer::Impl::BroadcastPowerUpEvents()
+    {
+        for (const Minigame::Network::PowerUpCollectedPacket& packet : world.ConsumePowerUpCollectedPackets())
+        {
+            for (auto& [peer, session] : sessions)
+            {
+                if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+                {
+                    std::cerr << "Failed to send PowerUpCollected to player " << session.playerId << '\n';
                 }
             }
         }

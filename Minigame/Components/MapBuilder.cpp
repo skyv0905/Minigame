@@ -269,20 +269,23 @@ namespace Minigame::Components
 
 	void MapBuilder::SpawnByPrefab(const Vector2& pos, const std::string& prefab)
 	{
-		auto* mob = owner.GetScene().Instantiate(prefab);
-		if (mob == nullptr)
+		auto* object = owner.GetScene().Instantiate(prefab);
+		if (object == nullptr)
 			return;
 
-		auto* mobTransform = mob->GetComponent<Minigame::Components::Transform>();
-		if (mobTransform)
+		auto* transform = object->GetComponent<Minigame::Components::Transform>();
+		if (transform)
 		{
-			mobTransform->SetPosition(pos);
+			transform->SetPosition(pos);
 		}
 
 		if (gameServices.session.HasNetworkMatch())
 		{
-			if (auto* networkController = mob->GetComponent<Minigame::Components::MobControllerNetwork>())
+			object->SetNetworkObjectId(nextNetworkObjectId);
+			if (auto* networkController = object->GetComponent<Minigame::Components::MobControllerNetwork>())
+			{
 				networkController->SetObjectId(nextNetworkObjectId);
+			}
 			nextNetworkObjectId++;
 		}
 	}

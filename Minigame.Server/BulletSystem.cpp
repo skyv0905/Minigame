@@ -1,4 +1,5 @@
 #include "BulletSystem.h"
+#include "CollisionUtility.h"
 #include "ServerWorld.h"
 #include <algorithm>
 #include <cmath>
@@ -8,33 +9,6 @@ namespace Minigame::Server
 {
     namespace
     {
-        struct Bounds
-        {
-            float left;
-            float top;
-            float right;
-            float bottom;
-        };
-
-        Bounds GetBounds(Vector2 position, const ServerCollider& collider)
-        {
-            return Bounds
-            {
-                position.x + collider.offset.x,
-                position.y + collider.offset.y,
-                position.x + collider.offset.x + collider.size.x,
-                position.y + collider.offset.y + collider.size.y
-            };
-        }
-
-        bool IsOverlapping(Vector2 firstPosition, const ServerCollider& first, Vector2 secondPosition, const ServerCollider& second)
-        {
-            const Bounds a = GetBounds(firstPosition, first);
-            const Bounds b = GetBounds(secondPosition, second);
-
-            return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-        }
-
         ServerBullet CreateBullet(std::uint32_t objectId, std::uint32_t creatorId, ColliderType creatorType,
             Vector2 position, Vector2 direction, const ServerCollider& collider, float speed, float distance, float attackPower, std::uint32_t fireSequence)
         {
@@ -105,6 +79,10 @@ namespace Minigame::Server
                                         static_cast<std::uint32_t>(player->second.exp.level)
                                     });
                             }
+                            if (player->second.exp.level != previousLevel)
+                            {
+                                world.QueuePlayerStatsChanged(player->second);
+                            }
                         }
                     }
                     hit = true;
@@ -171,7 +149,8 @@ namespace Minigame::Server
             }
 
             world.AddBullet(CreateBullet(world.nextObjectId++, playerId, ColliderType::Player,
-                player.position, player.forward, player.bulletCollider, player.bulletSpeed, player.bulletDistance, player.attackPower, player.input.fireSequence));
+                player.position, player.forward, player.bulletCollider, std::min(player.bulletSpeed * player.bulletSpeedMultiplier / 100.0f, 900.0f),
+                player.bulletDistance * player.bulletDistanceMultiplier / 100.0f, player.attackPower * player.attackPowerMultiplier / 100.0f, player.input.fireSequence));
             player.lastProcessedFireSequence = player.input.fireSequence;
             player.fireCooldownRemaining = std::max(0.0f, player.fireCooldown);
         }

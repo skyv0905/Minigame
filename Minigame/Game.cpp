@@ -94,6 +94,14 @@ void Game::Update()
     {
         sceneManager.ApplyHpChanged(*packet);
     }
+    while (auto packet = networkClient.ConsumePlayerStatsChangedPacket())
+    {
+        sceneManager.ApplyPlayerStatsChanged(*packet);
+    }
+    while (auto packet = networkClient.ConsumePowerUpCollectedPacket())
+    {
+        sceneManager.ApplyPowerUpCollected(*packet);
+    }
     if (auto packet = networkClient.ConsumeGameResultPacket())
     {
         sceneManager.ApplyGameResult(*packet, networkClient.GetPlayerId());

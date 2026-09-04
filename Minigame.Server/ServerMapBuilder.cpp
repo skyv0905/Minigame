@@ -335,8 +335,7 @@ namespace Minigame::Server
                 const std::string tag = tagData.get<std::string>();
                 if (tag != "PowerUp")
                 {
-                    powerUp.effect = tag;
-                    break;
+                    powerUp.effects.insert(tag);
                 }
             }
         }

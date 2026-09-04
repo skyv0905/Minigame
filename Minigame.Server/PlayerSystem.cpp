@@ -38,8 +38,9 @@ namespace Minigame::Server
             {
                 player.forward = Vector2{ player.input.moveX, player.input.moveY };
             }
-            player.position.x += player.input.moveX * player.moveSpeed * deltaTime;
-            player.position.y += player.input.moveY * player.moveSpeed * deltaTime;
+            const float moveSpeed = std::min(player.moveSpeed * player.moveSpeedMultiplier / 100.0f, 700.0f);
+            player.position.x += player.input.moveX * moveSpeed * deltaTime;
+            player.position.y += player.input.moveY * moveSpeed * deltaTime;
         }
     }
 }

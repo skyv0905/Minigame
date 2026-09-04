@@ -8,6 +8,7 @@
 #include "Components/Controller.h"
 #include "Components/Exp.h"
 #include "Components/Health.h"
+#include "Components/PlayerControllerNetwork.h"
 #include "Components/MobControllerNetwork.h"
 #include "Components/SpriteRenderer.h"
 #include "Components/Transform.h"
@@ -150,6 +151,9 @@ GameObject* Scene::FindNetworkObject(std::uint32_t objectId)
 
     for (auto& gameObject : gameObjects)
     {
+        if (gameObject->GetNetworkObjectId() == objectId)
+            return gameObject.get();
+
         auto* controller = gameObject->GetComponent<Minigame::Components::MobControllerNetwork>();
         if (controller && controller->GetObjectId() == objectId)
         {
@@ -243,6 +247,29 @@ void Scene::ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet)
         {
             packet.newHp <= 0 ? controller->MarkDead() : controller->MarkHit();
         }
+    }
+}
+
+void Scene::ApplyPlayerStatsChanged(const Minigame::Network::PlayerStatsChangedPacket& packet)
+{
+    GameObject* player = FindNetworkObject(packet.playerId);
+    if (player == nullptr)
+        return;
+
+    if (auto* controller = player->GetComponent<Minigame::Components::Controller>())
+        controller->SetNetworkStats(packet);
+}
+
+void Scene::ApplyPowerUpCollected(const Minigame::Network::PowerUpCollectedPacket& packet)
+{
+    GameObject* powerUp = FindNetworkObject(packet.objectId);
+    GameObject* player = FindNetworkObject(packet.playerId);
+    if (powerUp == nullptr || player == nullptr)
+        return;
+
+    if (auto* controller = player->GetComponent<Minigame::Components::PlayerControllerNetwork>())
+    {
+        controller->OnPowerUpCollected(*powerUp);
     }
 }
 

@@ -16,6 +16,8 @@ namespace Minigame::Network
         BulletDestroy,
         ExpChanged,
         HpChanged,
+        PlayerStatsChanged,
+        PowerUpCollected,
         GameResult
     };
 

@@ -69,7 +69,12 @@ namespace Minigame::Server
         for (ServerWall& wall : world.walls)
             objects.push_back(CollisionObject{ &wall.position, &wall.collider });
         for (auto& [objectId, mob] : world.mobs)
-            objects.push_back(CollisionObject{ &mob.position, &mob.collider });
+        {
+            if (mob.state != MobState::Regen)
+            {
+                objects.push_back(CollisionObject{ &mob.position, &mob.collider });
+            }
+        }
         return objects;
     }
 }

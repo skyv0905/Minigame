@@ -53,7 +53,7 @@ namespace Minigame::Server
             {
                 for (auto& [mobId, mob] : world.mobs)
                 {
-                    if (world.healthSystem.IsDead(mob.health) || !IsOverlapping(bullet.position, bullet.collider, mob.position, mob.collider))
+                    if (mob.state == MobState::Regen || world.healthSystem.IsDead(mob.health) || !IsOverlapping(bullet.position, bullet.collider, mob.position, mob.collider))
                         continue;
 
                     const float previousHealth = mob.health.currentHealth;
@@ -85,6 +85,11 @@ namespace Minigame::Server
                                 world.QueuePlayerStatsChanged(player->second);
                             }
                         }
+                    }
+                    else
+                    {
+                        mob.state = MobState::Hit;
+                        mob.stateRemaining = ServerMob::HitDuration;
                     }
                     hitObjectId = mobId;
                     hit = true;
@@ -162,7 +167,7 @@ namespace Minigame::Server
         for (auto& [mobId, mob] : world.mobs)
         {
             mob.fireCooldownRemaining = std::max(0.0f, mob.fireCooldownRemaining - deltaTime);
-            if (world.healthSystem.IsDead(mob.health) || mob.targetPlayerId == 0 || mob.fireCooldownRemaining > 0.0f)
+            if (mob.state == MobState::Regen || world.healthSystem.IsDead(mob.health) || mob.targetPlayerId == 0 || mob.fireCooldownRemaining > 0.0f)
             {
                 continue;
             }

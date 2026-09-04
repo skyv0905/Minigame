@@ -1,5 +1,6 @@
 #include "MobSystem.h"
 #include "ServerWorld.h"
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -7,14 +8,23 @@ namespace Minigame::Server
 {
     void MobSystem::Update(ServerWorld& world, float deltaTime)
     {
-        if (world.players.empty())
-            return;
-
         for (auto& [objectId, mob] : world.mobs)
         {
             mob.targetPlayerId = 0;
             if (world.healthSystem.IsDead(mob.health))
                 continue;
+
+            if (mob.state != MobState::Idle)
+            {
+                const MobState previousState = mob.state;
+                mob.stateRemaining = std::max(0.0f, mob.stateRemaining - deltaTime);
+                if (mob.stateRemaining <= 0.0f)
+                {
+                    mob.state = MobState::Idle;
+                }
+                if (previousState == MobState::Regen)
+                    continue;
+            }
 
             const ServerPlayer* target = nullptr;
             std::uint32_t targetPlayerId = std::numeric_limits<std::uint32_t>::max();
@@ -44,6 +54,9 @@ namespace Minigame::Server
             const float directionX = target->position.x - mob.position.x;
             const float directionY = target->position.y - mob.position.y;
             const float inverseDistance = 1.0f / std::sqrt(closestDistanceSquared);
+            if (mob.state == MobState::Hit)
+                continue;
+
             mob.forward = Vector2{ directionX * inverseDistance, directionY * inverseDistance };
             mob.position.x += directionX * inverseDistance * mob.speed * deltaTime;
             mob.position.y += directionY * inverseDistance * mob.speed * deltaTime;

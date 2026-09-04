@@ -181,7 +181,9 @@ xcopy "$(ProjectDir)..\Minigame\Data\Prefab\Prefab.json" "$(TargetDir)Data\Prefa
     <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="PowerUpSystem.h" />
     <ClInclude Include="ServerDataLoader.h" />
+    <ClInclude Include="ServerEntities.h" />
     <ClInclude Include="ServerMapBuilder.h" />
+    <ClInclude Include="ServerTypes.h" />
     <ClInclude Include="ServerWorld.h" />
   </ItemGroup>
   <ItemGroup>

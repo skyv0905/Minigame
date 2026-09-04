@@ -152,7 +152,9 @@ GameObject* Scene::FindNetworkObject(std::uint32_t objectId)
     for (auto& gameObject : gameObjects)
     {
         if (gameObject->GetNetworkObjectId() == objectId)
+        {
             return gameObject.get();
+        }
 
         auto* controller = gameObject->GetComponent<Minigame::Components::MobControllerNetwork>();
         if (controller && controller->GetObjectId() == objectId)
@@ -207,12 +209,27 @@ void Scene::ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet)
     if (const auto* controller = createdFrom->GetComponent<Minigame::Components::Controller>())
     {
         if (auto* renderer = bulletObject->GetComponent<Minigame::Components::SpriteRenderer>())
+        {
             renderer->SetTint(controller->GetBulletTint());
+        }
     }
 }
 
 void Scene::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& packet)
 {
+    GameObject* createdFrom = FindNetworkObject(packet.createdFrom);
+    GameObject* hitObject = packet.hitObjectId == 0 ? nullptr : FindNetworkObject(packet.hitObjectId);
+    if (createdFrom && hitObject)
+    {
+        const bool createdFromPlayer = createdFrom->GetComponent<Minigame::Components::PlayerControllerNetwork>() != nullptr;
+        const bool createdFromMob = createdFrom->GetComponent<Minigame::Components::MobControllerNetwork>() != nullptr;
+        auto* hitPlayer = hitObject->GetComponent<Minigame::Components::PlayerControllerNetwork>();
+        if (hitPlayer && ((createdFromPlayer) || (createdFromMob && packet.hitObjectId == gameServices.network.GetPlayerId())))
+        {
+            hitPlayer->OnHit();
+        }
+    }
+
     for (auto& gameObject : gameObjects)
     {
         auto* bullet = gameObject->GetComponent<Minigame::Components::Bullet>();
@@ -232,7 +249,15 @@ void Scene::ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet)
 
     if (auto* exp = player->GetComponent<Minigame::Components::Exp>())
     {
+        const bool levelUp = exp->GetLevel() < static_cast<int>(packet.newLevel);
         exp->SetNetworkState(static_cast<int>(packet.newExp), static_cast<int>(packet.newLevel));
+        if (levelUp && packet.playerId == gameServices.network.GetPlayerId())
+        {
+            if (auto* controller = player->GetComponent<Minigame::Components::PlayerControllerNetwork>())
+            {
+                controller->OnLevelUp();
+            }
+        }
     }
 }
 
@@ -247,7 +272,7 @@ void Scene::ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet)
         health->SetCurrentHealth(packet.newHp);
         if (auto* controller = object->GetComponent<Minigame::Components::MobControllerNetwork>())
         {
-            packet.newHp <= 0 ? controller->MarkDead() : controller->MarkHit();
+            packet.newHp <= 0 ? controller->OnDead() : controller->OnHit();
         }
     }
 }

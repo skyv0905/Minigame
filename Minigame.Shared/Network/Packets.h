@@ -7,7 +7,7 @@
 
 namespace Minigame::Network
 {
-    inline constexpr std::uint16_t ProtocolVersion = 6;
+    inline constexpr std::uint16_t ProtocolVersion = 1;
     inline constexpr float PositionUnitsPerPixel = 4.0f;
 
     inline constexpr float DecodePosition(std::uint16_t value)
@@ -92,6 +92,8 @@ namespace Minigame::Network
     struct BulletDestroyPacket
     {
         std::uint32_t bulletId;
+        std::uint32_t createdFrom;
+        std::uint32_t hitObjectId;
     };
 
     struct ExpChangedPacket

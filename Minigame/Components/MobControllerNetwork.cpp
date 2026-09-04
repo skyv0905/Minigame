@@ -135,17 +135,17 @@ namespace Minigame::Components
         return objectId;
     }
 
-    void MobControllerNetwork::MarkHit()
+    void MobControllerNetwork::OnHit()
     {
         isHit = true;
         if (animator)
         {
             animator->Play(owner.GetName() + "_Hit", true);
-            gameServices.sounds.Play(owner.GetName() + "_Hit.mp3");
         }
+        gameServices.sounds.Play(owner.GetName() + "_Hit.mp3");
     }
 
-    void MobControllerNetwork::MarkDead()
+    void MobControllerNetwork::OnDead()
     {
         if (isDead)
             return;
@@ -153,8 +153,8 @@ namespace Minigame::Components
         if (animator)
         {
             animator->Play(owner.GetName() + "_Die");
-            gameServices.sounds.Play(owner.GetName() + "_Die.mp3");
         }
+        gameServices.sounds.Play(owner.GetName() + "_Die.mp3");
         DisableCollider();
         isDead = true;
     }

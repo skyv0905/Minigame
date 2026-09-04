@@ -20,6 +20,8 @@ namespace Minigame::Components
         void Update(float deltaTime) override;
 
         void SetPlayerId(std::uint32_t id);
+        void OnHit();
+        void OnLevelUp();
         void OnPowerUpCollected(GameObject& powerUp);
 
     private:

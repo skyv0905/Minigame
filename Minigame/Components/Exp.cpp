@@ -42,10 +42,6 @@ namespace Minigame::Components
 		{
 			level++;
 			requiredExp = std::max(1, static_cast<int>(std::ceil(requiredExp * requiredExpGrowthRate)));
-			if (onLevelUp)
-			{
-				onLevelUp(level);
-			}
 		}
 		currentExp = std::clamp(newExp, 0, requiredExp - 1);
 	}

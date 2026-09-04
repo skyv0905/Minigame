@@ -24,8 +24,8 @@ namespace Minigame::Components
         void SetObjectId(std::uint32_t id);
         std::uint32_t GetObjectId() const;
 
-        void MarkHit();
-        void MarkDead();
+        void OnHit();
+        void OnDead();
 
         void DisableCollider();
         void EnableCollider();

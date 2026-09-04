@@ -86,6 +86,16 @@ namespace Minigame::Components
         playerId = id;
     }
 
+    void PlayerControllerNetwork::OnHit()
+    {
+        gameServices.sounds.Play("Hit.mp3");
+    }
+
+    void PlayerControllerNetwork::OnLevelUp()
+    {
+        gameServices.sounds.Play("LevelUp.mp3");
+    }
+
     void PlayerControllerNetwork::OnPowerUpCollected(GameObject& powerUp)
     {
         if (playerMessage)

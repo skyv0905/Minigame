@@ -155,7 +155,7 @@ namespace Minigame::Server
         const std::unordered_map<std::uint32_t, ServerPowerUp>& GetPowerUps() const;
         bool IsPlayerDead(std::uint32_t playerId) const;
         std::vector<ServerBullet> ConsumeSpawnedBullets();
-        std::vector<std::uint32_t> ConsumeDestroyedBulletIds();
+        std::vector<Minigame::Network::BulletDestroyPacket> ConsumeDestroyedBulletPackets();
         std::vector<Minigame::Network::ExpChangedPacket> ConsumeExpChangedPackets();
         std::vector<Minigame::Network::HpChangedPacket> ConsumeHpChangedPackets();
         std::vector<Minigame::Network::PlayerStatsChangedPacket> ConsumePlayerStatsChangedPackets();
@@ -184,7 +184,7 @@ namespace Minigame::Server
         std::unordered_map<std::uint32_t, ServerBullet> bullets;
         std::unordered_map<std::uint32_t, ServerPowerUp> powerUps;
         std::vector<ServerBullet> spawnedBullets;
-        std::vector<std::uint32_t> destroyedBulletIds;
+        std::vector<Minigame::Network::BulletDestroyPacket> destroyedBulletPackets;
         std::vector<Minigame::Network::ExpChangedPacket> expChangedPackets;
         std::vector<Minigame::Network::HpChangedPacket> hpChangedPackets;
         std::vector<Minigame::Network::PlayerStatsChangedPacket> playerStatsChangedPackets;

@@ -67,7 +67,7 @@ namespace Minigame::Network
     struct PacketTraits<BulletDestroyPacket>
     {
         static constexpr PacketType Type = PacketType::BulletDestroy;
-        static constexpr std::uint32_t PayloadSize = 4;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4;
     };
     template<>
     struct PacketTraits<ExpChangedPacket>

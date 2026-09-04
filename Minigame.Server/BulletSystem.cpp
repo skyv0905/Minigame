@@ -29,7 +29,7 @@ namespace Minigame::Server
 
     void BulletSystem::Update(ServerWorld& world, float deltaTime)
     {
-        std::vector<std::uint32_t> bulletsToRemove;
+        std::vector<Minigame::Network::BulletDestroyPacket> bulletsToDestroy;
         std::vector<std::uint32_t> mobsToRemove;
         for (auto& [objectId, bullet] : world.bullets)
         {
@@ -38,6 +38,7 @@ namespace Minigame::Server
             bullet.position.y += bullet.direction.y * moveDistance;
             bullet.movedDistance += std::abs(moveDistance);
             bool hit = bullet.movedDistance >= bullet.maxDistance;
+            std::uint32_t hitObjectId = 0;
 
             for (const ServerWall& wall : world.walls)
             {
@@ -85,6 +86,7 @@ namespace Minigame::Server
                             }
                         }
                     }
+                    hitObjectId = mobId;
                     hit = true;
                     break;
                 }
@@ -102,6 +104,7 @@ namespace Minigame::Server
                         {
                             world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
                         }
+                        hitObjectId = playerId;
                         hit = true;
                         break;
                     }
@@ -120,6 +123,7 @@ namespace Minigame::Server
                     {
                         world.hpChangedPackets.push_back({ playerId, player.health.currentHealth });
                     }
+                    hitObjectId = playerId;
                     hit = true;
                     break;
                 }
@@ -127,13 +131,13 @@ namespace Minigame::Server
 
             if (hit)
             {
-                bulletsToRemove.push_back(objectId);
+                bulletsToDestroy.push_back({ objectId, bullet.createdFrom, hitObjectId });
             }
         }
-        for (const std::uint32_t objectId : bulletsToRemove)
+        for (const Minigame::Network::BulletDestroyPacket& packet : bulletsToDestroy)
         {
-            world.bullets.erase(objectId);
-            world.destroyedBulletIds.push_back(objectId);
+            world.bullets.erase(packet.bulletId);
+            world.destroyedBulletPackets.push_back(packet);
         }
         for (const std::uint32_t objectId : mobsToRemove)
         {

@@ -108,6 +108,9 @@ namespace Minigame::Components
         }
         else if (info.other.ContainsTag("Bullet"))
         {
+            if (gameServices.session.HasNetworkMatch())
+                return;
+
             if (auto* bullet = info.other.GetComponent<Bullet>())
             {
                 if (auto* bulletFrom = owner.GetScene().FindGameObjectByID(bullet->GetCreatedFrom()))

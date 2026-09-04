@@ -518,9 +518,8 @@ namespace Minigame::Server
             }
         }
 
-        for (const std::uint32_t bulletId : world.ConsumeDestroyedBulletIds())
+        for (const Minigame::Network::BulletDestroyPacket& packet : world.ConsumeDestroyedBulletPackets())
         {
-            Minigame::Network::BulletDestroyPacket packet{ bulletId };
             for (auto& [peer, session] : sessions)
             {
                 if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))

@@ -265,6 +265,8 @@ namespace Minigame::Network
         buffer.reserve(HeaderSize + PacketTraits<BulletDestroyPacket>::PayloadSize);
         WriteHeader<BulletDestroyPacket>(buffer);
         WriteUInt32(buffer, packet.bulletId);
+        WriteUInt32(buffer, packet.createdFrom);
+        WriteUInt32(buffer, packet.hitObjectId);
         return buffer;
     }
 
@@ -482,7 +484,7 @@ namespace Minigame::Network
             return std::nullopt;
 
         BulletDestroyPacket packet{};
-        if (!ReadUInt32(data, offset, packet.bulletId))
+        if (!ReadUInt32(data, offset, packet.bulletId) || !ReadUInt32(data, offset, packet.createdFrom) || !ReadUInt32(data, offset, packet.hitObjectId))
             return std::nullopt;
         return packet;
     }

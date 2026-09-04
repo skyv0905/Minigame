@@ -12,7 +12,7 @@ namespace Minigame::Server
         bullets.clear();
         powerUps.clear();
         spawnedBullets.clear();
-        destroyedBulletIds.clear();
+        destroyedBulletPackets.clear();
         expChangedPackets.clear();
         hpChangedPackets.clear();
         playerStatsChangedPackets.clear();
@@ -115,10 +115,10 @@ namespace Minigame::Server
         return result;
     }
 
-    std::vector<std::uint32_t> ServerWorld::ConsumeDestroyedBulletIds()
+    std::vector<Minigame::Network::BulletDestroyPacket> ServerWorld::ConsumeDestroyedBulletPackets()
     {
-        std::vector<std::uint32_t> result = std::move(destroyedBulletIds);
-        destroyedBulletIds.clear();
+        std::vector<Minigame::Network::BulletDestroyPacket> result = std::move(destroyedBulletPackets);
+        destroyedBulletPackets.clear();
         return result;
     }
 

@@ -99,6 +99,14 @@ void SceneManager::ApplyPowerUpCollected(const Minigame::Network::PowerUpCollect
 	}
 }
 
+void SceneManager::ApplyStageChanged(const Minigame::Network::StageChangedPacket& packet)
+{
+	if (currentScene)
+	{
+		currentScene->ApplyStageChanged(packet);
+	}
+}
+
 void SceneManager::ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId)
 {
 	if (currentScene)

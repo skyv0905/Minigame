@@ -11,6 +11,7 @@
 #include "../Scene.h"
 #include "../RandomManager.h"
 #include "Network/Packets.h"
+#include <iostream>
 
 namespace Minigame::Components
 {
@@ -38,11 +39,24 @@ namespace Minigame::Components
 
 			Build();
 			SpawnMobAndPowerUps();
+			if (gameServices.session.HasNetworkMatch())
+			{
+				stageEnd = !stages.contains(gameServices.session.GetStage() + 1);
+			}
 			return;
 		}
 
 		if (gameServices.session.GetGameState() == GameState::GamePlaying && owner.GetScene().FindGameObjectWithTag("Mob") == nullptr)
 		{
+			if (gameServices.session.HasNetworkMatch())
+			{
+				if (stageEnd)
+				{
+					OnGameCleared();
+				}
+				return;
+			}
+
 			if (stageEnd)
 			{
 				OnGameCleared();
@@ -260,11 +274,30 @@ namespace Minigame::Components
 
 		gameServices.sounds.Play("Transform.mp3");
 
-		mobSpawnTimer = gameServices.timer.SetTimeout(currentStage->nextSpawnCooldown, [this]()
-			{
-				OnStageEnded();
-			});
+		if (!gameServices.session.HasNetworkMatch())
+		{
+			mobSpawnTimer = gameServices.timer.SetTimeout(currentStage->nextSpawnCooldown, [this]()
+				{
+					OnStageEnded();
+				});
+		}
 
+	}
+
+	void MapBuilder::ApplyStageChanged(const Minigame::Network::StageChangedPacket& packet)
+	{
+		if (!gameServices.session.HasNetworkMatch() || packet.stage != gameServices.session.GetStage() + 1)
+			return;
+
+		gameServices.session.SetStage(packet.stage);
+		nextNetworkObjectId = packet.firstObjectId;
+		SpawnMobAndPowerUps();
+		const std::uint32_t objectCount = nextNetworkObjectId - packet.firstObjectId;
+		if (objectCount != packet.objectCount)
+		{
+			std::cerr << "Stage object count mismatch: expected " << packet.objectCount << ", created " << objectCount << '\n';
+		}
+		stageEnd = !stages.contains(gameServices.session.GetStage() + 1);
 	}
 
 	void MapBuilder::SpawnByPrefab(const Vector2& pos, const std::string& prefab)

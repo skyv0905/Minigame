@@ -129,6 +129,13 @@ namespace Minigame::Network
         std::uint8_t playerId;
     };
 
+    struct StageChangedPacket
+    {
+        std::uint16_t stage;
+        std::uint32_t firstObjectId;
+        std::uint16_t objectCount;
+    };
+
     struct GameResultPacket
     {
         std::uint8_t winnerPlayerId;

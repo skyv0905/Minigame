@@ -24,6 +24,7 @@ namespace Minigame::Network
 		std::deque<HpChangedPacket> pendingHpChanges;
 		std::deque<PlayerStatsChangedPacket> pendingPlayerStatsChanges;
 		std::deque<PowerUpCollectedPacket> pendingPowerUpCollections;
+		std::deque<StageChangedPacket> pendingStageChanges;
 
 		ENetHost* client = nullptr;
 		ENetPeer* server = nullptr;
@@ -88,6 +89,7 @@ namespace Minigame::Network
 		impl->pendingHpChanges.clear();
 		impl->pendingPlayerStatsChanges.clear();
 		impl->pendingPowerUpCollections.clear();
+		impl->pendingStageChanges.clear();
 		impl->pendingGameResult.reset();
 		enet_peer_disconnect(impl->server, 0);
 	}
@@ -256,6 +258,18 @@ namespace Minigame::Network
 					impl->pendingPowerUpCollections.push_back(*packet);
 					break;
 				}
+				case PacketType::StageChanged:
+				{
+					auto packet = Deserialize<StageChangedPacket>(data);
+					if (!packet)
+					{
+						std::cerr << "Invalid StageChanged Packet\n";
+						break;
+					}
+
+					impl->pendingStageChanges.push_back(*packet);
+					break;
+				}
 				case PacketType::GameResult:
 				{
 					auto packet = Deserialize<GameResultPacket>(data);
@@ -291,6 +305,7 @@ namespace Minigame::Network
 				impl->pendingHpChanges.clear();
 				impl->pendingPlayerStatsChanges.clear();
 				impl->pendingPowerUpCollections.clear();
+				impl->pendingStageChanges.clear();
 				impl->pendingGameResult.reset();
 				std::cout << "Server Disconnected\n";
 				break;
@@ -394,6 +409,16 @@ namespace Minigame::Network
 
 		auto packet = impl->pendingGameResult;
 		impl->pendingGameResult.reset();
+		return packet;
+	}
+
+	std::optional<StageChangedPacket> NetworkClient::ConsumeStageChangedPacket()
+	{
+		if (impl->pendingStageChanges.empty())
+			return std::nullopt;
+
+		const StageChangedPacket packet = impl->pendingStageChanges.front();
+		impl->pendingStageChanges.pop_front();
 		return packet;
 	}
 

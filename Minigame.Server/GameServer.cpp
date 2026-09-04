@@ -72,7 +72,10 @@ namespace Minigame::Server
         ENetHost* server = nullptr;
         std::unordered_map<ENetPeer*, ClientSession> sessions;
         ServerWorld world;
+        ServerMapBuilder mapBuilder;
         std::mt19937 randomEngine{ std::random_device{}() };
+        int currentStage = 1;
+        float stageTimerRemaining = 0.0f;
 
         static constexpr std::uint32_t TickRate = 30;
         static constexpr double TickInterval = 1.0 / TickRate;
@@ -87,6 +90,8 @@ namespace Minigame::Server
 
         void OnAllPlayersReady();
         bool TryFinishGame();
+        bool TryGoNextStage();
+        void BroadcastStageChanged(const Minigame::Network::StageChangedPacket& packet);
         void BroadcastBulletEvents();
         void BroadcastStatEvents();
         void BroadcastPowerUpEvents();
@@ -299,6 +304,8 @@ namespace Minigame::Server
             impl->BroadcastBulletEvents();
             if (impl->TryFinishGame())
                 return;
+            if (impl->TryGoNextStage())
+                return;
             impl->BroadcastWorldState();
         }
 	}
@@ -401,7 +408,6 @@ namespace Minigame::Server
             return;
         }
 
-        ServerMapBuilder mapBuilder;
         if (!mapBuilder.Build(*sceneData, *prefabData, world, packet.randomSeed))
         {
             std::cerr << "Failed to build server map\n";
@@ -413,6 +419,8 @@ namespace Minigame::Server
 
         matchStartTick = serverTick;
         packet.startTick = matchStartTick;
+        currentStage = 1;
+        stageTimerRemaining = mapBuilder.GetNextSpawnCooldown(currentStage);
 
         std::cout << "Random Seed: " << packet.randomSeed << '\n';
 
@@ -460,6 +468,48 @@ namespace Minigame::Server
         return true;
     }
 
+    bool GameServer::Impl::TryGoNextStage()
+    {
+        stageTimerRemaining = (std::max)(0.0f, stageTimerRemaining - static_cast<float>(TickInterval));
+        const bool allMobsDefeated = world.GetMobs().empty();
+        if (!allMobsDefeated && stageTimerRemaining > 0.0f)
+            return false;
+
+        const int nextStage = currentStage + 1;
+        if (mapBuilder.HasStage(nextStage))
+        {
+            StageSpawnResult result{};
+            if (!mapBuilder.SpawnMobAndPowerUps(world, nextStage, result))
+            {
+                std::cerr << "Failed to spawn stage " << nextStage << '\n';
+                return false;
+            }
+
+            currentStage = nextStage;
+            stageTimerRemaining = mapBuilder.GetNextSpawnCooldown(currentStage);
+            BroadcastStageChanged(Minigame::Network::StageChangedPacket{ static_cast<std::uint16_t>(currentStage), result.firstObjectId, result.objectCount });
+            return false;
+        }
+
+        if (!allMobsDefeated)
+            return false;
+
+        gameStarted = false;
+        gameFinished = true;
+        return true;
+    }
+
+    void GameServer::Impl::BroadcastStageChanged(const Minigame::Network::StageChangedPacket& packet)
+    {
+        for (auto& [peer, session] : sessions)
+        {
+            if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))
+            {
+                std::cerr << "Failed to send StageChanged to player " << session.playerId << '\n';
+            }
+        }
+    }
+
     void GameServer::Impl::BroadcastWorldState()
     {
         Minigame::Network::WorldStatePacket packet{};
@@ -491,7 +541,9 @@ namespace Minigame::Server
         for (auto& [peer, session] : sessions)
         {
             if (!SendPacket(peer, packet, 0, Minigame::Network::PacketChannelType::Gameplay))
+            {
                 std::cerr << "Failed to send WorldState to player " << session.playerId << '\n';
+            }
         }
     }
 

@@ -78,6 +78,10 @@ void Game::Update()
     // network
     networkClient.Update(deltaTime);
 
+    while (auto packet = networkClient.ConsumeStageChangedPacket())
+    {
+        sceneManager.ApplyStageChanged(*packet);
+    }
     while (auto packet = networkClient.ConsumeBulletSpawnPacket())
     {
         sceneManager.ApplyBulletSpawn(*packet);

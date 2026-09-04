@@ -8,6 +8,7 @@
 #include "Components/Controller.h"
 #include "Components/Exp.h"
 #include "Components/Health.h"
+#include "Components/MapBuilder.h"
 #include "Components/PlayerControllerNetwork.h"
 #include "Components/MobControllerNetwork.h"
 #include "Components/SpriteRenderer.h"
@@ -297,6 +298,18 @@ void Scene::ApplyPowerUpCollected(const Minigame::Network::PowerUpCollectedPacke
     if (auto* controller = player->GetComponent<Minigame::Components::PlayerControllerNetwork>())
     {
         controller->OnPowerUpCollected(*powerUp);
+    }
+}
+
+void Scene::ApplyStageChanged(const Minigame::Network::StageChangedPacket& packet)
+{
+    for (auto& gameObject : gameObjects)
+    {
+        if (auto* mapBuilder = gameObject->GetComponent<Minigame::Components::MapBuilder>())
+        {
+            mapBuilder->ApplyStageChanged(packet);
+            return;
+        }
     }
 }
 

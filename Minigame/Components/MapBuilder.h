@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "../TimerManager.h"
+#include "Network/Packets.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -44,6 +45,7 @@ namespace Minigame::Components
 		void AddPowerUpToList(std::string&& info);
 		
 		void Build();
+		void ApplyStageChanged(const Minigame::Network::StageChangedPacket& packet);
 
 	private:
 		GameServices& gameServices;

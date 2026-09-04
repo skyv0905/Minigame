@@ -12,6 +12,7 @@ class GameSession
 {
 public:
     int GetStage() const;
+    void SetStage(int stage);
     void NextStage();
     void Reset();
 

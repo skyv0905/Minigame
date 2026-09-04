@@ -38,6 +38,7 @@ public:
 	void ApplyHpChanged(const Minigame::Network::HpChangedPacket& packet);
 	void ApplyPlayerStatsChanged(const Minigame::Network::PlayerStatsChangedPacket& packet);
 	void ApplyPowerUpCollected(const Minigame::Network::PowerUpCollectedPacket& packet);
+	void ApplyStageChanged(const Minigame::Network::StageChangedPacket& packet);
 	void ApplyGameResult(const Minigame::Network::GameResultPacket& packet, std::uint32_t localPlayerId);
 
 private:

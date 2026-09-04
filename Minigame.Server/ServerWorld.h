@@ -24,6 +24,8 @@ namespace Minigame::Server
         void AddMob(ServerMob mob);
         void AddBullet(ServerBullet bullet);
         void AddPowerUp(ServerPowerUp powerUp);
+        std::uint32_t AllocateObjectId();
+        std::uint32_t GetNextObjectId() const;
         void RemovePlayer(std::uint32_t playerId);
         void SetPlayerInput(std::uint32_t playerId, const Minigame::Network::PlayerInputPacket& packet);
         void Update(float deltaTime);

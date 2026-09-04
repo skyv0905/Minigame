@@ -151,6 +151,7 @@ namespace Minigame::Network
         case PacketType::PlayerStatsChanged:
         case PacketType::PowerUpCollected:
         case PacketType::GameResult:
+        case PacketType::StageChanged:
             return type;
 
         default:
@@ -320,6 +321,18 @@ namespace Minigame::Network
         WriteHeader<PowerUpCollectedPacket>(buffer);
         WriteUInt32(buffer, packet.objectId);
         WriteUInt8(buffer, packet.playerId);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const StageChangedPacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<StageChangedPacket>::PayloadSize);
+        WriteHeader<StageChangedPacket>(buffer);
+        WriteUInt16(buffer, packet.stage);
+        WriteUInt32(buffer, packet.firstObjectId);
+        WriteUInt16(buffer, packet.objectCount);
         return buffer;
     }
 
@@ -540,6 +553,19 @@ namespace Minigame::Network
 
         PowerUpCollectedPacket packet{};
         if (!ReadUInt32(data, offset, packet.objectId) || !ReadUInt8(data, offset, packet.playerId))
+            return std::nullopt;
+        return packet;
+    }
+
+    template<>
+    std::optional<StageChangedPacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<StageChangedPacket>(data, offset))
+            return std::nullopt;
+
+        StageChangedPacket packet{};
+        if (!ReadUInt16(data, offset, packet.stage) || !ReadUInt32(data, offset, packet.firstObjectId) || !ReadUInt16(data, offset, packet.objectCount))
             return std::nullopt;
         return packet;
     }

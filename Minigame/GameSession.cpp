@@ -5,6 +5,11 @@ int GameSession::GetStage() const
     return stage;
 }
 
+void GameSession::SetStage(int stage)
+{
+    this->stage = stage;
+}
+
 void GameSession::NextStage()
 {
     stage++;

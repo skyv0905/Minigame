@@ -50,6 +50,16 @@ namespace Minigame::Server
         powerUps.insert_or_assign(powerUp.objectId, std::move(powerUp));
     }
 
+    std::uint32_t ServerWorld::AllocateObjectId()
+    {
+        return nextObjectId++;
+    }
+
+    std::uint32_t ServerWorld::GetNextObjectId() const
+    {
+        return nextObjectId;
+    }
+
     void ServerWorld::AddPlayer(ServerPlayer player)
     {
         player.collider.type = ColliderType::Player;

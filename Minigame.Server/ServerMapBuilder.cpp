@@ -1,6 +1,7 @@
 #include "ServerMapBuilder.h"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <random>
 #include <unordered_set>
@@ -40,7 +41,7 @@ namespace Minigame::Server
         }
     }
 
-    bool ServerMapBuilder::Build(const nlohmann::json& sceneData, const nlohmann::json& prefabData, ServerWorld& world, std::uint32_t randomSeed, int stage) const
+    bool ServerMapBuilder::Build(const nlohmann::json& sceneData, const nlohmann::json& prefabData, ServerWorld& world, std::uint32_t randomSeed, int stage)
     {
         if (!sceneData.contains("gameObjects") || !sceneData.at("gameObjects").is_array() || !prefabData.is_object())
             return false;
@@ -48,6 +49,11 @@ namespace Minigame::Server
         ServerWorld builtWorld;
         std::vector<ServerPlayer> players;
         const nlohmann::json* mapBuilderData = nullptr;
+        this->prefabData = prefabData;
+        stages.clear();
+        spawnPoints.clear();
+        powerUps.clear();
+        spawnRandomGenerator = CreateGenerator(randomSeed, SpawnRandomStream);
 
         try
         {
@@ -70,17 +76,19 @@ namespace Minigame::Server
                 return false;
 
             std::unordered_set<std::uint32_t> playerIds;
-            std::uint32_t nextObjectId = 1;
             for (const ServerPlayer& player : players)
             {
                 if (player.playerId == 0 || !std::isfinite(player.position.x) || !std::isfinite(player.position.y) || !playerIds.insert(player.playerId).second)
                     return false;
 
-                nextObjectId = std::max(nextObjectId, player.playerId + 1);
                 builtWorld.AddPlayer(player);
             }
 
-            if (!BuildMap(*mapBuilderData, prefabData, builtWorld, randomSeed, stage, nextObjectId))
+            if (!BuildMap(*mapBuilderData, builtWorld, randomSeed))
+                return false;
+
+            StageSpawnResult result{};
+            if (!SpawnMobAndPowerUps(builtWorld, stage, result))
                 return false;
         }
         catch (const nlohmann::json::exception&)
@@ -140,7 +148,7 @@ namespace Minigame::Server
         return true;
     }
 
-    bool ServerMapBuilder::BuildMap(const nlohmann::json& componentData, const nlohmann::json& prefabData, ServerWorld& world, std::uint32_t randomSeed, int stage, std::uint32_t& nextObjectId) const
+    bool ServerMapBuilder::BuildMap(const nlohmann::json& componentData, ServerWorld& world, std::uint32_t randomSeed)
     {
         // load datas
         const Vector2 grid = ReadVector2(componentData.at("grid"));
@@ -198,7 +206,7 @@ namespace Minigame::Server
         std::size_t presetSize = chunkPresets.size();
         std::uniform_int_distribution<std::size_t> ud(0, presetSize - 1);
         std::bernoulli_distribution bd(0.5);
-        std::vector<Vector2> spawnPoints;
+        spawnPoints.clear();
 
         for (int y = 0; y < static_cast<int>(grid.y); y += static_cast<int>(chunkSize.y))
         {
@@ -239,50 +247,88 @@ namespace Minigame::Server
             }
         }
 
-        const nlohmann::json* stageData = nullptr;
-        for (const auto& candidate : componentData.at("stages"))
-        {
-            if (candidate.value("stage", 0) == stage)
-            {
-                stageData = &candidate;
-                break;
-            }
-        }
-        if (stageData == nullptr || spawnPoints.empty())
+        if (!componentData.contains("stages") || !componentData.at("stages").is_array())
             return false;
 
-        std::mt19937 spawnGenerator = CreateGenerator(randomSeed, SpawnRandomStream);
-        std::shuffle(spawnPoints.begin(), spawnPoints.end(), spawnGenerator);
-        const std::size_t spawnCount = std::min<std::size_t>(stageData->value("spawnCount", 0), spawnPoints.size());
-        std::size_t spawnIndex = 0;
-
-        for (const auto& mobData : stageData->at("mobs"))
+        for (const auto& candidate : componentData.at("stages"))
         {
-            const std::string prefab = mobData.value("prefab", "");
-            const int count = mobData.value("count", 0);
-            for (int i = 0; i < count && spawnIndex < spawnCount; i++, spawnIndex++)
-            {
-                if (!AddMob(prefabData, prefab, spawnPoints[spawnIndex], nextObjectId++, world))
-                    return false;
-            }
-        }
-
-        const auto& powerUps = componentData.at("powerUps");
-        if (!powerUps.is_array() || powerUps.empty())
-            return stageData->value("powerUpCount", 0) == 0;
-
-        const std::size_t powerUpCount = std::min<std::size_t>(stageData->value("powerUpCount", 0), spawnPoints.size() - spawnCount);
-        std::uniform_int_distribution<std::size_t> powerUpDistribution(0, powerUps.size() - 1);
-        for (std::size_t i = 0; i < powerUpCount; i++)
-        {
-            const std::string prefab = powerUps.at(powerUpDistribution(spawnGenerator)).get<std::string>();
-            if (!AddPowerUp(prefabData, prefab, spawnPoints[spawnIndex + i], nextObjectId++, world))
+            ServerStageInfo stageInfo{};
+            const int stage = candidate.value("stage", 0);
+            stageInfo.spawnCount = candidate.value("spawnCount", 0);
+            stageInfo.nextSpawnCooldown = candidate.value("nextSpawnCooldown", 0.0f);
+            stageInfo.powerUpCount = candidate.value("powerUpCount", 0);
+            if (stage <= 0 || !candidate.contains("mobs") || !candidate.at("mobs").is_array())
                 return false;
+            for (const auto& mobData : candidate.at("mobs"))
+            {
+                stageInfo.mobs.push_back(ServerMobSpawnInfo{ mobData.value("prefab", ""), mobData.value("count", 0) });
+            }
+            stages.insert_or_assign(stage, std::move(stageInfo));
+        }
+        if (stages.empty() || spawnPoints.empty())
+            return false;
+
+        if (!componentData.contains("powerUps") || !componentData.at("powerUps").is_array())
+            return false;
+        for (const auto& powerUp : componentData.at("powerUps"))
+        {
+            powerUps.push_back(powerUp.get<std::string>());
         }
         return true;
     }
 
-    bool ServerMapBuilder::AddMob(const nlohmann::json& prefabData, const std::string& prefab, Vector2 position, std::uint32_t objectId, ServerWorld& world) const
+    bool ServerMapBuilder::SpawnMobAndPowerUps(ServerWorld& world, int stage, StageSpawnResult& result)
+    {
+        const auto stageEntry = stages.find(stage);
+        if (stageEntry == stages.end() || spawnPoints.empty())
+            return false;
+
+        const ServerStageInfo& stageInfo = stageEntry->second;
+        std::shuffle(spawnPoints.begin(), spawnPoints.end(), spawnRandomGenerator);
+        const std::size_t spawnCount = std::min<std::size_t>(stageInfo.spawnCount, spawnPoints.size());
+        std::size_t spawnIndex = 0;
+        result.firstObjectId = world.GetNextObjectId();
+
+        for (const ServerMobSpawnInfo& mobInfo : stageInfo.mobs)
+        {
+            for (int i = 0; i < mobInfo.count && spawnIndex < spawnCount; i++, spawnIndex++)
+            {
+                if (!AddMob(mobInfo.prefab, spawnPoints[spawnIndex], world))
+                    return false;
+            }
+        }
+
+        if (!powerUps.empty())
+        {
+            const std::size_t powerUpCount = std::min<std::size_t>(stageInfo.powerUpCount, spawnPoints.size() - spawnCount);
+            std::uniform_int_distribution<std::size_t> distribution(0, powerUps.size() - 1);
+            for (std::size_t i = 0; i < powerUpCount; i++)
+            {
+                if (!AddPowerUp(powerUps[distribution(spawnRandomGenerator)], spawnPoints[spawnIndex + i], world))
+                    return false;
+            }
+        }
+
+        const std::uint32_t objectCount = world.GetNextObjectId() - result.firstObjectId;
+        if (objectCount > (std::numeric_limits<std::uint16_t>::max)())
+            return false;
+
+        result.objectCount = static_cast<std::uint16_t>(objectCount);
+        return true;
+    }
+
+    bool ServerMapBuilder::HasStage(int stage) const
+    {
+        return stages.contains(stage);
+    }
+
+    float ServerMapBuilder::GetNextSpawnCooldown(int stage) const
+    {
+        const auto entry = stages.find(stage);
+        return entry == stages.end() ? 0.0f : entry->second.nextSpawnCooldown;
+    }
+
+    bool ServerMapBuilder::AddMob(const std::string& prefab, Vector2 position, ServerWorld& world) const
     {
         if (!prefabData.contains(prefab))
             return false;
@@ -294,7 +340,7 @@ namespace Minigame::Server
             return false;
 
         ServerMob mob{};
-        mob.objectId = objectId;
+        mob.objectId = world.AllocateObjectId();
         mob.prefab = prefab;
         mob.position = position;
         mob.speed = controller->value("speed", 100.0f);
@@ -314,14 +360,14 @@ namespace Minigame::Server
         return true;
     }
 
-    bool ServerMapBuilder::AddPowerUp(const nlohmann::json& prefabData, const std::string& prefab, Vector2 position, std::uint32_t objectId, ServerWorld& world) const
+    bool ServerMapBuilder::AddPowerUp(const std::string& prefab, Vector2 position, ServerWorld& world) const
     {
         if (!prefabData.contains(prefab))
             return false;
 
         const auto& data = prefabData.at(prefab);
         ServerPowerUp powerUp{};
-        powerUp.objectId = objectId;
+        powerUp.objectId = world.AllocateObjectId();
         powerUp.prefab = prefab;
         powerUp.position = position;
         powerUp.collider.isTrigger = true;

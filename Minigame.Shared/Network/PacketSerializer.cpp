@@ -152,6 +152,7 @@ namespace Minigame::Network
         case PacketType::PowerUpCollected:
         case PacketType::GameResult:
         case PacketType::StageChanged:
+        case PacketType::PlayerFire:
             return type;
 
         default:
@@ -209,8 +210,21 @@ namespace Minigame::Network
         WriteUInt32(buffer, packet.sequence);
         WriteFloat(buffer, packet.moveX);
         WriteFloat(buffer, packet.moveY);
-        WriteUInt8(buffer, packet.fire ? 1 : 0);
+        return buffer;
+    }
+
+    template<>
+    ByteBuffer Serialize(const PlayerFirePacket& packet)
+    {
+        ByteBuffer buffer;
+        buffer.reserve(HeaderSize + PacketTraits<PlayerFirePacket>::PayloadSize);
+        WriteHeader<PlayerFirePacket>(buffer);
         WriteUInt32(buffer, packet.fireSequence);
+        WriteUInt32(buffer, packet.clientTick);
+        WriteUInt16(buffer, packet.positionX);
+        WriteUInt16(buffer, packet.positionY);
+        WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionX));
+        WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionY));
         return buffer;
     }
 
@@ -252,6 +266,8 @@ namespace Minigame::Network
         WriteUInt32(buffer, packet.fireSequence);
         WriteUInt16(buffer, packet.positionX);
         WriteUInt16(buffer, packet.positionY);
+        WriteUInt16(buffer, packet.serverPositionX);
+        WriteUInt16(buffer, packet.serverPositionY);
         WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionX));
         WriteUInt8(buffer, static_cast<std::uint8_t>(packet.directionY));
         WriteUInt16(buffer, packet.moveSpeed);
@@ -268,6 +284,9 @@ namespace Minigame::Network
         WriteUInt32(buffer, packet.bulletId);
         WriteUInt32(buffer, packet.createdFrom);
         WriteUInt32(buffer, packet.hitObjectId);
+        WriteUInt16(buffer, packet.positionX);
+        WriteUInt16(buffer, packet.positionY);
+        WriteUInt8(buffer, static_cast<std::uint8_t>(packet.reason));
         return buffer;
     }
 
@@ -419,17 +438,30 @@ namespace Minigame::Network
         }
 
         PlayerInputPacket packet{};
-        std::uint8_t fire = 0;
-        if (!ReadUInt32(data, offset, packet.sequence) ||
-            !ReadFloat(data, offset, packet.moveX) ||
-            !ReadFloat(data, offset, packet.moveY) ||
-            !ReadUInt8(data, offset, fire) || fire > 1 ||
-            !ReadUInt32(data, offset, packet.fireSequence))
+        if (!ReadUInt32(data, offset, packet.sequence) || !ReadFloat(data, offset, packet.moveX) || !ReadFloat(data, offset, packet.moveY))
         {
             return std::nullopt;
         }
 
-        packet.fire = fire == 1;
+        return packet;
+    }
+
+    template<>
+    std::optional<PlayerFirePacket> Deserialize(std::span<const std::uint8_t> data)
+    {
+        std::size_t offset = 0;
+        if (!ReadHeader<PlayerFirePacket>(data, offset))
+            return std::nullopt;
+
+        PlayerFirePacket packet{};
+        std::uint8_t directionX = 0;
+        std::uint8_t directionY = 0;
+        if (!ReadUInt32(data, offset, packet.fireSequence) || !ReadUInt32(data, offset, packet.clientTick) || !ReadUInt16(data, offset, packet.positionX) ||
+            !ReadUInt16(data, offset, packet.positionY) || !ReadUInt8(data, offset, directionX) || !ReadUInt8(data, offset, directionY))
+            return std::nullopt;
+
+        packet.directionX = static_cast<std::int8_t>(directionX);
+        packet.directionY = static_cast<std::int8_t>(directionY);
         return packet;
     }
 
@@ -480,6 +512,7 @@ namespace Minigame::Network
         std::uint8_t directionY = 0;
         if (!ReadUInt32(data, offset, packet.bulletId) || !ReadUInt32(data, offset, packet.createdFrom) || !ReadUInt32(data, offset, packet.fireSequence) ||
             !ReadUInt16(data, offset, packet.positionX) || !ReadUInt16(data, offset, packet.positionY) ||
+            !ReadUInt16(data, offset, packet.serverPositionX) || !ReadUInt16(data, offset, packet.serverPositionY) ||
             !ReadUInt8(data, offset, directionX) || !ReadUInt8(data, offset, directionY) ||
             !ReadUInt16(data, offset, packet.moveSpeed) || !ReadUInt16(data, offset, packet.maxDistance))
             return std::nullopt;
@@ -497,8 +530,11 @@ namespace Minigame::Network
             return std::nullopt;
 
         BulletDestroyPacket packet{};
-        if (!ReadUInt32(data, offset, packet.bulletId) || !ReadUInt32(data, offset, packet.createdFrom) || !ReadUInt32(data, offset, packet.hitObjectId))
+        std::uint8_t reason = 0;
+        if (!ReadUInt32(data, offset, packet.bulletId) || !ReadUInt32(data, offset, packet.createdFrom) || !ReadUInt32(data, offset, packet.hitObjectId) ||
+            !ReadUInt16(data, offset, packet.positionX) || !ReadUInt16(data, offset, packet.positionY) || !ReadUInt8(data, offset, reason) || reason > static_cast<std::uint8_t>(BulletDestroyReason::Collision))
             return std::nullopt;
+        packet.reason = static_cast<BulletDestroyReason>(reason);
         return packet;
     }
 

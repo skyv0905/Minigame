@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace Minigame::Server
 {
     class ServerWorld;
@@ -7,6 +9,6 @@ namespace Minigame::Server
     class BulletSystem
     {
     public:
-        void Update(ServerWorld& world, float deltaTime);
+        void Update(ServerWorld& world, float deltaTime, std::uint32_t serverTick);
     };
 }

@@ -206,6 +206,7 @@ void Scene::ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet)
         bullet->SetMoveSpeed(Minigame::Network::DecodePosition(packet.moveSpeed));
         bullet->SetMaxDistance(Minigame::Network::DecodePosition(packet.maxDistance));
         bullet->SetServerAuthoritative(true);
+        bullet->StartPositionCorrection(Vector2{ Minigame::Network::DecodePosition(packet.serverPositionX), Minigame::Network::DecodePosition(packet.serverPositionY) }, 0.08f);
     }
     if (const auto* controller = createdFrom->GetComponent<Minigame::Components::Controller>())
     {
@@ -231,15 +232,31 @@ void Scene::ApplyBulletDestroy(const Minigame::Network::BulletDestroyPacket& pac
         }
     }
 
+    if (!ApplyBulletDestroyToActiveBullet(packet))
+    {
+        pendingBulletDestroys.insert_or_assign(packet.bulletId, packet);
+    }
+}
+
+bool Scene::ApplyBulletDestroyToActiveBullet(const Minigame::Network::BulletDestroyPacket& packet)
+{
     for (auto& gameObject : gameObjects)
     {
         auto* bullet = gameObject->GetComponent<Minigame::Components::Bullet>();
         if (bullet && bullet->GetNetworkObjectId() == packet.bulletId)
         {
-            DestroyGameObject(*gameObject);
-            return;
+            if (packet.reason == Minigame::Network::BulletDestroyReason::Collision)
+            {
+                bullet->OnServerHit(Vector2{ Minigame::Network::DecodePosition(packet.positionX), Minigame::Network::DecodePosition(packet.positionY) });
+            }
+            else
+            {
+                DestroyGameObject(*gameObject);
+            }
+            return true;
         }
     }
+    return false;
 }
 
 void Scene::ApplyExpChanged(const Minigame::Network::ExpChangedPacket& packet)
@@ -387,6 +404,18 @@ void Scene::FlushPendingGameObjects()
         gameObjects.push_back(std::move(gameObject));
     }
     pendingGameObjects.clear();
+
+    for (auto packet = pendingBulletDestroys.begin(); packet != pendingBulletDestroys.end();)
+    {
+        if (ApplyBulletDestroyToActiveBullet(packet->second))
+        {
+            packet = pendingBulletDestroys.erase(packet);
+        }
+        else
+        {
+            ++packet;
+        }
+    }
 
     for (auto* gameObject : pendingDestroyGameObjects)
     {

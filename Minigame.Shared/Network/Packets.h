@@ -1,9 +1,12 @@
 #pragma once
 
 #include "PacketType.h"
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 namespace Minigame::Network
 {
@@ -13,6 +16,28 @@ namespace Minigame::Network
     inline constexpr float DecodePosition(std::uint16_t value)
     {
         return static_cast<float>(value) / PositionUnitsPerPixel;
+    }
+
+    inline std::uint16_t EncodePosition(float value)
+    {
+        if (!std::isfinite(value))
+            return 0;
+
+        const long maximum = static_cast<long>((std::numeric_limits<std::uint16_t>::max)());
+        const double scaled = static_cast<double>(value) * PositionUnitsPerPixel;
+        const long rounded = std::lround(std::clamp(scaled, 0.0, static_cast<double>(maximum)));
+        return static_cast<std::uint16_t>(rounded);
+    }
+
+    inline std::int8_t EncodeDirection(float value)
+    {
+        const long rounded = std::lround(std::clamp(value, -1.0f, 1.0f) * 127.0f);
+        return static_cast<std::int8_t>(rounded);
+    }
+
+    inline constexpr float DecodeDirection(std::int8_t value)
+    {
+        return static_cast<float>(value) / 127.0f;
     }
 
     struct PacketHeader
@@ -46,8 +71,16 @@ namespace Minigame::Network
         std::uint32_t sequence;
         float moveX;
         float moveY;
-        bool fire;
+    };
+
+    struct PlayerFirePacket
+    {
         std::uint32_t fireSequence;
+        std::uint32_t clientTick;
+        std::uint16_t positionX;
+        std::uint16_t positionY;
+        std::int8_t directionX;
+        std::int8_t directionY;
     };
 
     struct PlayerState
@@ -83,10 +116,18 @@ namespace Minigame::Network
         std::uint32_t fireSequence;
         std::uint16_t positionX;
         std::uint16_t positionY;
+        std::uint16_t serverPositionX;
+        std::uint16_t serverPositionY;
         std::int8_t directionX;
         std::int8_t directionY;
         std::uint16_t moveSpeed;
         std::uint16_t maxDistance;
+    };
+
+    enum class BulletDestroyReason : std::uint8_t
+    {
+        MaxDistance,
+        Collision
     };
 
     struct BulletDestroyPacket
@@ -94,6 +135,9 @@ namespace Minigame::Network
         std::uint32_t bulletId;
         std::uint32_t createdFrom;
         std::uint32_t hitObjectId;
+        std::uint16_t positionX;
+        std::uint16_t positionY;
+        BulletDestroyReason reason;
     };
 
     struct ExpChangedPacket

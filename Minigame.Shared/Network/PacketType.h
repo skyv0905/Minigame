@@ -19,7 +19,8 @@ namespace Minigame::Network
         PlayerStatsChanged,
         PowerUpCollected,
         GameResult,
-        StageChanged
+        StageChanged,
+        PlayerFire
     };
 
     enum class PacketSendType

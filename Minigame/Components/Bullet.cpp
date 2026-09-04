@@ -38,20 +38,38 @@ namespace Minigame::Components
 		Vector2 oldPosition = newPosition;
 		newPosition.x += direction.x * moveSpeed * deltaTime;
 		newPosition.y += direction.y * moveSpeed * deltaTime;
+		const float frameMoveDistance = Vector2Distance(oldPosition, newPosition);
+		if (correctingPosition)
+		{
+			correctionElapsed += deltaTime;
+			const float amount = correctionDuration > 0.0f ? Clamp(correctionElapsed / correctionDuration, 0.0f, 1.0f) : 1.0f;
+			const Vector2 correction{ correctionOffset.x * amount, correctionOffset.y * amount };
+			newPosition.x += correction.x - appliedCorrection.x;
+			newPosition.y += correction.y - appliedCorrection.y;
+			appliedCorrection = correction;
+			correctingPosition = amount < 1.0f;
+		}
 
 		transform->SetPosition(newPosition);
 
-		movedDistance += Vector2Distance(oldPosition, newPosition);
+		movedDistance += frameMoveDistance;
 
 		if (movedDistance >= maxDistance)
 		{
-			owner.GetScene().DestroyGameObject(owner);
+			if (serverAuthoritative && networkObjectId != 0)
+			{
+				moveSpeed = 0.0f;
+			}
+			else
+			{
+				owner.GetScene().DestroyGameObject(owner);
+			}
 		}
 	}
 
 	void Bullet::OnCollisionEnter(const CollisionInfo& info)
 	{
-		if (serverAuthoritative)
+		if (serverAuthoritative && !info.other.ContainsTag("Wall"))
 			return;
 
 		if (isHit || info.other.ContainsTag("Bullet") || info.other.ContainsTag("PowerUp"))
@@ -79,6 +97,43 @@ namespace Minigame::Components
 		{
 			collider->SetValid(false);
 		}
+	}
+
+	void Bullet::OnServerHit(Vector2 position)
+	{
+		if (isHit)
+			return;
+
+		if (transform)
+		{
+			transform->SetPosition(position);
+		}
+
+		moveSpeed = 0.0f;
+		isHit = true;
+
+		if (animator)
+		{
+			animator->Play("Bullet_Hit", true);
+		}
+		if (auto* collider = owner.GetComponent<Collider>())
+		{
+			collider->SetValid(false);
+		}
+	}
+
+	void Bullet::StartPositionCorrection(Vector2 targetPosition, float duration)
+	{
+		const Transform* currentTransform = transform != nullptr ? transform : owner.GetComponent<Transform>();
+		if (currentTransform == nullptr)
+			return;
+
+		const Vector2 position = currentTransform->GetPosition();
+		correctionOffset = Vector2{ targetPosition.x - position.x, targetPosition.y - position.y };
+		appliedCorrection = Vector2{ 0.0f, 0.0f };
+		correctionElapsed = 0.0f;
+		correctionDuration = duration;
+		correctingPosition = correctionOffset.x != 0.0f || correctionOffset.y != 0.0f;
 	}
 
 	void Bullet::SetMaxDistance(float dist)

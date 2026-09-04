@@ -1,6 +1,7 @@
 #include "Controller.h"
 #include "Bullet.h"
 #include "../GameServices.h"
+#include "../GameSession.h"
 #include "../GameObject.h"
 #include "../Scene.h"
 #include "Network/Packets.h"
@@ -113,6 +114,11 @@ namespace Minigame::Components
         return fireSequence;
     }
 
+    Vector2 Controller::GetForward() const
+    {
+        return forward;
+    }
+
     std::string Controller::GetMoveSpeedDetail() const
     {
         return moveSpeedMultiplier == 100 ? ""
@@ -163,6 +169,7 @@ namespace Minigame::Components
             bulletComponent->SetMaxDistance(GetFinalBulletDistance());
             bulletComponent->SetMoveSpeed(GetFinalBulletSpeed());
             bulletComponent->SetDirection(forward);
+            bulletComponent->SetServerAuthoritative(gameServices.session.HasNetworkMatch());
         }
 
         auto* bulletRenderer = bullet->GetComponent<Minigame::Components::SpriteRenderer>();

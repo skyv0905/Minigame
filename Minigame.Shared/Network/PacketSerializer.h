@@ -48,7 +48,13 @@ namespace Minigame::Network
     struct PacketTraits<PlayerInputPacket>
     {
         static constexpr PacketType Type = PacketType::PlayerInput;
-        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4 + 1 + 4;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4;
+    };
+    template<>
+    struct PacketTraits<PlayerFirePacket>
+    {
+        static constexpr PacketType Type = PacketType::PlayerFire;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + 2 + 2 + 1 + 1;
     };
     template<>
     struct PacketTraits<WorldStatePacket>
@@ -61,13 +67,13 @@ namespace Minigame::Network
     struct PacketTraits<BulletSpawnPacket>
     {
         static constexpr PacketType Type = PacketType::BulletSpawn;
-        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4 + 2 + 2 + 1 + 1 + 2 + 2;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4 + 2 + 2 + 2 + 2 + 1 + 1 + 2 + 2;
     };
     template<>
     struct PacketTraits<BulletDestroyPacket>
     {
         static constexpr PacketType Type = PacketType::BulletDestroy;
-        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4;
+        static constexpr std::uint32_t PayloadSize = 4 + 4 + 4 + 2 + 2 + 1;
     };
     template<>
     struct PacketTraits<ExpChangedPacket>
@@ -122,6 +128,8 @@ namespace Minigame::Network
     template<>
     ByteBuffer Serialize(const PlayerInputPacket& packet);
     template<>
+    ByteBuffer Serialize(const PlayerFirePacket& packet);
+    template<>
     ByteBuffer Serialize(const WorldStatePacket& packet);
     template<>
     ByteBuffer Serialize(const BulletSpawnPacket& packet);
@@ -155,6 +163,8 @@ namespace Minigame::Network
     std::optional<GameClosedPacket> Deserialize(std::span<const std::uint8_t> data);
     template<>
     std::optional<PlayerInputPacket> Deserialize(std::span<const std::uint8_t> data);
+    template<>
+    std::optional<PlayerFirePacket> Deserialize(std::span<const std::uint8_t> data);
     template<>
     std::optional<WorldStatePacket> Deserialize(std::span<const std::uint8_t> data);
     template<>

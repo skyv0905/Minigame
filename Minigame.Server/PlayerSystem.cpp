@@ -24,8 +24,6 @@ namespace Minigame::Server
 
         player->second.input.moveX = moveX;
         player->second.input.moveY = moveY;
-        player->second.input.fire = packet.fire;
-        player->second.input.fireSequence = packet.fireSequence;
     }
 
     void PlayerSystem::Update(ServerWorld& world, float deltaTime)

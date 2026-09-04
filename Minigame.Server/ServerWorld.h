@@ -28,7 +28,8 @@ namespace Minigame::Server
         std::uint32_t GetNextObjectId() const;
         void RemovePlayer(std::uint32_t playerId);
         void SetPlayerInput(std::uint32_t playerId, const Minigame::Network::PlayerInputPacket& packet);
-        void Update(float deltaTime);
+        void QueuePlayerFire(std::uint32_t playerId, const Minigame::Network::PlayerFirePacket& packet);
+        void Update(float deltaTime, std::uint32_t serverTick);
 
         const std::unordered_map<std::uint32_t, ServerPlayer>& GetPlayers() const;
         const std::vector<ServerWall>& GetWalls() const;

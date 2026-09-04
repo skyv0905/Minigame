@@ -2,6 +2,7 @@
 
 #include "ServerTypes.h"
 #include <cstdint>
+#include <deque>
 #include <string>
 #include <unordered_set>
 
@@ -11,8 +12,20 @@ namespace Minigame::Server
     {
         float moveX = 0.0f;
         float moveY = 0.0f;
-        bool fire = false;
+    };
+
+    struct ServerPlayerFireRequest
+    {
         std::uint32_t fireSequence = 0;
+        std::uint32_t clientTick = 0;
+        Vector2 position;
+        Vector2 direction;
+    };
+
+    struct ServerPositionSnapshot
+    {
+        std::uint32_t serverTick = 0;
+        Vector2 position;
     };
 
     struct ServerHealth
@@ -37,6 +50,8 @@ namespace Minigame::Server
         ServerCollider collider;
         ServerCollider bulletCollider;
         ServerPlayerInput input;
+        std::deque<ServerPlayerFireRequest> fireRequests;
+        std::deque<ServerPositionSnapshot> positionHistory;
         ServerHealth health;
         ServerExp exp;
         float moveSpeed = 150.0f;
@@ -90,9 +105,11 @@ namespace Minigame::Server
         std::uint32_t fireSequence = 0;
         ColliderType createdFromType = ColliderType::None;
         Vector2 position;
+        Vector2 spawnPosition;
         Vector2 direction;
         ServerCollider collider;
         float movedDistance = 0.0f;
+        float pendingMoveDistance = -1.0f;
         float maxDistance = 0.0f;
         float moveSpeed = 0.0f;
         float attackPower = 0.0f;

@@ -1,5 +1,6 @@
 #include "NetworkClient.h"
 #include <enet/enet.h>
+#include <algorithm>
 #include <deque>
 #include <iostream>
 
@@ -13,6 +14,7 @@ namespace Minigame::Network
 		bool disconnecting = false;
 
 		std::uint32_t playerId = 0;
+		double estimatedServerTick = 0.0;
 
 		std::optional<GameStartPacket> pendingGameStart;
 		std::optional<GameClosedPacket> pendingGameClosed;
@@ -82,6 +84,7 @@ namespace Minigame::Network
 
 		impl->disconnecting = true;
 		impl->playerId = 0;
+		impl->estimatedServerTick = 0.0;
 		impl->latestWorldState.reset();
 		impl->pendingBulletSpawns.clear();
 		impl->pendingBulletDestroys.clear();
@@ -104,10 +107,17 @@ namespace Minigame::Network
 		return impl->playerId;
 	}
 
+	std::uint32_t NetworkClient::GetEstimatedServerTick() const
+	{
+		return static_cast<std::uint32_t>(impl->estimatedServerTick);
+	}
+
 	void NetworkClient::Update(float deltaTime)
 	{
 		if (impl->client == nullptr)
 			return;
+		if (impl->latestWorldState)
+			impl->estimatedServerTick += static_cast<double>((std::max)(deltaTime, 0.0f)) * 30.0;
 
 		ENetEvent event{};
 		while (enet_host_service(impl->client, &event, 0) > 0)
@@ -160,6 +170,7 @@ namespace Minigame::Network
 					}
 
 					impl->pendingGameStart = *packet;
+					impl->estimatedServerTick = packet->startTick;
 					break;
 				}
 				case PacketType::GameClosed:
@@ -184,6 +195,7 @@ namespace Minigame::Network
 					}
 
 					impl->latestWorldState = *packet;
+					impl->estimatedServerTick = packet->serverTick;
 					break;
 				}
 				case PacketType::BulletSpawn:
@@ -298,6 +310,7 @@ namespace Minigame::Network
 				impl->disconnecting = false;
 				impl->server = nullptr;
 				impl->playerId = 0;
+				impl->estimatedServerTick = 0.0;
 				impl->latestWorldState.reset();
 				impl->pendingBulletSpawns.clear();
 				impl->pendingBulletDestroys.clear();

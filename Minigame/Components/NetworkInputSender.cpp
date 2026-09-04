@@ -20,7 +20,13 @@ namespace Minigame::Components
         if (!gameServices.session.HasNetworkMatch() || gameServices.session.GetGameState() != GameState::GamePlaying || !owner.ContainsTag("LocalPlayer"))
             return;
 
-        fireBuffered = fireBuffered || gameServices.input.IsPressed(InputAction::Fire) || gameServices.input.IsDown(InputAction::Fire);
+        if (const auto* controller = owner.GetComponent<Minigame::Components::PlayerController>())
+        {
+            if (controller->GetFireSequence() > lastSentFireSequence)
+            {
+                SendFire(*controller);
+            }
+        }
         sendAccumulator = std::min(sendAccumulator + deltaTime, SendInterval * MaxSendsPerFrame);
 
         int sendCount = 0;
@@ -49,17 +55,34 @@ namespace Minigame::Components
         packet.sequence = nextSequence;
         packet.moveX = direction.x;
         packet.moveY = direction.y;
-        packet.fire = fireBuffered || gameServices.input.IsDown(InputAction::Fire);
-        if (const auto* controller = owner.GetComponent<Minigame::Components::PlayerController>())
-        {
-            packet.fireSequence = controller->GetFireSequence();
-        }
 
         if (!gameServices.network.SendPacket(packet, Minigame::Network::PacketSendType::Unreliable, Minigame::Network::PacketChannelType::Gameplay))
             return false;
 
         nextSequence++;
-        fireBuffered = false;
+        return true;
+    }
+
+    bool NetworkInputSender::SendFire(const PlayerController& controller)
+    {
+        const auto* transform = owner.GetComponent<Minigame::Components::Transform>();
+        if (transform == nullptr)
+            return false;
+
+        const Vector2 position = transform->GetPosition();
+        const Vector2 direction = controller.GetForward();
+        Minigame::Network::PlayerFirePacket packet{};
+        packet.fireSequence = controller.GetFireSequence();
+        packet.clientTick = gameServices.network.GetEstimatedServerTick();
+        packet.positionX = Minigame::Network::EncodePosition(position.x);
+        packet.positionY = Minigame::Network::EncodePosition(position.y);
+        packet.directionX = Minigame::Network::EncodeDirection(direction.x);
+        packet.directionY = Minigame::Network::EncodeDirection(direction.y);
+
+        if (!gameServices.network.SendPacket(packet, Minigame::Network::PacketSendType::Reliable, Minigame::Network::PacketChannelType::Gameplay))
+            return false;
+
+        lastSentFireSequence = packet.fireSequence;
         return true;
     }
 

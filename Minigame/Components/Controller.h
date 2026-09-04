@@ -42,6 +42,7 @@ namespace Minigame::Components
 		float GetFireCooldown() const;
 		Color GetBulletTint() const;
 		std::uint32_t GetFireSequence() const;
+		Vector2 GetForward() const;
 
 		std::string GetMoveSpeedDetail() const;
 		std::string GetBulletSpeedDetail() const;

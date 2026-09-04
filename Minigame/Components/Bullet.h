@@ -18,6 +18,8 @@ namespace Minigame::Components
 		void Start() override;
 		void Update(float deltaTime) override;
 		void OnCollisionEnter(const CollisionInfo& info) override;
+		void OnServerHit(Vector2 position);
+		void StartPositionCorrection(Vector2 targetPosition, float duration);
 
 		void SetMaxDistance(float dist);
 		void SetMoveSpeed(float speed);
@@ -45,6 +47,11 @@ namespace Minigame::Components
 		std::uint32_t networkObjectId = 0;
 		std::uint32_t fireSequence = 0;
 		bool serverAuthoritative = false;
+		Vector2 correctionOffset{ 0.0f, 0.0f };
+		Vector2 appliedCorrection{ 0.0f, 0.0f };
+		float correctionElapsed = 0.0f;
+		float correctionDuration = 0.0f;
+		bool correctingPosition = false;
 
 		void InitRotation();
 		bool rotationInited = false;

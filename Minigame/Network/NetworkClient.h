@@ -19,6 +19,7 @@ namespace Minigame::Network
 		void Disconnect();
 		bool IsConnected() const;
 		std::uint32_t GetPlayerId() const;
+		std::uint32_t GetEstimatedServerTick() const;
 
 		void Update(float deltaTime);
 

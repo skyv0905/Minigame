@@ -51,11 +51,13 @@ private:
 	std::vector<std::unique_ptr<GameObject>> gameObjects;
 	std::vector<std::unique_ptr<GameObject>> pendingGameObjects;
 	std::unordered_set<GameObject*> pendingDestroyGameObjects;
+	std::unordered_map<std::uint32_t, Minigame::Network::BulletDestroyPacket> pendingBulletDestroys;
 	std::vector<Minigame::Components::Collider*> colliders;
 	std::unordered_map<GameObjectID, GameObject*> gameObjectsByID;
 
 	void CheckCollisions();
 	void FlushPendingGameObjects();
+	bool ApplyBulletDestroyToActiveBullet(const Minigame::Network::BulletDestroyPacket& packet);
 	GameObject* FindNetworkObject(std::uint32_t objectId);
 };
 

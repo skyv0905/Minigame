@@ -7,6 +7,8 @@ struct GameServices;
 
 namespace Minigame::Components
 {
+    class PlayerController;
+
     class NetworkInputSender : public Component
     {
     public:
@@ -20,9 +22,10 @@ namespace Minigame::Components
 
         GameServices& gameServices;
         std::uint32_t nextSequence = 1;
+        std::uint32_t lastSentFireSequence = 0;
         float sendAccumulator = 0.0f;
-        bool fireBuffered = false;
 
         bool SendInput();
+        bool SendFire(const PlayerController& controller);
     };
 }

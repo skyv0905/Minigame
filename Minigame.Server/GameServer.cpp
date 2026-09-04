@@ -23,17 +23,6 @@ namespace Minigame::Server
 {
     namespace
     {
-        std::uint16_t EncodePosition(float value)
-        {
-            if (!std::isfinite(value))
-                return 0;
-
-            const long maximum = static_cast<long>((std::numeric_limits<std::uint16_t>::max)());
-            const double scaled = static_cast<double>(value) * Minigame::Network::PositionUnitsPerPixel;
-            const long rounded = std::lround(std::clamp(scaled, 0.0, static_cast<double>(maximum)));
-            return static_cast<std::uint16_t>(rounded);
-        }
-
         std::int8_t EncodeDirection(float value)
         {
             const long rounded = std::lround(std::clamp(value, -1.0f, 1.0f) * 127.0f);
@@ -263,6 +252,20 @@ namespace Minigame::Server
                     break;
                 }
 
+                case Minigame::Network::PacketType::PlayerFire:
+                {
+                    auto packet = Minigame::Network::Deserialize<Minigame::Network::PlayerFirePacket>(data);
+                    auto session = impl->sessions.find(event.peer);
+                    if (!packet || session == impl->sessions.end() || !impl->gameStarted)
+                    {
+                        std::cerr << "Invalid PlayerFire Packet\n";
+                        break;
+                    }
+
+                    impl->world.QueuePlayerFire(session->second.playerId, *packet);
+                    break;
+                }
+
                 default:
                 {
                     break;
@@ -299,7 +302,7 @@ namespace Minigame::Server
 
         if (impl->gameStarted)
         {
-            impl->world.Update(static_cast<float>(Impl::TickInterval));
+            impl->world.Update(static_cast<float>(Impl::TickInterval), impl->serverTick);
             impl->BroadcastStatEvents();
             impl->BroadcastPowerUpEvents();
             impl->BroadcastBulletEvents();
@@ -523,8 +526,8 @@ namespace Minigame::Server
                 break;
 
             state->playerId = static_cast<std::uint8_t>(playerId);
-            state->positionX = EncodePosition(player.position.x);
-            state->positionY = EncodePosition(player.position.y);
+            state->positionX = Minigame::Network::EncodePosition(player.position.x);
+            state->positionY = Minigame::Network::EncodePosition(player.position.y);
         }
 
         for (const auto& [objectId, mob] : world.GetMobs())
@@ -535,8 +538,8 @@ namespace Minigame::Server
             auto& state = packet.mobs[packet.mobCount++];
             state.objectId = objectId;
             state.targetPlayerId = static_cast<std::uint8_t>(mob.targetPlayerId);
-            state.positionX = EncodePosition(mob.position.x);
-            state.positionY = EncodePosition(mob.position.y);
+            state.positionX = Minigame::Network::EncodePosition(mob.position.x);
+            state.positionY = Minigame::Network::EncodePosition(mob.position.y);
         }
 
         for (auto& [peer, session] : sessions)
@@ -556,12 +559,14 @@ namespace Minigame::Server
             packet.bulletId = bullet.objectId;
             packet.createdFrom = bullet.createdFrom;
             packet.fireSequence = bullet.fireSequence;
-            packet.positionX = EncodePosition(bullet.position.x);
-            packet.positionY = EncodePosition(bullet.position.y);
+            packet.positionX = Minigame::Network::EncodePosition(bullet.spawnPosition.x);
+            packet.positionY = Minigame::Network::EncodePosition(bullet.spawnPosition.y);
+            packet.serverPositionX = Minigame::Network::EncodePosition(bullet.position.x);
+            packet.serverPositionY = Minigame::Network::EncodePosition(bullet.position.y);
             packet.directionX = EncodeDirection(bullet.direction.x);
             packet.directionY = EncodeDirection(bullet.direction.y);
-            packet.moveSpeed = EncodePosition(bullet.moveSpeed);
-            packet.maxDistance = EncodePosition(bullet.maxDistance);
+            packet.moveSpeed = Minigame::Network::EncodePosition(bullet.moveSpeed);
+            packet.maxDistance = Minigame::Network::EncodePosition(bullet.maxDistance);
             for (auto& [peer, session] : sessions)
             {
                 if (!SendPacket(peer, packet, ENET_PACKET_FLAG_RELIABLE, Minigame::Network::PacketChannelType::Gameplay))

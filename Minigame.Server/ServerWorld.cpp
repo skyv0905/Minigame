@@ -78,13 +78,36 @@ namespace Minigame::Server
         playerSystem.SetInput(*this, playerId, packet);
     }
 
-    void ServerWorld::Update(float deltaTime)
+    void ServerWorld::QueuePlayerFire(std::uint32_t playerId, const Minigame::Network::PlayerFirePacket& packet)
+    {
+        auto player = players.find(playerId);
+        if (player == players.end() || player->second.fireRequests.size() >= 8)
+            return;
+
+        player->second.fireRequests.push_back(
+            {
+                packet.fireSequence,
+                packet.clientTick,
+                Vector2{ Minigame::Network::DecodePosition(packet.positionX), Minigame::Network::DecodePosition(packet.positionY) },
+                Vector2{ Minigame::Network::DecodeDirection(packet.directionX), Minigame::Network::DecodeDirection(packet.directionY) }
+            });
+    }
+
+    void ServerWorld::Update(float deltaTime, std::uint32_t serverTick)
     {
         playerSystem.Update(*this, deltaTime);
         mobSystem.Update(*this, deltaTime);
-        bulletSystem.Update(*this, deltaTime);
+        bulletSystem.Update(*this, deltaTime, serverTick);
         collisionSystem.Update(*this);
         powerUpSystem.Update(*this);
+        for (auto& [playerId, player] : players)
+        {
+            player.positionHistory.push_back({ serverTick, player.position });
+            while (player.positionHistory.size() > 32)
+            {
+                player.positionHistory.pop_front();
+            }
+        }
     }
 
     const std::unordered_map<std::uint32_t, ServerPlayer>& ServerWorld::GetPlayers() const

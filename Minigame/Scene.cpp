@@ -177,6 +177,8 @@ void Scene::ApplyBulletSpawn(const Minigame::Network::BulletSpawnPacket& packet)
             if (bullet && bullet->GetCreatedFrom() == createdFrom->GetID() && bullet->GetFireSequence() == packet.fireSequence && bullet->GetNetworkObjectId() == 0)
             {
                 bullet->SetNetworkObjectId(packet.bulletId);
+                bullet->SetMoveSpeed(Minigame::Network::DecodePosition(packet.moveSpeed));
+                bullet->SetMaxDistance(Minigame::Network::DecodePosition(packet.maxDistance));
                 bullet->SetServerAuthoritative(true);
                 return;
             }

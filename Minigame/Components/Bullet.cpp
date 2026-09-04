@@ -43,7 +43,7 @@ namespace Minigame::Components
 
 		movedDistance += Vector2Distance(oldPosition, newPosition);
 
-		if (!serverAuthoritative && movedDistance >= maxDistance)
+		if (movedDistance >= maxDistance)
 		{
 			owner.GetScene().DestroyGameObject(owner);
 		}

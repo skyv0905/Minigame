@@ -43,6 +43,10 @@ LocalData/
 **/LocalData/
 SourceLog/
 
+# Excluded media assets
+*.png
+*.mp3
+
 # Test and coverage output
 TestResults/
 *.coverage
